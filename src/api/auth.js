@@ -2,6 +2,7 @@ import api from "./axios";
 
 const authApi = {
     signIn: (data) => {
+        // return api.post('/auth/login', data);
         return api.post('/auth/login', data);
     },
     logout: () => {
@@ -22,6 +23,9 @@ const authApi = {
     information: () => {
         return api.get('/auth/my-information');
     },
+    test: () => {
+        return api.get('/club-contact');
+    }
 };
 
 export default authApi;

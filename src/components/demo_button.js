@@ -1,66 +1,34 @@
 "use client";
+import { Button } from "@/components/ui/Button"
+import authApi from "@/api/auth";
 
-import { Button } from "./ui/Button";
-import { useToasts } from "@/providers/ToastProvider";
+export default function DemoButtons() {
+  const handleGet = async () => {
 
-export function DemoButtons() {
-    const { addToast } = useToasts(); 
+    try {
+      const response = await authApi.test();
+      console.log(response);
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        addToast({ message: error.response.data.message, type: "error" });
+      }
+      //console.log(error.response);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const showToast = (type) => {
-        const messages = {
-            info: "This is an information toast",
-            success: "Operation completed successfully!",
-            warning: "Warning: This action cannot be undone",
-            error: "Error: Something went wrong",
-        };
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center p-24">
+      <h1 className="text-4xl font-bold mb-8">Improved Notification System Demo</h1>
 
-        addToast({
-            message: messages[type],
-            type: type,
-        });
-    };
-
-    return (
-        <div className="flex flex-wrap gap-3 justify-center">
-            <Button
-                onClick={() => showToast("info")} 
-                backgroundColor="bg-blue-100"
-                textColor="text-blue-700"
-                hoverBackgroundColor="hover:bg-blue-200"
-                hoverTextColor="hover:text-blue-800"
-            >
-                Info Toast
-            </Button>
-
-            <Button
-                onClick={() => showToast("success")}
-                backgroundColor="bg-green-100"
-                textColor="text-green-700"
-                hoverBackgroundColor="hover:bg-green-200"
-                hoverTextColor="hover:text-green-800"
-            >
-                Success Toast
-            </Button>
-
-            <Button
-                onClick={() => showToast("warning")}
-                backgroundColor="bg-yellow-100"
-                textColor="text-yellow-700"
-                hoverBackgroundColor="hover:bg-yellow-200"
-                hoverTextColor="hover:text-yellow-800"
-            >
-                Warning Toast
-            </Button>
-
-            <Button
-                onClick={() => showToast("error")}
-                backgroundColor="bg-red-100"
-                textColor="text-red-700"
-                hoverBackgroundColor="hover:bg-red-200"
-                hoverTextColor="hover:text-red-800"
-            >
-                Error Toast
-            </Button>
-        </div>
-    );
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-center max-w-md mb-4">
+          Click the buttons below to trigger different types of notifications. Each notification will automatically
+          disappear after 5 seconds.
+        </p>
+        <Button className="bg-red-600 text-white hover:bg-red-700" onClick = {handleGet}>Click</Button>
+      </div>
+    </main>
+  )
 }

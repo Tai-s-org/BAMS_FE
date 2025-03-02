@@ -1,19 +1,28 @@
-import { DemoButtons } from "../components/demo_button"
+import Header from "@/components/home/Header"
+import HeroSection from "@/components/home/HeroSection"
+import Banner from "@/components/home/Banner"
+import InfoSection from "@/components/home/InfoSection"
+import AchievementsSection from "@/components/home/AchievementsSection"
+import GallerySection from "@/components/home/GallerySection"
+import ContactSection from "@/components/home/ContactSection"
+import Footer from "@/components/home/Footer"
+import DemoButtons from "@/components/demo_button"
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold mb-8">Improved Notification System Demo</h1>
-
-      <div className="flex flex-col items-center gap-4">
-        <p className="text-center max-w-md mb-4">
-          Click the buttons below to trigger different types of notifications. Each notification will automatically
-          disappear after 5 seconds.
-        </p>
-
-        <DemoButtons />
-      </div>
-    </main>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-red-900 to-gray-900">
+      <Header />
+      <main>
+        
+        <Banner />
+        <HeroSection />
+        <InfoSection />
+        <AchievementsSection />
+        <GallerySection />
+        <ContactSection />
+      </main>
+      <Footer />
+      <DemoButtons />
+    </div>
   )
 }
-
