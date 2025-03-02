@@ -4,9 +4,9 @@ import { Button } from "./ui/Button";
 import { useToasts } from "@/providers/ToastProvider";
 
 export function DemoButtons() {
-    const { addToast } = useToasts(); // Đổi từ addNotification thành addToast
+    const { addToast } = useToasts(); 
 
-    const showToast = (type) => { // Đổi từ showNotification thành showToast
+    const showToast = (type) => {
         const messages = {
             info: "This is an information toast",
             success: "Operation completed successfully!",
@@ -23,7 +23,7 @@ export function DemoButtons() {
     return (
         <div className="flex flex-wrap gap-3 justify-center">
             <Button
-                onClick={() => showToast("info")} // Đổi từ showNotification thành showToast
+                onClick={() => showToast("info")} 
                 backgroundColor="bg-blue-100"
                 textColor="text-blue-700"
                 hoverBackgroundColor="hover:bg-blue-200"
