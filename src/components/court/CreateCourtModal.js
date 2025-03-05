@@ -103,8 +103,8 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Indoor">Indoor</SelectItem>
-                  <SelectItem value="Outdoor">Outdoor</SelectItem>
+                  <SelectItem value="Indoor">Trong nhà</SelectItem>
+                  <SelectItem value="Outdoor">Ngoài trời</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -118,9 +118,9 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Available">Available</SelectItem>
-                  <SelectItem value="Under Maintenance">Under Maintenance</SelectItem>
-                  <SelectItem value="Closed">Closed</SelectItem>
+                  <SelectItem value="Available">Đang hoạt động</SelectItem>
+                  <SelectItem value="Under Maintenance">Đang bảo trì</SelectItem>
+                  <SelectItem value="Closed">Đóng</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -148,7 +148,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
               name="address"
               value={formData.address}
               onChange={handleChange}
-              placeholder="123 Basketball Ave, Sports City, SC 12345"
+              placeholder="123 Basketball Ave, Đường Sports, Quận SC 12345"
               required
             />
           </div>
@@ -168,13 +168,13 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Mô tả</Label>
             <Textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Describe the court, its features, and any special information..."
+              placeholder="Mô tả của sân bóng, các tính năng,..."
               rows={4}
             />
           </div>
@@ -185,10 +185,10 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
               Hủy
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} variant="destructive">
               {isSubmitting ? "Đang Tạo..." : "Tạo Sân"}
             </Button>
           </DialogFooter>

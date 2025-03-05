@@ -84,7 +84,8 @@ export default function HomePage() {
           <p className="text-lg text-gray-500">Quản lý và theo dõi tất cả các sân bóng rổ</p>
         </div>
         <Button
-          className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-400 active:scale-95 transition-all duration-300"
+        variant="destructive"
+          className="flex items-center gap-2 text-white px-4 py-2 rounded-md shadow-md active:scale-95 transition-all duration-300"
           onClick={() => setIsCreateModalOpen(true)}
         >
           <PlusCircle className="h-4 w-4" />

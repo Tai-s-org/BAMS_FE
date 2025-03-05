@@ -54,7 +54,7 @@ export default function ImageUpload({ initialImage, onImageChange }) {
               type="button"
               variant="destructive"
               size="icon"
-              className="absolute top-3 right-3 h-9 w-9 rounded-full bg-white/90 hover:bg-white shadow-sm"
+              className="absolute top-3 right-3 h-9 w-9 rounded-full bg-red-700/90 hover:bg-red-500 shadow-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 handleRemoveImage();
@@ -68,8 +68,8 @@ export default function ImageUpload({ initialImage, onImageChange }) {
             <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center mb-3">
               <Upload className="h-8 w-8 text-primary/60" />
             </div>
-            <p className="text-base font-medium text-primary/80">Click to upload court image</p>
-            <p className="text-sm text-primary/60 mt-1">PNG, JPG, GIF up to 5MB</p>
+            <p className="text-base font-medium text-primary/80">Nhấn để thêm ảnh</p>
+            <p className="text-sm text-primary/60 mt-1">PNG, JPG, GIF lên tới 5MB</p>
           </div>
         )}
         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
