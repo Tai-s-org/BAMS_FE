@@ -94,7 +94,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="required">
-                Court Name
+              Tên Sân
               </Label>
               <Input
                 id="name"
@@ -107,14 +107,14 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="type">Court Type</Label>
+              <Label htmlFor="type">Loại Sân</Label>
               <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Indoor">Indoor</SelectItem>
-                  <SelectItem value="Outdoor">Outdoor</SelectItem>
+                <SelectItem value="Indoor">Trong nhà</SelectItem>
+                <SelectItem value="Outdoor">Ngoài trời</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -122,21 +122,21 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">Trạng Thái</Label>
               <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
                 <SelectTrigger id="status">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Available">Available</SelectItem>
-                  <SelectItem value="Under Maintenance">Under Maintenance</SelectItem>
-                  <SelectItem value="Closed">Closed</SelectItem>
+                <SelectItem value="Available">Đang hoạt động</SelectItem>
+                  <SelectItem value="Under Maintenance">Đang bảo trì</SelectItem>
+                  <SelectItem value="Closed">Đóng</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="courtKind">Court Kind</Label>
+              <Label htmlFor="courtKind">Kiểu Sân</Label>
               <Select value={formData.courtKind} onValueChange={(value) => handleSelectChange("courtKind", value)}>
                 <SelectTrigger id="courtKind">
                   <SelectValue placeholder="Select court kind" />
@@ -151,21 +151,21 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
 
           <div className="space-y-2">
             <Label htmlFor="address" className="required">
-              Address
+              Địa chỉ
             </Label>
             <Input
               id="address"
               name="address"
               value={formData.address}
               onChange={handleChange}
-              placeholder="123 Basketball Ave, Sports City, SC 12345"
+              placeholder="123 Basketball Ave, Đường Sports, Quận SC 12345"
               required
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="contact" className="required">
-              Contact
+              Số điện thoại
             </Label>
             <Input
               id="contact"
@@ -178,19 +178,19 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Mô tả</Label>
             <Textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Describe the court, its features, and any special information..."
+              placeholder="Mô tả của sân bóng, các tính năng,..."
               rows={4}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="price">Price per Hour ($)</Label>
+            <Label htmlFor="price">Giá Thuê (nghìn đồng/giờ)</Label>
             <Input id="price" name="price" type="number" min="0" value={formData.price} onChange={handleNumberChange} />
           </div>
 

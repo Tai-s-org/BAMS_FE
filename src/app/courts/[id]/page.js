@@ -103,10 +103,10 @@ export default function CourtDetailPage({ params }) {
             <div>
               <h1 className="text-2xl font-bold tracking-tight mb-2">{currentCourt.name}</h1>
               <div className="flex items-center gap-3">
-                <Badge variant="outline" className="text-primary font-medium">
+                <Badge variant="outline" className="font-medium">
                   {translateType(currentCourt.type)}
                 </Badge>
-                <Badge variant="outline" className="text-primary font-medium">
+                <Badge variant="outline" className="font-medium">
                   {currentCourt.courtKind}
                 </Badge>
               </div>
@@ -126,19 +126,19 @@ export default function CourtDetailPage({ params }) {
 
           {/* Location & Contact and Court Details */}
           <div className="grid md:grid-cols-2 gap-6">
-            <Card className="border-0 shadow-sm">
+          <Card className="border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white">
               <CardContent className="pt-6">
                 <h2 className="text-lg font-semibold mb-4">Địa Chỉ & Liên Hệ</h2>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                    <MapPin className="h-5 w-5 text-[#BD2427] mt-0.5" />
                     <div>
                       <p className="font-medium">Địa Chỉ</p>
                       <p className="text-muted-foreground">{currentCourt.address}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Phone className="h-5 w-5 text-primary mt-0.5" />
+                    <Phone className="h-5 w-5 text-[#BD2427] mt-0.5" />
                     <div>
                       <p className="font-medium">Số Điện Thoại</p>
                       <p className="text-muted-foreground">{currentCourt.contact}</p>
@@ -148,19 +148,19 @@ export default function CourtDetailPage({ params }) {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-sm">
+            <Card className="border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white">
               <CardContent className="pt-6">
                 <h2 className="text-lg font-semibold mb-4">Thông Tin Sân</h2>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <DollarSign className="h-5 w-5 text-primary mt-0.5" />
+                    <DollarSign className="h-5 w-5 text-[#BD2427] mt-0.5" />
                     <div>
                       <p className="font-medium">Giá Thuê</p>
                       <p className="text-muted-foreground">{currentCourt.price}.000đ/giờ</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Users className="h-5 w-5 text-primary mt-0.5" />
+                    <Users className="h-5 w-5 text-[#BD2427] mt-0.5" />
                     <div>
                       <p className="font-medium">Loại Sân</p>
                       <p className="text-muted-foreground">Sân {currentCourt.courtKind}</p>

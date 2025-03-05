@@ -42,7 +42,7 @@ export default function CourtList({ courts, onEdit, onDelete }) {
       {courts.map((court) => (
         <Card
           key={court.id}
-          className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 bg-white"
+          className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border bg-white"
         >
           <div className="relative h-56 w-full">
             <Image src={court.imageUrl || "/placeholder.svg"} alt={court.name} fill className="object-cover" />
@@ -57,7 +57,7 @@ export default function CourtList({ courts, onEdit, onDelete }) {
             </Badge>
             <Badge
               variant="outline"
-              className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-primary font-medium px-3 shadow-sm"
+              className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm font-medium px-3 shadow-sm"
             >
               Sân {court.courtKind}
             </Badge>
@@ -65,26 +65,26 @@ export default function CourtList({ courts, onEdit, onDelete }) {
           <CardContent className="pt-5">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-xl font-bold tracking-tight text-gray-900">{court.name}</h3>
-              <Badge variant="outline" className="font-medium text-primary">
+              <Badge variant="outline" className="font-medium">
                 {translateType(court.type)}
               </Badge>
             </div>
             <div className="space-y-2.5">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
+                <MapPin className="h-4 w-4 text-[#BD2427]" />
                 <span>{court.address}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="h-4 w-4 text-primary" />
+                <Phone className="h-4 w-4 text-[#BD2427]" />
                 <span>{court.contact}</span>
               </div>
-              <div className="flex items-center gap-1 text-base font-semibold text-primary bg-primary/5 px-3 py-1 rounded-full">
-                <DollarSign className="h-5 w-5" />
+              <div className="flex items-center gap-1 text-base font-semibold text-primary bg-primary/5 rounded-full text-[#BD2427]">
+                <DollarSign className="h-4 w-4" />
                 <span>{court.price}.000đ/giờ</span>
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between border-t p-4 bg-secondary/30">
+          <CardFooter className="flex justify-between border-t p-4 bg-[#fef8f8]">
             <Link href={`/courts/${court.id}`}>
               <Button
                 variant="outline"
@@ -111,7 +111,7 @@ export default function CourtList({ courts, onEdit, onDelete }) {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-8 w-8 text-destructive hover:text-destructive hover:border-destructive transition-all duration-300 hover:shadow-md active:scale-95 bg-white"
+                  className="h-8 w-8 text-red-500 hover:text-red-600 hover:border-text-red-600 transition-all duration-300 hover:shadow-md active:scale-95 bg-white"
                   onClick={() => onDelete(court.id)}
                 >
                   <Trash2 className="h-4 w-4" />
