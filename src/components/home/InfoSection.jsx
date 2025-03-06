@@ -24,7 +24,7 @@ const InfoSection = () => {
             title: "Cơ sở vật chất",
             content:
                 "Chúng tôi sở hữu một sân tập hiện đại với đầy đủ trang thiết bị, đảm bảo môi trường tập luyện tốt nhất cho các cầu thủ. Ngoài ra, chúng tôi còn có phòng gym và khu vực phục hồi chấn thương.",
-            image: "/facilities.jpg",
+            image: "/assets/information/information4.jpg",
         },
     ];
 

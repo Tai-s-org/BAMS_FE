@@ -40,7 +40,7 @@ const Footer = () => {
                     <div>
                         <h4 className="text-lg font-semibold mb-4 text-red-400">Theo dõi chúng tôi</h4>
                         <div className="flex space-x-4">
-                            <a href="#" className="hover:text-red-400 transition-colors">
+                            <a href="https://www.facebook.com/YenHoaBasketballTeam" className="hover:text-red-400 transition-colors">
                                 <Facebook />
                             </a>
                             <a href="#" className="hover:text-red-400 transition-colors">

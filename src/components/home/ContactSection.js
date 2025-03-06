@@ -30,7 +30,7 @@ const ContactSection = () => {
                     <div className="bg-gray-800 p-8 rounded-lg shadow-lg space-y-6">
                         <div className="flex items-center space-x-4">
                             <Mail className="w-8 h-8 text-red-400" />
-                            <span className="text-lg">contact@yenhoastorm.com</span>
+                            <span className="text-lg">yhbasketballteam@gmail.com</span>
                         </div>
                         <div className="flex items-center space-x-4">
                             <Phone className="w-8 h-8 text-red-400" />
@@ -38,11 +38,11 @@ const ContactSection = () => {
                         </div>
                         <div className="flex items-center space-x-4">
                             <MapPin className="w-8 h-8 text-red-400" />
-                            <span className="text-lg">123 Đường ABC, Quận Cầu Giấy, Hà Nội</span>
+                            <span className="text-lg">251 Đường Nguyễn Khang, Yên Hoà, Cầu Giấy, Hà Nội</span>
                         </div>
                         <div className="mt-8">
                             <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.096947243327!2d105.78894931476343!3d21.028923785994046!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab4cd0c66f05%3A0xea31563511af2e54!2zQ-G6p3U Giấy, Hà Nội, Việt Nam"
+                                src="https://maps.google.com/maps?width=600&height=400&hl=en&q=Tr%C6%B0%E1%BB%9Dng%20THPT%20Y%C3%AAn%20H%C3%B2a&t=&z=14&ie=UTF8&iwloc=B&output=embed"
                                 width="100%"
                                 height="300"
                                 style={{ border: 0 }}
