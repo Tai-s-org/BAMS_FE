@@ -84,7 +84,7 @@ export default function HomePage() {
           <p className="text-lg text-gray-500">Quản lý và theo dõi tất cả các sân bóng rổ</p>
         </div>
         <Button
-        variant="destructive"
+          variant="destructive"
           className="flex items-center gap-2 text-white px-4 py-2 rounded-md shadow-md active:scale-95 transition-all duration-300"
           onClick={() => setIsCreateModalOpen(true)}
         >
@@ -147,7 +147,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          
+
           <div className="md:col-span-2">
             <Label className="text-sm font-medium text-black block mb-2 pt-2">
               Khoảng Giá: {priceRange[0]}.000đ - {priceRange[1]}.000đ

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useToasts } from "@/providers/ToastProvider";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 import authApi from "@/api/auth";
 import FormLogin from "../form/LoginForm";
 import { useRouter } from "next/navigation";
