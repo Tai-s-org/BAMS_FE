@@ -18,6 +18,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/Alert-dialog"
+import Link from "next/link"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 // Update the mock data to include avatar URLs and date of birth
 const pendingRegistrations = [
@@ -195,6 +197,7 @@ export default function PlayerRegistrations() {
   const [registrations, setRegistrations] = useState(pendingRegistrations)
   const [selectedPlayers, setSelectedPlayers] = useState([])
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
+  const { addToast } = useToasts();
 
   const handleSelectAll = (checked) => {
     if (checked) {
@@ -214,11 +217,7 @@ export default function PlayerRegistrations() {
 
   const handleApprove = () => {
     if (selectedPlayers.length === 0) {
-      toast({
-        title: "Không có cầu thủ nào được chọn",
-        message: "Vui lòng chọn ít nhất một cầu thủ để phê duyệt.",
-        type: "error",
-      })
+      addToast({ message: "Vui lòng chọn ít nhất một cầu thủ để phê duyệt.", type: "error" });
       return
     }
 
@@ -232,12 +231,7 @@ export default function PlayerRegistrations() {
 
     setRegistrations(updatedRegistrations)
     setSelectedPlayers([])
-
-    toast({
-      title: "Đã phê duyệt cầu thủ",
-      message: `Đã phê duyệt thành công ${selectedPlayers.length} cầu thủ.`,
-      type: "success",
-    })
+    addToast({ message: `Đã phê duyệt thành công ${selectedPlayers.length} cầu thủ.`, type: "success" });
   }
 
   const handleReject = () => {
@@ -355,9 +349,9 @@ export default function PlayerRegistrations() {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">
-                      <a href={`member-assignment/player/${player.id}?type=registration`} className="text-[#BD2427] hover:underline">
+                      <Link href={`member-assignment/player/${player.id}?type=registration`} className="text-[#BD2427] hover:underline">
                         {player.name}
-                      </a>
+                      </Link>
                     </TableCell>
                     <TableCell>{player.age}</TableCell>
                     <TableCell>{player.gender}</TableCell>

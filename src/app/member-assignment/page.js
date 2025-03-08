@@ -29,5 +29,6 @@ export default function DashboardPage() {
         </TabsContent>
       </Tabs>
     </div>
+
   );
 }

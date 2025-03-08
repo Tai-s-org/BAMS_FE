@@ -1,6 +1,6 @@
 import React from "react";
 import { AnimatePresence } from "framer-motion";
-import { useToasts } from "@/providers/ToastProvider";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 import ToastItem from "./ToastItem";
 
 const ToastContainer = ({ position }) => {
