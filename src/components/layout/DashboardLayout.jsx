@@ -1,27 +1,34 @@
-import useAuth from "@/hooks/useAuth";
-import Footer from "../Footer";
-import Header from "./dashboard/Header";
-import Sidebar from "./dashboard/Sidebar";
-import OwnerSidebar from "./dashboard/OwnerSidebar";
-import LibrarianSidebar from "./dashboard/LibrarianSidebar";
+"use client";
+import { useAuth } from "@/hooks/context/AuthContext";
+import ManagerSidebar from "./dashboard/ManagerSidebar";
+import PlayerSidebar from "./dashboard/PlayerSidebar";
+import PresidentSidebar from "./dashboard/PresidentSidebar";
+import CoachSidebar from "./dashboard/CoachSidebar";
+import HeaderDashboard from "./dashboard/HeaderDashboard";
+import { SidebarProvider } from "@/hooks/context/SidebarContext";
+import SidebarInset from "../ui/sidebar/SidebarInset";
 
 const DashboardLayout = ({ children }) => {
-    const { isAdmin, isOwner, isLibrarian } = useAuth();
+    const { user } = useAuth();
+
+    if (!user) {
+        return <p>Loading...</p>; // Hoặc redirect về trang login nếu cần
+    }
 
     return (
-        <div className="flex grow">
-            {isAdmin() && <Sidebar />}
-            {isOwner() && <OwnerSidebar />}
-            {isLibrarian() && <LibrarianSidebar />}
-            <div className="wrapper flex grow flex-col">
-                <Header />
-                <main className="grow content pt-5" id="content" role="content">
-                    <div className="container-fixed" id="content_container"></div>
-                    {children}
-                </main>
-                <Footer />
+        <SidebarProvider>
+            <div className="flex h-screen w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+                {user.roleCode === "President" && <PresidentSidebar />}
+                {user.roleCode === "Manager" && <ManagerSidebar />}
+                {user.roleCode === "Player" && <PlayerSidebar />}
+                {user.roleCode === "Coach" && <CoachSidebar />}
+                <SidebarInset className="flex flex-col">
+                    <HeaderDashboard />
+                    <main className="flex-1 overflow-auto p-4">{children}</main>
+                </SidebarInset>
             </div>
-        </div>
+        </SidebarProvider>
+
     );
 };
 

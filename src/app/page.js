@@ -22,7 +22,6 @@ export default function Home() {
         <ContactSection />
       </main>
       <Footer />
-      <DemoButtons />
     </div>
   )
 }

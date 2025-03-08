@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/Dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
+import Link from "next/link"
 
 // Update the mock data to include avatar URLs and date of birth
 const approvedPlayers = [
@@ -373,9 +374,9 @@ export default function TeamAssignments() {
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">
-                    <a href={`member-assignment/player/${player.id}?type=team`} className="text-[#BD2427] hover:underline">
+                    <Link href={`member-assignment/player/${player.id}?type=team`} className="text-[#BD2427] hover:underline">
                       {player.name}
-                    </a>
+                    </Link>
                   </TableCell>
                   <TableCell>{player.age}</TableCell>
                   <TableCell>{player.gender}</TableCell>
