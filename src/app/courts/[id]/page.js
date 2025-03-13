@@ -1,29 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { MapPin, Phone, ArrowLeft, DollarSign, Users, AlertCircle } from "lucide-react";
-import { courts } from "@/lib/fake-data-court";
+import { MapPin, Phone, ArrowLeft, DollarSign, Users } from "lucide-react";
 import UpdateCourtModal from "@/components/court/UpdateCourtModal";
+import authApi from "@/api/auth";
 
-// Helper function to translate status
-const translateStatus = (status) => {
-  switch (status) {
-    case "Available":
-      return "Còn Trống";
-    case "Under Maintenance":
-      return "Đang Bảo Trì";
-    case "Closed":
-      return "Đã Đóng";
-    default:
-      return status;
-  }
-};
 
 // Helper function to translate court type
 const translateType = (type) => {
@@ -31,10 +18,27 @@ const translateType = (type) => {
 };
 
 export default function CourtDetailPage({ params }) {
-  const {id} = React.use(params);
-  const court = courts.find((c) => c.id === id);
-  const [currentCourt, setCurrentCourt] = useState(court || null);
+  const { id } = React.use(params);
+  const [currentCourt, setCurrentCourt] = useState({});
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
+  if (!id) {
+    return <div>Loading...</div>; // Handle case where courtId is not yet available
+  }
+
+  useEffect(() => {
+    const fetchCourt = async () => {
+      try {
+        const response = await authApi.courtDetail(id);
+        console.log(response.data);
+        
+        setCurrentCourt(response?.data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    fetchCourt();
+  }, [id]);
 
   if (!currentCourt) {
     notFound();
@@ -42,16 +46,6 @@ export default function CourtDetailPage({ params }) {
 
   const handleUpdateCourt = (updatedCourt) => {
     setCurrentCourt(updatedCourt);
-  };
-
-  const handleSetClosed = () => {
-    if (currentCourt) {
-      const updatedCourt = {
-        ...currentCourt,
-        status: "Closed",
-      };
-      setCurrentCourt(updatedCourt);
-    }
   };
 
   return (
@@ -72,15 +66,6 @@ export default function CourtDetailPage({ params }) {
             >
               Chỉnh Sửa
             </Button>
-            <Button
-              variant="destructive"
-              className="flex items-center gap-2 btn-hover"
-              onClick={handleSetClosed}
-              disabled={currentCourt.status === "Closed"}
-            >
-              <AlertCircle className="h-4 w-4" />
-              Đóng Sân
-            </Button>
           </div>
         </div>
 
@@ -90,7 +75,7 @@ export default function CourtDetailPage({ params }) {
           <div className="relative aspect-video w-full overflow-hidden rounded-xl border bg-muted">
             <Image
               src={currentCourt.imageUrl || "/placeholder.svg"}
-              alt={currentCourt.name}
+              alt={"Court Image"}
               fill
               className="object-cover"
               priority
@@ -101,27 +86,16 @@ export default function CourtDetailPage({ params }) {
           {/* Court Name and Status */}
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight mb-2">{currentCourt.name}</h1>
+              <h1 className="text-2xl font-bold tracking-tight mb-2">{currentCourt.courtName}</h1>
               <div className="flex items-center gap-3">
                 <Badge variant="outline" className="font-medium">
                   {translateType(currentCourt.type)}
                 </Badge>
                 <Badge variant="outline" className="font-medium">
-                  {currentCourt.courtKind}
+                  {currentCourt.kind}
                 </Badge>
               </div>
             </div>
-            <Badge
-              className={`status-badge ${
-                currentCourt.status === "Available"
-                  ? "status-badge-available"
-                  : currentCourt.status === "Under Maintenance"
-                  ? "status-badge-maintenance"
-                  : "status-badge-closed"
-              }`}
-            >
-              {translateStatus(currentCourt.status)}
-            </Badge>
           </div>
 
           {/* Location & Contact and Court Details */}
@@ -156,14 +130,14 @@ export default function CourtDetailPage({ params }) {
                     <DollarSign className="h-5 w-5 text-[#BD2427] mt-0.5" />
                     <div>
                       <p className="font-medium">Giá Thuê</p>
-                      <p className="text-muted-foreground">{currentCourt.price}.000đ/giờ</p>
+                      <p className="text-muted-foreground">{currentCourt.rentPricePerHour}.000đ/giờ</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <Users className="h-5 w-5 text-[#BD2427] mt-0.5" />
                     <div>
                       <p className="font-medium">Loại Sân</p>
-                      <p className="text-muted-foreground">Sân {currentCourt.courtKind}</p>
+                      <p className="text-muted-foreground">Sân {currentCourt.kind}</p>
                     </div>
                   </div>
                 </div>
