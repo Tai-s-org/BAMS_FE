@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import PlayerRegistrations from "@/components/member-assignment/PlayerRegistration";
 import TeamAssignments from "@/components/member-assignment/TeamAssignment";
 
-export default function DashboardPage() {
+export default function MemberAssignment() {
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6 text-[#BD2427]">Quản Lý Câu Lạc Bộ Bóng Rổ</h1>

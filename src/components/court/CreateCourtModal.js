@@ -13,7 +13,6 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import { Textarea } from "@/components/ui/Textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import ImageUpload from "@/components/ImageUpload";
 
@@ -22,11 +21,9 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
   const [formData, setFormData] = useState({
     name: "",
     type: "Indoor",
-    status: "Available",
     imageUrl: "/placeholder.svg?height=400&width=600",
     address: "",
     contact: "",
-    description: "",
     price: 0,
     courtKind: "5x5",
   });
@@ -81,46 +78,30 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
           {/* Image Upload Component */}
           <ImageUpload onImageChange={handleImageChange} />
 
+          <div className="space-y-2">
+            <Label htmlFor="name" className="required">
+              Tên Sân
+            </Label>
+            <Input
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Main Arena Court"
+              required
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="required">
-                Tên Sân
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Main Arena Court"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="type">Loại Sân</Label>
-              <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
+              <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)} className="border-0">
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Indoor">Trong nhà</SelectItem>
                   <SelectItem value="Outdoor">Ngoài trời</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="status">Trạng Thái</Label>
-              <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Available">Đang hoạt động</SelectItem>
-                  <SelectItem value="Under Maintenance">Đang bảo trì</SelectItem>
-                  <SelectItem value="Closed">Đóng</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -164,18 +145,6 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
               onChange={handleChange}
               placeholder="(555) 123-4567"
               required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Mô tả</Label>
-            <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Mô tả của sân bóng, các tính năng,..."
-              rows={4}
             />
           </div>
 

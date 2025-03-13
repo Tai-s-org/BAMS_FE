@@ -9,59 +9,71 @@ import { PlusCircle, Filter, Search } from "lucide-react";
 import CourtList from "@/components/court/CourtList";
 import CreateCourtModal from "@/components/court/CreateCourtModal";
 import UpdateCourtModal from "@/components/court/UpdateCourtModal";
-import { courts as initialCourts } from "@/lib/fake-data-court";
 import Pagination from "@/components/Pagination";
 import { Label } from "@/components/ui/Label";
+import authApi from "@/api/auth";
 
-export default function HomePage() {
-  const [courts, setCourts] = useState(initialCourts);
-  const [filteredCourts, setFilteredCourts] = useState(courts);
+export default function CourtManagement() {
+  const [courts, setCourts] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedCourt, setSelectedCourt] = useState(null);
 
   // Filtering states
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [priceRange, setPriceRange] = useState([0, 200]);
   const [courtKindFilter, setCourtKindFilter] = useState("");
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(1);
   const courtsPerPage = 6;
 
-  const applyFilters = useCallback(() => {
-    const filtered = courts.filter((court) => {
-      const matchesSearch = court.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter && statusFilter !== "all" ? court.status === statusFilter : true;
-      const matchesType = typeFilter && typeFilter !== "all" ? court.type === typeFilter : true;
-      const matchesKind = courtKindFilter && courtKindFilter !== "all" ? court.courtKind === courtKindFilter : true;
-      const matchesPrice = court.price >= priceRange[0] && court.price <= priceRange[1];
-      return matchesSearch && matchesStatus && matchesType && matchesKind && matchesPrice;
-    });
-    setFilteredCourts(filtered);
-    setCurrentPage(1);
-  }, [courts, searchTerm, statusFilter, typeFilter, courtKindFilter, priceRange]);
+  const fetchCourts = async () => {
+    try {
+      const data = {
+        CourtName: searchTerm,
+        Type: typeFilter === "all" ? "" : typeFilter,
+        Kind: courtKindFilter === "all" ? "" : courtKindFilter,
+        MinRentPricePerHour: priceRange[0],
+        MaxRentPricePerHour: priceRange[1],
+        PageNumber: currentPage,
+        PageSize: courtsPerPage
+      }
+
+      const currentCourts = await authApi.courtList(data);
+      setCourts(currentCourts?.data.items);
+      setTotalPage(currentCourts?.data.totalPages);
+      setTotalRecords(currentCourts?.data.totalRecords);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
+    if (isFilterApplied) {
+      fetchCourts();
+    }
+    setIsFilterApplied(true);
+  }, [currentPage])
 
   const handleCreateCourt = (newCourt) => {
-    const court = {
-      ...newCourt,
-      id: `court-${courts.length + 1}`,
-    };
-    setCourts([...courts, court]);
+    // const court = {
+    //   ...newCourt,
+    //   id: `court-${courts.length + 1}`,
+    // };
+    // setCourts([...courts, court]);
   };
 
   const handleUpdateCourt = (updatedCourt) => {
-    setCourts(courts.map((court) => (court.id === updatedCourt.id ? updatedCourt : court)));
+    // setCourts(courts.map((court) => (court.id === updatedCourt.id ? updatedCourt : court)));
   };
 
   const handleDeleteCourt = (id) => {
-    setCourts(courts.filter((court) => court.id !== id));
+    // setCourts(courts.filter((court) => court.id !== id));
   };
 
   const openUpdateModal = (court) => {
@@ -69,12 +81,9 @@ export default function HomePage() {
     setIsUpdateModalOpen(true);
   };
 
-  // Pagination logic
-  const indexOfLastCourt = currentPage * courtsPerPage;
-  const indexOfFirstCourt = indexOfLastCourt - courtsPerPage;
-  const currentCourts = filteredCourts.slice(indexOfFirstCourt, indexOfLastCourt);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber)
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -95,7 +104,7 @@ export default function HomePage() {
 
       {/* Search and Filters */}
       <div className="bg-[#fef8f8] p-6 rounded-lg shadow-md mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           <div className="md:col-span-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
@@ -106,19 +115,6 @@ export default function HomePage() {
                 className="pl-9 w-full py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full bg-white border border-gray-300 rounded-md shadow-sm">
-                <SelectValue placeholder="Chọn trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tất Cả</SelectItem>
-                <SelectItem value="Available">Còn Trống</SelectItem>
-                <SelectItem value="Under Maintenance">Đang Bảo Trì</SelectItem>
-                <SelectItem value="Closed">Đã Đóng</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
           <div className="space-y-2">
             <Select value={typeFilter} onValueChange={setTypeFilter}>
@@ -157,7 +153,7 @@ export default function HomePage() {
           <div className="flex items-end">
             <Button
               className="w-full bg-[#BD2427] text-white rounded-md px-4 py-2 shadow-md hover:bg-red-500 transition-all duration-300"
-              onClick={applyFilters}
+              onClick={fetchCourts}
             >
               <Filter className="h-4 w-4 mr-2" />
               Lọc
@@ -166,11 +162,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      <CourtList courts={currentCourts} onEdit={openUpdateModal} onDelete={handleDeleteCourt} />
+      <CourtList courts={courts} onEdit={openUpdateModal} onDelete={handleDeleteCourt} />
 
       <Pagination
         courtsPerPage={courtsPerPage}
-        totalCourts={filteredCourts.length}
+        totalCourts={totalRecords}
         paginate={paginate}
         currentPage={currentPage}
       />

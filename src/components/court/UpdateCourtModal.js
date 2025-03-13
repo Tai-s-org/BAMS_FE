@@ -13,23 +13,20 @@ import {
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
-import { Textarea } from "@/components/ui/Textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import ImageUpload from "@/components/ImageUpload"
 
 export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court }) {
   const router = useRouter()
   const [formData, setFormData] = useState({
-    id: "",
-    name: "",
+    courtId: "",
+    courtName: "",
     type: "Indoor",
-    status: "Available",
     imageUrl: "",
     address: "",
     contact: "",
-    description: "",
-    price: 0,
-    courtKind: "5x5",
+    rentPricePerHour: 0,
+    kind: "5x5",
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -83,7 +80,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
         <DialogHeader>
           <DialogTitle>Cập Nhật Sân</DialogTitle>
           <DialogDescription>
-            Cập nhật thông tin cho sân {court.name}. Vui lòng chỉnh sửa thông tin bên dưới.
+            Cập nhật thông tin cho sân {court.courtName}. Vui lòng chỉnh sửa thông tin bên dưới.
           </DialogDescription>
         </DialogHeader>
 
@@ -91,7 +88,6 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
           {/* Image Upload Component */}
           <ImageUpload initialImage={formData.imageUrl} onImageChange={handleImageChange} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="required">
               Tên Sân
@@ -99,14 +95,15 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
               <Input
                 id="name"
                 name="name"
-                value={formData.name}
+                value={formData.courtName}
                 onChange={handleChange}
                 placeholder="Main Arena Court"
                 required
               />
             </div>
 
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
               <Label htmlFor="type">Loại Sân</Label>
               <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
                 <SelectTrigger id="type">
@@ -118,26 +115,10 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="status">Trạng Thái</Label>
-              <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                <SelectItem value="Available">Đang hoạt động</SelectItem>
-                  <SelectItem value="Under Maintenance">Đang bảo trì</SelectItem>
-                  <SelectItem value="Closed">Đóng</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="courtKind">Kiểu Sân</Label>
-              <Select value={formData.courtKind} onValueChange={(value) => handleSelectChange("courtKind", value)}>
+              <Select value={formData.kind} onValueChange={(value) => handleSelectChange("kind", value)}>
                 <SelectTrigger id="courtKind">
                   <SelectValue placeholder="Select court kind" />
                 </SelectTrigger>
@@ -178,20 +159,8 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Mô tả</Label>
-            <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Mô tả của sân bóng, các tính năng,..."
-              rows={4}
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="price">Giá Thuê (nghìn đồng/giờ)</Label>
-            <Input id="price" name="price" type="number" min="0" value={formData.price} onChange={handleNumberChange} />
+            <Input id="price" name="price" type="number" min="0" value={formData.rentPricePerHour} onChange={handleNumberChange} />
           </div>
 
           <DialogFooter>
