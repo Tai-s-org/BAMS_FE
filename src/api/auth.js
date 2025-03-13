@@ -2,7 +2,6 @@ import api from "./axios";
 
 const authApi = {
     signIn: (data) => {
-        // return api.post('/auth/login', data);
         return api.post('/auth/login', data);
     },
     logout: () => {
