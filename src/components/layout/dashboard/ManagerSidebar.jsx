@@ -1,88 +1,37 @@
 "use client";
+import { usePathname } from "next/navigation";
 import { BarChart3, CreditCard, FileText, Grid, Home, LayoutDashboard, Package, Settings, Users, Code, Database, History } from "lucide-react";
 
-import {
-    Sidebar,
-    SidebarContent,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-} from "@/components/ui/sidebar/Sidebar";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
 
 export default function ManagerSidebar() {
+    const pathname = usePathname(); // Lấy đường dẫn hiện tại
+
     const mainMenuItems = [
         {
             title: "Home",
             icon: Home,
-            url: "#",
-            isActive: true,
+            url: "/home",
         },
     ];
 
     const menuItems = [
-        {
-            title: "Accounts",
-            icon: LayoutDashboard,
-            url: "#",
-        },
-        {
-            title: "Payments",
-            icon: CreditCard,
-            url: "#",
-        },
-        {
-            title: "Balances",
-            icon: BarChart3,
-            url: "#",
-        },
-        {
-            title: "Customers",
-            icon: Users,
-            url: "#",
-        },
-        {
-            title: "Products",
-            icon: Package,
-            url: "#",
-        },
-        {
-            title: "Reports",
-            icon: FileText,
-            url: "#",
-        },
+        { title: "Accounts", icon: LayoutDashboard, url: "/accounts" },
+        { title: "Payments", icon: CreditCard, url: "/payments" },
+        { title: "Balances", icon: BarChart3, url: "/balances" },
+        { title: "Customers", icon: Users, url: "/customers" },
+        { title: "Products", icon: Package, url: "/products" },
+        { title: "Reports", icon: FileText, url: "/reports" },
     ];
 
     const generalItems = [
-        {
-            title: "Developers",
-            icon: Code,
-            url: "#",
-        },
-        {
-            title: "View Test Data",
-            icon: Database,
-            url: "#",
-        },
-        {
-            title: "Settings",
-            icon: Settings,
-            url: "#",
-            highlight: true,
-        },
+        { title: "Developers", icon: Code, url: "/developers" },
+        { title: "View Test Data", icon: Database, url: "/test-data" },
+        { title: "Settings", icon: Settings, url: "/settings", highlight: true },
     ];
 
-    const updatesItems = [
-        {
-            title: "Changelog",
-            icon: History,
-            url: "#",
-        },
-    ];
+    const updatesItems = [{ title: "Changelog", icon: History, url: "/changelog" }];
 
     return (
         <Sidebar className="border-r border-sidebar-border bg-[#1F2937]">
@@ -92,25 +41,28 @@ export default function ManagerSidebar() {
                         <Grid className="h-5 w-5" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-lg font-semibold text-white">Acme Co.</span>
-                        <span className="text-xs text-gray-400">Palo Alto, CA</span>
+                        <span className="text-lg font-semibold text-white">Yên Hòa Storm</span>
+                        <span className="text-xs text-gray-400">Quản lý</span>
                     </div>
                 </div>
                 <SidebarMenu>
-                    {mainMenuItems.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton
-                                asChild
-                                isActive={item.isActive}
-                                className="hover:bg-[#bd2427]/30 data-[active=true]:bg-[#bd2427] data-[active=true]:text-white"
-                            >
-                                <a href={item.url} className="flex items-center gap-2 text-white">
-                                    <item.icon className="h-5 w-5 text-white" />
-                                    <span className="text-white">{item.title}</span>
-                                </a>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    ))}
+                    {mainMenuItems.map((item) => {
+                        const isActive = pathname === item.url;
+                        return (
+                            <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton
+                                    asChild
+                                    className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
+                                        }`}
+                                >
+                                    <a href={item.url} className="flex items-center gap-2">
+                                        <item.icon className="h-5 w-5" />
+                                        <span>{item.title}</span>
+                                    </a>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        );
+                    })}
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
@@ -118,16 +70,23 @@ export default function ManagerSidebar() {
                     <SidebarGroupLabel className="text-xs font-semibold text-gray-400">Main Menu</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {menuItems.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild className="hover:bg-[#bd2427]/30 hover:text-white">
-                                        <a href={item.url} className="flex items-center gap-2 text-white">
-                                            <item.icon className="h-5 w-5 text-white" />
-                                            <span className="text-white">{item.title}</span>
-                                        </a>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
+                            {menuItems.map((item) => {
+                                const isActive = pathname === item.url;
+                                return (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
+                                                }`}
+                                        >
+                                            <a href={item.url} className="flex items-center gap-2">
+                                                <item.icon className="h-5 w-5" />
+                                                <span>{item.title}</span>
+                                            </a>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                );
+                            })}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
@@ -136,23 +95,23 @@ export default function ManagerSidebar() {
                     <SidebarGroupLabel className="text-xs font-semibold text-gray-400">General</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {generalItems.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        className={
-                                            item.highlight
-                                                ? "text-[#bd2427] hover:bg-[#bd2427]/30 hover:text-white"
-                                                : "hover:bg-[#bd2427]/30 hover:text-white"
-                                        }
-                                    >
-                                        <a href={item.url} className="flex items-center gap-2 text-white">
-                                            <item.icon className={`h-5 w-5 ${item.highlight ? "text-[#bd2427]" : "text-white"}`} />
-                                            <span className="text-white">{item.title}</span>
-                                        </a>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
+                            {generalItems.map((item) => {
+                                const isActive = pathname === item.url;
+                                return (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : item.highlight ? "text-[#bd2427]" : "text-white"
+                                                }`}
+                                        >
+                                            <a href={item.url} className="flex items-center gap-2">
+                                                <item.icon className={`h-5 w-5 ${isActive ? "text-white" : item.highlight ? "text-[#bd2427]" : "text-white"}`} />
+                                                <span>{item.title}</span>
+                                            </a>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                );
+                            })}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
@@ -161,16 +120,23 @@ export default function ManagerSidebar() {
                     <SidebarGroupLabel className="text-xs font-semibold text-gray-400">Updates</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {updatesItems.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild className="hover:bg-[#bd2427]/30 hover:text-white">
-                                        <a href={item.url} className="flex items-center gap-2 text-white">
-                                            <item.icon className="h-5 w-5 text-white" />
-                                            <span className="text-white">{item.title}</span>
-                                        </a>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
+                            {updatesItems.map((item) => {
+                                const isActive = pathname === item.url;
+                                return (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton
+                                            asChild
+                                            className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
+                                                }`}
+                                        >
+                                            <a href={item.url} className="flex items-center gap-2">
+                                                <item.icon className="h-5 w-5" />
+                                                <span>{item.title}</span>
+                                            </a>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                );
+                            })}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

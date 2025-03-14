@@ -59,7 +59,7 @@ export default function ProfileHeader({
                                     <Badge className="bg-white text-red-700 hover:bg-gray-100">
                                         <User className="h-3 w-3 mr-1" />@{user.username}
                                     </Badge>
-                                    <Badge className="bg-red-600 text-white hover:bg-red-500">
+                                    <Badge className="bg-red-900 text-white hover:bg-red-500">
                                         <Shield className="h-3 w-3 mr-1" />
                                         {user.roleCode}
                                     </Badge>

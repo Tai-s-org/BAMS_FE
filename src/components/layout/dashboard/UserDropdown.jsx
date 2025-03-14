@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { LogOut, Settings, User, CreditCard, History, Users, UserPlus, HelpCircle, MessageSquare } from "lucide-react";
+import { LogOut, Settings, User, CreditCard, History, Users, UserPlus, HelpCircle, MessageSquare, KeyRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/context/AuthContext";
@@ -17,8 +17,8 @@ export function UserDropdown({ user }) {
 
     const menuItems = [
         { icon: User, label: "View Profile", href: "/profile" },
-        { icon: Settings, label: "Settings", href: "/settings", highlight: true },
-        { icon: CreditCard, label: "Subscription", href: "/subscription" },
+        { icon: Settings, label: "Settings", href: "/settings" },
+        { icon: KeyRound, label: "Đổi mật khẩu", href: "/change-password" },
         { icon: History, label: "Changelog", href: "/changelog" },
         { icon: Users, label: "Team", href: "/team" },
         { icon: UserPlus, label: "Invite Member", href: "/invite" },
