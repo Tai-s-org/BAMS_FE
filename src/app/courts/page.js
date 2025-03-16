@@ -84,8 +84,9 @@ export default function CourtManagement() {
 
   const handleDeleteCourt = async (id) => {
     try {
-      authApi.deleteCourt(id);
+      await authApi.deleteCourt(id);
       setIsModified(!isModified);
+      await fetchCourts();
     } catch (err) {
       console.error(err);
     }
