@@ -15,11 +15,11 @@ export default function TeamCreationForm() {
     e.preventDefault();
 
     if (!teamName.trim()) {
-      toast({
-        title: "Lỗi",
-        description: "Vui lòng nhập tên đội",
-        variant: "destructive",
-      });
+      // toast({
+      //   title: "Lỗi",
+      //   description: "Vui lòng nhập tên đội",
+      //   variant: "destructive",
+      // });
       return;
     }
 
@@ -29,11 +29,11 @@ export default function TeamCreationForm() {
     setTimeout(() => {
       setIsSubmitting(false);
       setTeamName("");
-      toast({
-        title: "Đã tạo đội thành công",
-        description: `Đội bóng "${teamName}" đã được tạo.`,
-      });
-    }, 1500);
+      // toast({
+      //   title: "Đã tạo đội thành công",
+      //   description: `Đội bóng "${teamName}" đã được tạo.`,
+      // });
+    }, 100);
   };
 
   return (

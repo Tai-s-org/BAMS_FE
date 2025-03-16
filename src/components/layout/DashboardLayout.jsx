@@ -14,7 +14,6 @@ const DashboardLayout = ({ children }) => {
     if (!user) {
         return <p>Loading...</p>; // Hoặc redirect về trang login nếu cần
     }
-    console.log(user.roleCode);
     
     return (
         <SidebarProvider>

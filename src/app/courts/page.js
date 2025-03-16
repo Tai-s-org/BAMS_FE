@@ -25,6 +25,7 @@ export default function CourtManagement() {
   const [priceRange, setPriceRange] = useState([0, 200]);
   const [courtKindFilter, setCourtKindFilter] = useState("");
   const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [isModified, setIsModified] = useState(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -58,22 +59,36 @@ export default function CourtManagement() {
       fetchCourts();
     }
     setIsFilterApplied(true);
-  }, [currentPage])
+  }, [currentPage, isModified])
 
-  const handleCreateCourt = (newCourt) => {
-    // const court = {
-    //   ...newCourt,
-    //   id: `court-${courts.length + 1}`,
-    // };
-    // setCourts([...courts, court]);
+  const handleCreateCourt = async (newCourt) => {
+    try {
+      const response = await authApi.createCourt(newCourt);
+      setIsCreateModalOpen(false);
+      setIsModified(!isModified);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleUpdateCourt = (updatedCourt) => {
-    // setCourts(courts.map((court) => (court.id === updatedCourt.id ? updatedCourt : court)));
+    try {
+      console.log("Updated court 1", updatedCourt);
+
+      setIsCreateModalOpen(false);
+      setIsModified(!isModified);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDeleteCourt = (id) => {
-    // setCourts(courts.filter((court) => court.id !== id));
+  const handleDeleteCourt = async (id) => {
+    try {
+      authApi.deleteCourt(id);
+      setIsModified(!isModified);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const openUpdateModal = (court) => {
