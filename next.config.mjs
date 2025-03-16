@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-        domains: ["letsenhance.io"], // Add your external hostname(s) here
+        domains: ["bamsapi.tranhiep.id.vn"], // Add your external hostname(s) here
       },
 };
 

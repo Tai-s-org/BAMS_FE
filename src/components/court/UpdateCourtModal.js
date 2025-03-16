@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import ImageUpload from "@/components/ImageUpload"
+import authApi from "@/api/auth"
 
 export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court }) {
   const router = useRouter()
@@ -53,6 +54,11 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
   }
 
   const handleImageChange = (imageUrl) => {
+    if (!formData.imageUrl.trim()) {
+      setImageWarning("Vui lòng chọn ảnh sân.");
+    } else {
+      setImageWarning(null);
+    }
     setFormData((prev) => ({ ...prev, imageUrl }))
   }
 
@@ -60,9 +66,22 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
     e.preventDefault()
     setIsSubmitting(true)
 
+    if (!formData.imageUrl.trim()) {
+      setImageWarning("Vui lòng chọn ảnh sân.");
+      setIsSubmitting(false);
+      return;
+    } else {
+      setImageWarning(null);
+    }
+
     try {
       // In a real app, you would make an API call here
-      onUpdateCourt(formData)
+      console.log("Updated court", formData);
+      const response = await authApi.updateCourt(formData);
+      console.log("Upadted response", response);
+      
+      onUpdateCourt(response?.data.data);
+      
       onClose()
       router.refresh()
     } catch (error) {
@@ -86,7 +105,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
 
         <form onSubmit={handleSubmit} className="space-y-6 py-4">
           {/* Image Upload Component */}
-          <ImageUpload initialImage={formData.imageUrl} onImageChange={handleImageChange} />
+          <ImageUpload initialImage={process.env.NEXT_PUBLIC_IMAGE_API_URL + formData.imageUrl} onImageChange={handleImageChange} />
 
             <div className="space-y-2">
               <Label htmlFor="name" className="required">
@@ -94,7 +113,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
               </Label>
               <Input
                 id="name"
-                name="name"
+                name="courtName"
                 value={formData.courtName}
                 onChange={handleChange}
                 placeholder="Main Arena Court"
@@ -117,9 +136,9 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="courtKind">Kiểu Sân</Label>
+              <Label htmlFor="kind">Kiểu Sân</Label>
               <Select value={formData.kind} onValueChange={(value) => handleSelectChange("kind", value)}>
-                <SelectTrigger id="courtKind">
+                <SelectTrigger id="kind">
                   <SelectValue placeholder="Select court kind" />
                 </SelectTrigger>
                 <SelectContent>
