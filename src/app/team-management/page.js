@@ -8,6 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 export default function TeamManagement() {
   const [activeTab, setActiveTab] = useState("view");
 
+  const handleCreatedTeam = () => {
+    setActiveTab("view");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-[#BD2427] text-white p-4 shadow-md">
@@ -18,8 +22,8 @@ export default function TeamManagement() {
 
       <main className="container mx-auto py-6 px-4">
         <div className="mt-4">
-          <Tabs defaultValue="view" onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs key={activeTab} value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1">
               <TabsTrigger value="view">Xem Đội</TabsTrigger>
               <TabsTrigger value="create">Tạo Đội Mới</TabsTrigger>
             </TabsList>
@@ -27,7 +31,7 @@ export default function TeamManagement() {
               <TeamDetails />
             </TabsContent>
             <TabsContent value="create">
-              <TeamCreationForm />
+              <TeamCreationForm onTeamCreated={handleCreatedTeam} />
             </TabsContent>
           </Tabs>
         </div>

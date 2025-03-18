@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
+import authApi from "@/api/auth";
 // import { toast } from "@/components/";
 
-export default function TeamCreationForm() {
+export default function TeamCreationForm({onTeamCreated}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [teamName, setTeamName] = useState("");
 
@@ -26,14 +27,19 @@ export default function TeamCreationForm() {
     setIsSubmitting(true);
 
     // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await authApi.createTeam({ teamName: teamName, status: 0 });
+      console.log("Response: ", response?.data.data);
+
+      if (onTeamCreated) {
+        onTeamCreated();
+      }
+    } catch (error) {
+      console.error("Error creating team:", error);
+    } finally {
       setIsSubmitting(false);
-      setTeamName("");
-      // toast({
-      //   title: "Đã tạo đội thành công",
-      //   description: `Đội bóng "${teamName}" đã được tạo.`,
-      // });
-    }, 100);
+      console.log("Created team:", teamName);
+    }
   };
 
   return (
