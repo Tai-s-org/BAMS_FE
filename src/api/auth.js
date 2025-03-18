@@ -64,6 +64,9 @@ const authApi = {
     createTeam: (data) => {
         return api.post('/team/create', data);
     },
+    dissolveTeam: (id) => {
+        return api.delete(`/team/teams/${id}`);
+    }
 };
 
 export default authApi;

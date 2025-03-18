@@ -101,11 +101,11 @@ export default function TeamDetails() {
     // });
   };
 
-  const submitStatus = async () => {
+  const submitDissolve = async () => {
     try {
       console.log("id:",selectedTeamId);
       
-      const response = await authApi.updateTeamStatus(selectedTeamId);
+      const response = await authApi.dissolveTeam(selectedTeamId);
       console.log("Response: ", response);
     } catch (error) {
       console.error("Error updating team name:", error);
@@ -113,13 +113,13 @@ export default function TeamDetails() {
   };
 
   const handleToggleStatus = (team) => {
-    const newStatus = team.status === 1 ? 0 : 1;
-
-    const updatedTeams = teams.map((t) => (t.teamId === team.teamId ? { ...t, status: newStatus } : t));
+  
+    const updatedTeams = teams.filter((t) => (t.teamId != team.teamId ));
 
     setTeams(updatedTeams);
-    setSelectedTeam({ ...selectedTeam, status: newStatus });
-    submitStatus();
+    submitDissolve();
+    setSelectedTeam(updatedTeams[0]);
+    setSelelectedTeamId(updatedTeams[0].teamId);
     // toast({
     //   title: "Thành công",
     //   description: newStatus === 1 ? "Đã kích hoạt đội" : "Đã vô hiệu hóa đội",
@@ -136,7 +136,7 @@ export default function TeamDetails() {
 
   return (
     <div className="space-y-6">
-      {teams.length > 0 && <Tabs defaultValue={teams[0].teamId.toString()} className="w-full">
+      {teams.length > 0 && <Tabs className="w-full">
         <TabsList className="w-full justify-start overflow-auto bg-gray-100 p-1">
           {teams.map((team) => (
             <TabsTrigger
@@ -146,11 +146,6 @@ export default function TeamDetails() {
               className={team.teamId === selectedTeamId ? "border-2 border-red-400 bg-white p-2 rounded-md" : "border-2 border-red-200 border-r-red-500 rounded-md opacity-60 p-2"}
             >
               {team.teamName}
-              {team.status === 1 && (
-                <Badge variant="outline" className="ml-2 text-xs">
-                  Vô hiệu
-                </Badge>
-              )}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -179,11 +174,6 @@ export default function TeamDetails() {
                     <>
                       <div className="flex items-center gap-2">
                         <CardTitle>{team.teamName}</CardTitle>
-                        {team.status === 1 && (
-                          <Badge variant="outline" className="text-xs">
-                            Đã vô hiệu hóa
-                          </Badge>
-                        )}
                       </div>
                       <CardDescription>Thành lập năm {team.foundedYear}</CardDescription>
                     </>
@@ -200,13 +190,13 @@ export default function TeamDetails() {
                     <span>Sửa tên</span>
                   </Button>
                   <Button
-                    variant={team.status === 0 ? "destructive" : "default"}
+                    variant={"destructive"}
                     size="sm"
-                    className={team.status === 0 ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}
+                    className={"bg-red-600 hover:bg-red-700"}
                     onClick={() => handleToggleStatus(team)}
                   >
                     <Power className="h-4 w-4 mr-1" />
-                    {team.status === 0 ? "Vô hiệu hóa" : "Kích hoạt"}
+                     Giải tán đội
                   </Button>
                 </div>
               </CardHeader>
