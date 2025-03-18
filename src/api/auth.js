@@ -49,6 +49,21 @@ const authApi = {
     deleteCourt: (id) => {
         return api.put(`/court/disable/${id}`);
     },
+    listTeams: (data) => {
+        return api.get('/team', {params: data});
+    },
+    teamDetail: (id) => {
+        return api.get(`/team/${id}`);
+    },
+    updateTeamName: (data, id) => {
+        return api.put(`/team/${id}`, data);
+    },
+    updateTeamStatus: (id) => {
+        return api.delete(`/team/teams/${id}`);
+    },
+    createTeam: (data) => {
+        return api.post('/team/create', data);
+    },
 };
 
 export default authApi;
