@@ -13,26 +13,25 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import { Textarea } from "@/components/ui/Textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import ImageUpload from "@/components/ImageUpload";
 
 export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
   const router = useRouter();
+  const [imageWarning, setImageWarning] = useState(null);
+  const [priceWarning, setPriceWarning] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
+    courtName: "",
     type: "Indoor",
-    status: "Available",
-    imageUrl: "/placeholder.svg?height=400&width=600",
+    imageUrl: "",
     address: "",
     contact: "",
-    description: "",
-    price: 0,
-    courtKind: "5x5",
+    rentPricePerHour: 0,
+    kind: "5x5",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -40,7 +39,11 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
 
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: Number.parseInt(value) || 0 }));
+    if (value < 0 || value > 500) {
+      setPriceWarning("Giá phải trong khoảng 0 - 500");
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: Number.parseInt(value) }));
   };
 
   const handleSelectChange = (name, value) => {
@@ -48,12 +51,25 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
   };
 
   const handleImageChange = (imageUrl) => {
+    if (!formData.imageUrl.trim()) {
+      setImageWarning("Vui lòng chọn ảnh sân.");
+    } else {
+      setImageWarning(null);
+    }
     setFormData((prev) => ({ ...prev, imageUrl }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    if (!formData.imageUrl.trim()) {
+      setImageWarning("Vui lòng chọn ảnh sân.");
+      setIsSubmitting(false);
+      return;
+    } else {
+      setImageWarning(null);
+    }
 
     try {
       // In a real app, you would make an API call here
@@ -79,26 +95,27 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
 
         <form onSubmit={handleSubmit} className="space-y-6 py-4">
           {/* Image Upload Component */}
-          <ImageUpload onImageChange={handleImageChange} />
+          <ImageUpload onImageChange={handleImageChange}/>
+          {imageWarning && <div className="text-red-500 text-sm">{imageWarning}</div>}
+
+          <div className="space-y-2">
+            <Label htmlFor="courtName" className="required">
+              Tên Sân
+            </Label>
+            <Input
+              id="courtName"
+              name="courtName"
+              value={formData.courtName}
+              onChange={handleChange}
+              placeholder="Main Arena Court"
+              required
+            />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="required">
-                Tên Sân
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Main Arena Court"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="type">Loại Sân</Label>
-              <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
+              <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)} className="border-0">
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -108,27 +125,11 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="status">Trạng Thái</Label>
-              <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Available">Đang hoạt động</SelectItem>
-                  <SelectItem value="Under Maintenance">Đang bảo trì</SelectItem>
-                  <SelectItem value="Closed">Đóng</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
             <div className="space-y-2">
-              <Label htmlFor="courtKind">Kiểu Sân</Label>
-              <Select value={formData.courtKind} onValueChange={(value) => handleSelectChange("courtKind", value)}>
-                <SelectTrigger id="courtKind">
+              <Label htmlFor="kind">Kiểu Sân</Label>
+              <Select value={formData.kind} onValueChange={(value) => handleSelectChange("kind", value)}>
+                <SelectTrigger id="kind">
                   <SelectValue placeholder="Select court kind" />
                 </SelectTrigger>
                 <SelectContent>
@@ -168,21 +169,10 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Mô tả</Label>
-            <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Mô tả của sân bóng, các tính năng,..."
-              rows={4}
-            />
+            <Label htmlFor="rentPricePerHour">Giá Thuê (nghìn đồng/giờ)</Label>
+            <Input id="rentPricePerHour" name="rentPricePerHour" type="number" value={formData.rentPricePerHour} onChange={handleNumberChange} />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="price">Giá Thuê (nghìn đồng/giờ)</Label>
-            <Input id="price" name="price" type="number" min="0" value={formData.price} onChange={handleNumberChange} />
-          </div>
+          {priceWarning && <div className="text-red-500 text-sm">{priceWarning}</div>}
 
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>

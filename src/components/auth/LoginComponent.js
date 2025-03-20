@@ -23,7 +23,7 @@ export default function LoginComponent() {
             addToast({ message: response.data.message, type: "success" });
             console.log(response.data.user);
             login(response.data.user);
-            router.push('/')
+            router.push('/dashboard')
         } catch (error) {
             if (error.response && error.response.data && error.response.data.message) {
                 addToast({ message: error.response.data.message, type: "error" });

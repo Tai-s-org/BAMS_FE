@@ -6,65 +6,31 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardFooter } from "@/components/ui/Card";
 import { MapPin, Phone, Edit, Trash2, ExternalLink, DollarSign } from "lucide-react";
 
-const translateStatus = (status) => {
-  switch (status) {
-    case "Available":
-      return "Còn Trống";
-    case "Under Maintenance":
-      return "Đang Bảo Trì";
-    case "Closed":
-      return "Đã Đóng";
-    default:
-      return status;
-  }
-};
-
 const translateType = (type) => {
   return type === "Indoor" ? "Trong Nhà" : "Ngoài Trời";
 };
 
-const getStatusBadgeColor = (status) => {
-  switch (status) {
-    case "Available":
-      return "bg-emerald-500 text-white";
-    case "Under Maintenance":
-      return "bg-amber-500 text-white";
-    case "Closed":
-      return "bg-red-500 text-white";
-    default:
-      return "bg-gray-500 text-white";
-  }
-};
-
-export default function CourtList({ courts, onEdit, onDelete }) {
+export default function CourtList({ courts, onEdit, onDelete }) {  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {courts.map((court) => (
+      {courts.length == 0 ? <h1 className="text-3xl font-bold tracking-tight text-gray-900">Start filter to show courts</h1> : courts?.map((court) => (
         <Card
-          key={court.id}
+          key={court.courtId}
           className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border bg-white"
         >
           <div className="relative h-56 w-full">
-            <Image src={court.imageUrl || "/placeholder.svg"} alt={court.name} fill className="object-cover" />
+            <Image src={(process.env.NEXT_PUBLIC_IMAGE_API_URL + court.imageUrl) || "/placeholder.svg"} alt={"Court Images"} fill className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-            <Badge
-              className={cn(
-                "absolute top-3 right-3 border-0 font-medium px-3 shadow-sm",
-                getStatusBadgeColor(court.status),
-              )}
-            >
-              {translateStatus(court.status)}
-            </Badge>
             <Badge
               variant="outline"
               className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm font-medium px-3 shadow-sm"
             >
-              Sân {court.courtKind}
+              Sân {court.kind}
             </Badge>
           </div>
           <CardContent className="pt-5">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-xl font-bold tracking-tight text-gray-900">{court.name}</h3>
+              <h3 className="text-2xl font-bold tracking-tight text-gray-900">{court.courtName}</h3>
               <Badge variant="outline" className="font-medium">
                 {translateType(court.type)}
               </Badge>
@@ -80,12 +46,12 @@ export default function CourtList({ courts, onEdit, onDelete }) {
               </div>
               <div className="flex items-center gap-1 text-base font-semibold text-primary bg-primary/5 rounded-full text-[#BD2427]">
                 <DollarSign className="h-4 w-4" />
-                <span>{court.price}.000đ/giờ</span>
+                <span>{court.rentPricePerHour}.000đ/giờ</span>
               </div>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between border-t p-4 bg-[#fef8f8]">
-            <Link href={`/courts/${court.id}`}>
+            <Link href={`/courts/${court.courtId}`}>
               <Button
                 variant="outline"
                 size="sm"
@@ -112,7 +78,7 @@ export default function CourtList({ courts, onEdit, onDelete }) {
                   variant="outline"
                   size="icon"
                   className="h-8 w-8 text-red-500 hover:text-red-600 hover:border-text-red-600 transition-all duration-300 hover:shadow-md active:scale-95 bg-white"
-                  onClick={() => onDelete(court.id)}
+                  onClick={() => onDelete(court.courtId)}
                 >
                   <Trash2 className="h-4 w-4" />
                   <span className="sr-only">Xóa</span>
