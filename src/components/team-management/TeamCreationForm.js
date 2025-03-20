@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import authApi from "@/api/auth";
+import teamApi from "@/api/team";
 // import { toast } from "@/components/";
 
 export default function TeamCreationForm({onTeamCreated}) {
@@ -28,8 +28,7 @@ export default function TeamCreationForm({onTeamCreated}) {
 
     // Simulate API call
     try {
-      const response = await authApi.createTeam({ teamName: teamName, status: 0 });
-      console.log("Response: ", response?.data.data);
+      const response = await teamApi.createTeam({ teamName: teamName, status: 0 });
 
       if (onTeamCreated) {
         onTeamCreated();
@@ -38,7 +37,6 @@ export default function TeamCreationForm({onTeamCreated}) {
       console.error("Error creating team:", error);
     } finally {
       setIsSubmitting(false);
-      console.log("Created team:", teamName);
     }
   };
 

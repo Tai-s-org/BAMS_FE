@@ -149,7 +149,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
               name="address"
               value={formData.address}
               onChange={handleChange}
-              placeholder="123 Basketball Ave, Đường Sports, Quận SC 12345"
+              placeholder="251 Nguyễn Khang, Cầu Giấy, Hà Nội"
               required
             />
           </div>
@@ -163,7 +163,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
               name="contact"
               value={formData.contact}
               onChange={handleChange}
-              placeholder="(555) 123-4567"
+              placeholder="(+84) 0987654321"
               required
             />
           </div>
