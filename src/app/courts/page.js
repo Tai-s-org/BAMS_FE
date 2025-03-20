@@ -12,8 +12,13 @@ import UpdateCourtModal from "@/components/court/UpdateCourtModal";
 import Pagination from "@/components/Pagination";
 import { Label } from "@/components/ui/Label";
 import courtApi from "@/api/court";
+import { useAuth } from "@/hooks/context/AuthContext";
 
 export default function CourtManagement() {
+  const { user } = useAuth();
+
+  if (user.roleCode !== "Manager") return <p>Khong co quyen truy cap bro</p>
+
   const [courts, setCourts] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);

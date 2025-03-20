@@ -197,19 +197,6 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                       </p>
                     </div>
                   </div>
-                  <div className="bg-yellow-50 rounded-lg p-3 flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                      <Clock className="h-5 w-5 text-yellow-600" />
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-yellow-800">Đi trễ</p>
-                      <p className="text-xl font-semibold text-yellow-900">
-                        {activeTab === "coaches"
-                          ? getStatusCount(coachAttendance, "late")
-                          : getStatusCount(playerAttendance, "late")}
-                      </p>
-                    </div>
-                  </div>
                   <div className="bg-gray-50 rounded-lg p-3 flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
                       <span className="text-gray-600 font-medium">?</span>
@@ -304,18 +291,6 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   >
                                     <X className="mr-1 h-4 w-4" />
                                     Vắng mặt
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => updateCoachStatus(coach.id, "late")}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      attendance.status === "late"
-                                        ? "bg-yellow-100 text-yellow-800 ring-2 ring-yellow-500"
-                                        : "bg-gray-100 text-gray-800 hover:bg-yellow-50 hover:text-yellow-700"
-                                    }`}
-                                  >
-                                    <Clock className="mr-1 h-4 w-4" />
-                                    Đi trễ
                                   </button>
                                 </div>
                               </td>
@@ -424,18 +399,6 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   >
                                     <X className="mr-1 h-4 w-4" />
                                     Vắng mặt
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => updatePlayerStatus(player.id, "late")}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      attendance.status === "late"
-                                        ? "bg-yellow-100 text-yellow-800 ring-2 ring-yellow-500"
-                                        : "bg-gray-100 text-gray-800 hover:bg-yellow-50 hover:text-yellow-700"
-                                    }`}
-                                  >
-                                    <Clock className="mr-1 h-4 w-4" />
-                                    Đi trễ
                                   </button>
                                 </div>
                               </td>
