@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardFooter } from "@/components/ui/Card";
-import { MapPin, Phone, Edit, Trash2, ExternalLink, DollarSign } from "lucide-react";
+import { MapPin, Phone, Edit, Trash2, Eye, DollarSign } from "lucide-react";
 
 const translateType = (type) => {
   return type === "Indoor" ? "Trong Nhà" : "Ngoài Trời";
@@ -57,7 +57,7 @@ export default function CourtList({ courts, onEdit, onDelete }) {
                 size="sm"
                 className="flex items-center gap-1.5 transition-all duration-300 hover:shadow-md active:scale-95 bg-white"
               >
-                <ExternalLink className="h-4 w-4" />
+                <Eye className="h-4 w-4" />
                 Xem Chi Tiết
               </Button>
             </Link>

@@ -137,7 +137,7 @@ export default function TeamDetails() {
               key={team.teamId}
               value={team.teamId.toString()}
               onClick={() => handleSelectTeam(team)}
-              className={team.teamId === selectedTeamId ? "border-2 border-red-400 bg-white p-2 rounded-md mr-2" : "border-2 border-red-200 border-r-red-500 rounded-md opacity-60 p-2"}
+              className={team.teamId === selectedTeamId ? "border-2 border-red-400 bg-white p-2 rounded-md mx-1" : "border-2 border-red-200 border-r-red-500 rounded-md opacity-60 p-2 mx-1"}
             >
               {team.teamName}
             </TabsTrigger>
