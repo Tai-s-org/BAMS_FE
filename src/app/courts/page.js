@@ -11,7 +11,7 @@ import CreateCourtModal from "@/components/court/CreateCourtModal";
 import UpdateCourtModal from "@/components/court/UpdateCourtModal";
 import Pagination from "@/components/Pagination";
 import { Label } from "@/components/ui/Label";
-import authApi from "@/api/auth";
+import courtApi from "@/api/court";
 
 export default function CourtManagement() {
   const [courts, setCourts] = useState([]);
@@ -45,7 +45,7 @@ export default function CourtManagement() {
         PageSize: courtsPerPage
       }
 
-      const currentCourts = await authApi.courtList(data);
+      const currentCourts = await courtApi.courtList(data);
       setCourts(currentCourts?.data.items);
       setTotalPage(currentCourts?.data.totalPages);
       setTotalRecords(currentCourts?.data.totalRecords);
@@ -63,7 +63,7 @@ export default function CourtManagement() {
 
   const handleCreateCourt = async (newCourt) => {
     try {
-      const response = await authApi.createCourt(newCourt);
+      const response = await courtApi.createCourt(newCourt);
       setIsCreateModalOpen(false);
       setIsModified(!isModified);
     } catch (err) {
@@ -84,7 +84,7 @@ export default function CourtManagement() {
 
   const handleDeleteCourt = async (id) => {
     try {
-      await authApi.deleteCourt(id);
+      await courtApi.deleteCourt(id);
       setIsModified(!isModified);
       await fetchCourts();
     } catch (err) {

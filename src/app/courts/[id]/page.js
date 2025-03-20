@@ -3,15 +3,19 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { MapPin, Phone, ArrowLeft, DollarSign, Users } from "lucide-react";
 import UpdateCourtModal from "@/components/court/UpdateCourtModal";
-import authApi from "@/api/auth";
+import courtApi from "@/api/court";
+import { useAuth } from "@/hooks/context/AuthContext";
 
 export default function CourtDetailPage({ params }) {
+  const { user } = useAuth();
+
+  if (user.roleCode !== "Manager") return <p>Khong co quyen truy cap bro</p>
+
   const { id } = React.use(params);
   const [currentCourt, setCurrentCourt] = useState();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -22,22 +26,17 @@ export default function CourtDetailPage({ params }) {
 
   const fetchCourt = async () => {
     try {
-      const response = await authApi.courtDetail(id);
-      console.log("Response: ", response);
+      const response = await courtApi.courtDetail(id);
       if (response)
         setCurrentCourt(response.data.data);
     } catch (err) {
-      console.log("Error: ", err);
+      console.error("Error: ", err);
     }
   }
 
   useEffect(() => {
     fetchCourt();
   }, [id]);
-
-  // if (!currentCourt) {
-  //   notFound();
-  // }
 
   const handleUpdateCourt = (updatedCourt) => {
     setCurrentCourt(updatedCourt);
@@ -69,12 +68,12 @@ export default function CourtDetailPage({ params }) {
           {/* Court Image and Basic Info */}
           <div className="relative aspect-video w-full overflow-hidden rounded-xl border bg-muted">
             <Image
-                src={process.env.NEXT_PUBLIC_IMAGE_API_URL + currentCourt.imageUrl || "/placeholder.svg"}
-                alt={"Court Image"}
-                fill
-                className="object-cover"
-                priority
-              />
+              src={process.env.NEXT_PUBLIC_IMAGE_API_URL + currentCourt.imageUrl || "/placeholder.svg"}
+              alt={"Court Image"}
+              fill
+              className="object-cover"
+              priority
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           </div>
 

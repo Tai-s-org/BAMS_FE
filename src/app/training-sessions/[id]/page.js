@@ -269,16 +269,6 @@ export default function TrainingSessionDetail() {
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Equipment */}
-                                <div>
-                                    <h3 className="text-base font-medium text-gray-900 mb-2">Dụng Cụ Cần Thiết</h3>
-                                    <ul className="list-disc list-inside text-sm text-gray-500 space-y-1 pl-1">
-                                        {session.equipment.map((item, index) => (
-                                            <li key={index}>{item}</li>
-                                        ))}
-                                    </ul>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -313,25 +303,6 @@ export default function TrainingSessionDetail() {
                                 >
                                     Quản Lý Điểm Danh
                                 </button>
-                            </div>
-                        </div>
-
-                        {/* Stats Card */}
-                        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                            <div className="px-6 py-5 border-b border-gray-200">
-                                <h2 className="text-lg font-medium text-gray-900">Thống Kê</h2>
-                            </div>
-                            <div className="px-6 py-5">
-                                <dl className="grid grid-cols-2 gap-4">
-                                    <div className="bg-gray-50 rounded-lg p-4">
-                                        <dt className="text-sm font-medium text-gray-500 truncate">Số cầu thủ</dt>
-                                        <dd className="mt-1 text-2xl font-semibold text-[#BD2427]">12</dd>
-                                    </div>
-                                    <div className="bg-gray-50 rounded-lg p-4">
-                                        <dt className="text-sm font-medium text-gray-500 truncate">Thời lượng</dt>
-                                        <dd className="mt-1 text-2xl font-semibold text-[#BD2427]">1h</dd>
-                                    </div>
-                                </dl>
                             </div>
                         </div>
                     </div>

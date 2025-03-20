@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import ImageUpload from "@/components/ImageUpload"
-import authApi from "@/api/auth"
+import courtApi from "@/api/court"
 
 export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court }) {
   const router = useRouter()
@@ -29,6 +29,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
     rentPricePerHour: 0,
     kind: "5x5",
   })
+  const [imageWarning, setImageWarning] = useState(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -76,9 +77,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
 
     try {
       // In a real app, you would make an API call here
-      console.log("Updated court", formData);
-      const response = await authApi.updateCourt(formData);
-      console.log("Upadted response", response);
+      const response = await courtApi.updateCourt(formData);
       
       onUpdateCourt(response?.data.data);
       
@@ -158,7 +157,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
               name="address"
               value={formData.address}
               onChange={handleChange}
-              placeholder="123 Basketball Ave, Đường Sports, Quận SC 12345"
+              placeholder="251 Nguyễn Khang, Cầu Giấy, Hà Nội"
               required
             />
           </div>
@@ -172,7 +171,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
               name="contact"
               value={formData.contact}
               onChange={handleChange}
-              placeholder="(555) 123-4567"
+              placeholder="(+84) 0987654321"
               required
             />
           </div>
