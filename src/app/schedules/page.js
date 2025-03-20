@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays } from "date-fns";
-import { se, tr, vi } from "date-fns/locale";
+import { vi } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Plus, Filter, Search, UserCheck } from "lucide-react"
 import { AttendanceModal } from "@/components/attendance/AttendanceModal";
+import { useAuth } from "@/hooks/context/AuthContext";
 
 // Sample data
 const trainingSessions = [
@@ -69,6 +70,7 @@ const teams = ["Tất Cả Đội", "Đội Chính", "Đội Trẻ", "Đội Thi
 const courts = ["Tất Cả Sân", "Sân A", "Sân B", "Sân C"];
 
 export default function SchedulePage() {
+  const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [teamFilter, setTeamFilter] = useState("Tất Cả Đội");
   const [courtFilter, setCourtFilter] = useState("Tất Cả Sân");
@@ -118,20 +120,20 @@ export default function SchedulePage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-3xl font-bold text-gray-900">Lịch Tập Luyện</h1>
-          <button
+          {user.roleCode == "Manager" && <button
             className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
             onClick={() => openAttendanceModal(selectedSession)}
           >
             <UserCheck className="mr-2 h-4 w-4" />
             Thực hiện điểm danh
-          </button>
-          <button
+          </button>}
+          {user.roleCode == "Coach" && <button
             className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
             onClick={() => { }}
           >
             <Plus className="mr-2 h-4 w-4" />
             Tạo Buổi Tập
-          </button>
+          </button>}
         </div>
 
         {/* Main Card */}

@@ -6,12 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { CalendarDays, MapPin, Trophy, Edit, Power } from "lucide-react";
 import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
 // import { toast } from "@/components/ui/use-toast";
 import PlayerList from "./PlayerList";
 import ManagerList from "./ManagerList";
 import CoachList from "./CoachList";
-import authApi from "@/api/auth";
+import teamApi from "@/api/team";
 
 export default function TeamDetails() {
   const [teams, setTeams] = useState([]);
@@ -25,8 +24,7 @@ export default function TeamDetails() {
 
   const fetchTeams = async () => {
     try {
-      const response = await authApi.listTeams({pageSize: 100});
-      console.log("Response: ", response?.data.data.items);
+      const response = await teamApi.listTeams({pageSize: 100});
 
       setTeams(response?.data.data.items);
 
@@ -37,8 +35,7 @@ export default function TeamDetails() {
 
   const fetchTeamDetails = async (selectedTeamId) => {
     try {
-      const response = await authApi.teamDetail(selectedTeamId);
-      // console.log("Response: ", response?.data.data);
+      const response = await teamApi.teamDetail(selectedTeamId);
 
       setSelectedTeam(response.data.data);
     } catch (error) {
@@ -69,8 +66,7 @@ export default function TeamDetails() {
         teamName: editedName,
         status: selectedTeam.status
       }
-      const response = await authApi.updateTeamName(data, selectedTeamId);
-      console.log("Response: ", response);
+      const response = await teamApi.updateTeamName(data, selectedTeamId);
     } catch (error) {
       console.error("Error updating team name:", error);
     }
@@ -103,10 +99,8 @@ export default function TeamDetails() {
 
   const submitDissolve = async () => {
     try {
-      console.log("id:",selectedTeamId);
       
-      const response = await authApi.dissolveTeam(selectedTeamId);
-      console.log("Response: ", response);
+      const response = await teamApi.dissolveTeam(selectedTeamId);
     } catch (error) {
       console.error("Error updating team name:", error);
     }
@@ -143,7 +137,7 @@ export default function TeamDetails() {
               key={team.teamId}
               value={team.teamId.toString()}
               onClick={() => handleSelectTeam(team)}
-              className={team.teamId === selectedTeamId ? "border-2 border-red-400 bg-white p-2 rounded-md" : "border-2 border-red-200 border-r-red-500 rounded-md opacity-60 p-2"}
+              className={team.teamId === selectedTeamId ? "border-2 border-red-400 bg-white p-2 rounded-md mr-2" : "border-2 border-red-200 border-r-red-500 rounded-md opacity-60 p-2"}
             >
               {team.teamName}
             </TabsTrigger>
