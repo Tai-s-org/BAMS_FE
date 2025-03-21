@@ -23,7 +23,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
   const [formData, setFormData] = useState({
     courtName: "",
     type: "Indoor",
-    imageUrl: "",
+    imageUrl: "example",
     address: "",
     contact: "",
     rentPricePerHour: 0,
