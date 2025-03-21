@@ -14,7 +14,10 @@ import { useAuth } from "@/hooks/context/AuthContext";
 export default function CourtDetailPage({ params }) {
   const { user } = useAuth();
 
-  if (user.roleCode !== "Manager") return <p>Khong co quyen truy cap bro</p>
+  if (user.roleCode !== "Manager") {
+      alert("Không có quyền truy cập");
+      redirect("/dashboard");
+    }
 
   const { id } = React.use(params);
   const [currentCourt, setCurrentCourt] = useState();

@@ -13,11 +13,15 @@ import Pagination from "@/components/Pagination";
 import { Label } from "@/components/ui/Label";
 import courtApi from "@/api/court";
 import { useAuth } from "@/hooks/context/AuthContext";
+import { redirect } from "next/navigation";
 
 export default function CourtManagement() {
   const { user } = useAuth();
 
-  if (user.roleCode !== "Manager") return <p>Khong co quyen truy cap bro</p>
+  if (user.roleCode !== "Manager") {
+    alert("Không có quyền truy cập");
+    redirect("/dashboard");
+  }
 
   const [courts, setCourts] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
