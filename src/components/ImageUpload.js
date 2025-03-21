@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Upload, X } from "lucide-react";
-import authApi from "@/api/auth";
+import courtApi from "@/api/court";
 
 export default function ImageUpload({ initialImage, onImageChange }) {
   const [preview, setPreview] = useState(initialImage || null);
@@ -16,7 +16,7 @@ export default function ImageUpload({ initialImage, onImageChange }) {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await authApi.uploadImage(formData);
+      const response = await courtApi.uploadImage(formData);
 
       if (response.status === 200) {
         console.log(response.data);

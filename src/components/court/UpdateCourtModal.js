@@ -23,7 +23,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
     courtId: "",
     courtName: "",
     type: "Indoor",
-    imageUrl: "",
+    imageUrl: "example",
     address: "",
     contact: "",
     rentPricePerHour: 0,
