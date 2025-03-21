@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/context/AuthContext";
 
 // Sample data
 const trainingSessions = [
@@ -86,6 +87,8 @@ const trainingSessions = [
 ];
 
 export default function TrainingSessionDetail() {
+    const {user} = useAuth();
+
     const params = useParams();
     const router = useRouter();
     const [session, setSession] = useState(null);
@@ -276,7 +279,7 @@ export default function TrainingSessionDetail() {
                     {/* Sidebar */}
                     <div className="space-y-6">
                         {/* Actions Card */}
-                        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                        {user?.roleCode === "Coach" && <div className="bg-white rounded-xl shadow-md overflow-hidden">
                             <div className="px-6 py-5 border-b border-gray-200">
                                 <h2 className="text-lg font-medium text-gray-900">Thao Tác</h2>
                             </div>
@@ -288,7 +291,7 @@ export default function TrainingSessionDetail() {
                                     Hủy Buổi Tập
                                 </button>
                             </div>
-                        </div>
+                        </div>}
 
                         {/* Attendance Card */}
                         <div className="bg-white rounded-xl shadow-md overflow-hidden">

@@ -5,11 +5,15 @@ import TeamCreationForm from "@/components/team-management/TeamCreationForm";
 import TeamDetails from "@/components/team-management/TeamDetails";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { useAuth } from "@/hooks/context/AuthContext";
+import { redirect } from "next/navigation";
 
 export default function TeamManagement() {
   const {user} = useAuth();
   
-  if(user.roleCode !== "President") return <p>Khong co quyen truy cap bro</p>
+  if(user.roleCode !== "President") {
+    alert("Bạn không có quyền truy cập");
+    redirect("/dashboard");
+  }
   const [activeTab, setActiveTab] = useState("view");
 
   const handleCreatedTeam = () => {
