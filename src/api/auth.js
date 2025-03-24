@@ -26,14 +26,6 @@ const authApi = {
     test: () => {
         return api.get('/club-contact');
     },
-    courtList: (data) => {
-        return api.get('/court/list-court-arranged-by-status', {
-            params: data, 
-        });
-    },
-    courtDetail: (id) => {
-        return api.get(`/court/${id}`);
-    },
 };
 
 export default authApi;

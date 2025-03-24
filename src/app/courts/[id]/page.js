@@ -3,53 +3,50 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { MapPin, Phone, ArrowLeft, DollarSign, Users } from "lucide-react";
 import UpdateCourtModal from "@/components/court/UpdateCourtModal";
-import authApi from "@/api/auth";
-
-
-// Helper function to translate court type
-const translateType = (type) => {
-  return type === "Indoor" ? "Trong Nhà" : "Ngoài Trời";
-};
+import courtApi from "@/api/court";
+import { useAuth } from "@/hooks/context/AuthContext";
 
 export default function CourtDetailPage({ params }) {
+  const { user } = useAuth();
+
+  if (user.roleCode !== "Manager") {
+      alert("Không có quyền truy cập");
+      redirect("/dashboard");
+    }
+
   const { id } = React.use(params);
-  const [currentCourt, setCurrentCourt] = useState({});
+  const [currentCourt, setCurrentCourt] = useState();
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   if (!id) {
-    return <div>Loading...</div>; // Handle case where courtId is not yet available
+    return <div>Đang tải...</div>;
+  }
+
+  const fetchCourt = async () => {
+    try {
+      const response = await courtApi.courtDetail(id);
+      if (response)
+        setCurrentCourt(response.data.data);
+    } catch (err) {
+      console.error("Error: ", err);
+    }
   }
 
   useEffect(() => {
-    const fetchCourt = async () => {
-      try {
-        const response = await authApi.courtDetail(id);
-        console.log(response.data);
-        
-        setCurrentCourt(response?.data);
-      } catch (err) {
-        console.log(err);
-      }
-    }
     fetchCourt();
   }, [id]);
-
-  if (!currentCourt) {
-    notFound();
-  }
 
   const handleUpdateCourt = (updatedCourt) => {
     setCurrentCourt(updatedCourt);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    currentCourt && <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <Link href="/courts">
@@ -74,7 +71,7 @@ export default function CourtDetailPage({ params }) {
           {/* Court Image and Basic Info */}
           <div className="relative aspect-video w-full overflow-hidden rounded-xl border bg-muted">
             <Image
-              src={currentCourt.imageUrl || "/placeholder.svg"}
+              src={process.env.NEXT_PUBLIC_IMAGE_API_URL + currentCourt.imageUrl || "/placeholder.svg"}
               alt={"Court Image"}
               fill
               className="object-cover"
@@ -89,7 +86,7 @@ export default function CourtDetailPage({ params }) {
               <h1 className="text-2xl font-bold tracking-tight mb-2">{currentCourt.courtName}</h1>
               <div className="flex items-center gap-3">
                 <Badge variant="outline" className="font-medium">
-                  {translateType(currentCourt.type)}
+                  {currentCourt.type}
                 </Badge>
                 <Badge variant="outline" className="font-medium">
                   {currentCourt.kind}
@@ -100,7 +97,7 @@ export default function CourtDetailPage({ params }) {
 
           {/* Location & Contact and Court Details */}
           <div className="grid md:grid-cols-2 gap-6">
-          <Card className="border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white">
+            <Card className="border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white">
               <CardContent className="pt-6">
                 <h2 className="text-lg font-semibold mb-4">Địa Chỉ & Liên Hệ</h2>
                 <div className="space-y-4">

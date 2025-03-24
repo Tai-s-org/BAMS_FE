@@ -4,9 +4,21 @@ import { useState } from "react";
 import TeamCreationForm from "@/components/team-management/TeamCreationForm";
 import TeamDetails from "@/components/team-management/TeamDetails";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import { useAuth } from "@/hooks/context/AuthContext";
+import { redirect } from "next/navigation";
 
 export default function TeamManagement() {
+  const {user} = useAuth();
+  
+  if(user.roleCode !== "President") {
+    alert("Bạn không có quyền truy cập");
+    redirect("/dashboard");
+  }
   const [activeTab, setActiveTab] = useState("view");
+
+  const handleCreatedTeam = () => {
+    setActiveTab("view");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -18,8 +30,8 @@ export default function TeamManagement() {
 
       <main className="container mx-auto py-6 px-4">
         <div className="mt-4">
-          <Tabs defaultValue="view" onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs key={activeTab} value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1">
               <TabsTrigger value="view">Xem Đội</TabsTrigger>
               <TabsTrigger value="create">Tạo Đội Mới</TabsTrigger>
             </TabsList>
@@ -27,7 +39,7 @@ export default function TeamManagement() {
               <TeamDetails />
             </TabsContent>
             <TabsContent value="create">
-              <TeamCreationForm />
+              <TeamCreationForm onTeamCreated={handleCreatedTeam} />
             </TabsContent>
           </Tabs>
         </div>
