@@ -1,3 +1,4 @@
+import SetNewPassword from "@/app/auth/set-new-password/page";
 import api from "./axios";
 
 const authApi = {
@@ -16,7 +17,7 @@ const authApi = {
     validateForgotPassword: (data) => {
         return api.post('/auth/validate-forgot-password-token', data);
     },
-    changePassword: (data) => {
+    SetNewPassword: (data) => {
         return api.post('/auth/set-new-password', data);
     },
     information: () => {

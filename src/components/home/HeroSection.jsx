@@ -1,4 +1,6 @@
+import Link from "next/link";
 import React from "react";
+import { Button } from "../ui/Button";
 
 const HeroSection = () => {
     return (
@@ -9,9 +11,12 @@ const HeroSection = () => {
                     Tham gia cùng chúng tôi và trở thành ngôi sao bóng rổ tiếp theo! Khám phá tiềm năng của bạn cùng đội ngũ huấn
                     luyện viên chuyên nghiệp.
                 </p>
-                <button className="bg-white text-[#BD2427] hover:bg-red-100 text-lg px-8 py-3 rounded-full shadow-lg transform transition hover:scale-105">
-                    Đăng ký ngay
-                </button>
+                <Link href={'/auth/registration'}>
+                    <Button className="bg-white text-[#BD2427] hover:bg-red-100 text-lg px-8 py-3 rounded-full shadow-lg transform transition hover:scale-105">
+                        Đăng ký ngay
+                    </Button>
+                </Link>
+
             </div>
         </section>
     );

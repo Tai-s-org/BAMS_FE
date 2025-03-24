@@ -1,26 +1,24 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2 } from "lucide-react"
-import ManagerFilters from "@/components/manager-manament/ManagerFilter"
-import ManagerList from "@/components/manager-manament/ManagerList"
-import ManagerPagination from "@/components/manager-manament/ManagerPagingation"
-import managerApi from "@/api/manager"
-import { useRouter } from "next/navigation"
+import { Loader2, Plus } from "lucide-react"
+import coachApi from "@/api/coach"
+import CoachFilter from "@/components/coach-management/CoachFilter"
+import CoachList from "@/components/coach-management/CoachList"
+import CoachPagination from "@/components/coach-management/CoachPagination"
+import CreateCoachModal from "@/components/coach-management/CreateCoachModel"
 
-export default function ManagerManagement() {
+export default function CoachManagement() {
     // State for filters and pagination
-    const [searchName, setSearchName] = useState("")
-    const [searchEmail, setSearchEmail] = useState("")
-    const [isEnableFilter, setIsEnableFilter] = useState("all")
+    const [searchUserId, setSearchUserId] = useState("")
     const [teamIdFilter, setTeamIdFilter] = useState("all")
-    const [isDescending, setIsDescending] = useState(null)
     const [currentPage, setCurrentPage] = useState(1)
     const [pageSize, setPageSize] = useState(10)
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const router = useRouter();
+    const [showCreateModal, setShowCreateModal] = useState(false)
+
     // Fetch data from API
     const fetchData = async () => {
         setLoading(true)
@@ -33,20 +31,15 @@ export default function ManagerManagement() {
             // Build filters object
             const filters = {
                 // Only include filters with values
-                ...(searchName ? { Name: searchName } : {}),
-                ...(searchEmail ? { Email: searchEmail } : {}),
-                ...(isEnableFilter !== "all" ? { IsEnable: isEnableFilter === "true" } : {}),
+                ...(searchUserId ? { UserId: searchUserId } : {}),
                 ...(teamIdFilter !== "all" ? { TeamId: teamIdFilter } : {}),
-                ...(isDescending !== null ? { IsDescending: isDescending } : {}),
                 Page: currentPage,
                 PageSize: effectivePageSize,
             }
 
             // Call the API using your service
-            const response = await managerApi.getManagers(filters)
-            console.log(response.data.data);
-            
-            setData(response.data)
+            //const response = await coachApi.getCoaches(filters)
+            //setData(response)
         } catch (err) {
             console.error("Error fetching data:", err)
             setError(err instanceof Error ? err.message : "An unknown error occurred")
@@ -58,41 +51,17 @@ export default function ManagerManagement() {
     // Fetch data when filters or pagination changes
     useEffect(() => {
         fetchData()
-    }, [searchName, searchEmail, isEnableFilter, teamIdFilter, isDescending, currentPage, pageSize])
-
-    // Toggle sort direction
-    const toggleSortDirection = () => {
-        if (isDescending === null) {
-            setIsDescending(true)
-        } else if (isDescending === true) {
-            setIsDescending(false)
-        } else {
-            setIsDescending(null)
-        }
-    }
-
-    // Handle view details
-    const handleViewDetails = (userId) => {
-        router.push(`/dashboard/manager-management/manager/${userId}`)
-    }
+    }, [searchUserId, teamIdFilter, currentPage, pageSize])
 
     // Handle search change
-    const handleSearchChange = (type, value) => {
-        if (type === "name") {
-            setSearchName(value)
-        } else if (type === "email") {
-            setSearchEmail(value)
-        }
+    const handleSearchChange = (value) => {
+        setSearchUserId(value)
         setCurrentPage(1) // Reset to first page when search changes
     }
 
     // Handle filter change
-    const handleFilterChange = (type, value) => {
-        if (type === "isEnable") {
-            setIsEnableFilter(value)
-        } else if (type === "teamId") {
-            setTeamIdFilter(value)
-        }
+    const handleFilterChange = (value) => {
+        setTeamIdFilter(value)
         setCurrentPage(1) // Reset to first page when filters change
     }
 
@@ -102,25 +71,42 @@ export default function ManagerManagement() {
         setCurrentPage(1) // Reset to first page when page size changes
     }
 
+    // Handle create coach
+    const handleCreateCoach = async (coachData) => {
+        // try {
+        //     await coachApi.createCoach(coachData)
+        //     setShowCreateModal(false)
+        //     fetchData() // Refresh the list after creating a coach
+        // } catch (err) {
+        //     console.error("Error creating coach:", err)
+        //     alert("Failed to create coach. Please try again.")
+        // }
+    }
+
     // Extract unique team IDs for the filter dropdown
     const uniqueTeamIds = data?.data.items
-        ? Array.from(new Set(data.data.items.map((item) => item.roleInformation.teamId).filter(Boolean)))
+        ? Array.from(new Set(data.data.items.map((item) => item.teamId).filter(Boolean)))
         : []
 
     return (
         <div className="container mx-auto py-8">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 {/* Header */}
-                <div className="bg-[#bd2427] text-white px-6 py-4">
-                    <h1 className="text-2xl font-bold">Danh sách quản lý</h1>
+                <div className="bg-[#bd2427] text-white px-6 py-4 flex justify-between items-center">
+                    <h1 className="text-2xl font-bold">Coach List</h1>
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className="px-4 py-2 bg-white text-[#bd2427] rounded-md hover:bg-gray-100 transition-colors flex items-center"
+                    >
+                        <Plus className="mr-2 h-5 w-5" />
+                        Create Coach
+                    </button>
                 </div>
 
                 <div className="p-6">
                     {/* Filters Component */}
-                    <ManagerFilters
-                        searchName={searchName}
-                        searchEmail={searchEmail}
-                        isEnableFilter={isEnableFilter}
+                    <CoachFilter
+                        searchUserId={searchUserId}
                         teamIdFilter={teamIdFilter}
                         uniqueTeamIds={uniqueTeamIds}
                         onSearchChange={handleSearchChange}
@@ -149,16 +135,11 @@ export default function ManagerManagement() {
                     ) : (
                         <>
                             {/* Table Component */}
-                            <ManagerList
-                                managers={data?.data.items || []}
-                                isDescending={isDescending}
-                                toggleSortDirection={toggleSortDirection}
-                                onViewDetails={handleViewDetails}
-                            />
+                            <CoachList coaches={data?.data.items || []} />
 
                             {/* Pagination Component */}
                             {data && (
-                                <ManagerPagination
+                                <CoachPagination
                                     currentPage={data.data.currentPage}
                                     totalPages={data.data.totalPages}
                                     pageSize={pageSize}
@@ -171,6 +152,9 @@ export default function ManagerManagement() {
                     )}
                 </div>
             </div>
+
+            {/* Create Coach Modal */}
+            {showCreateModal && <CreateCoachModal onClose={() => setShowCreateModal(false)} onSubmit={handleCreateCoach} />}
         </div>
     )
 }

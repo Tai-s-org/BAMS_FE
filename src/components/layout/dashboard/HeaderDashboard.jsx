@@ -1,6 +1,6 @@
 "use client";
 
-import { Github, HelpCircle, Search } from "lucide-react";
+import { MessageCircleMore, HelpCircle, Search } from "lucide-react";
 import SidebarTrigger from "@/components/ui/sidebar/SidebarTrigger";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -33,9 +33,10 @@ export default function HeaderDashboard() {
                 </Button>
                 <NotificationDropdown/>
                 <Button variant="ghost" size="icon" className="text-gray-200 hover:bg-[#bd2427]/20 hover:text-white">
-                    <span className="sr-only">GitHub</span>
-                    <Github className="h-5 w-5" />
+                    <span className="sr-only">Message</span>
+                    <MessageCircleMore className="h-5 w-5" />
                 </Button>
+                <UserDropdown user={user} />
                 <UserDropdown user={user} />
             </div>
         </header>

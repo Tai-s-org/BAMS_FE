@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/Label";
 import Image from "next/image";
 
 export default function ForgotPasswordForm({ email, setEmail, handleSubmit }) {
+    console.log(email);
+    
     return (
         <div className="min-h-screen-full flex items-center justify-center bg-gray-100 p-4">
             <Card className="w-full max-w-md overflow-hidden shadow-xl relative bg-white border-0 mt-20 mb-20">
