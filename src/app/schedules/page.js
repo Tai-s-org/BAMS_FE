@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays } from "date-fns";
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, set } from "date-fns";
 import { vi } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Plus, Filter, Search, UserCheck } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, Filter, UserCheck } from "lucide-react"
 import { AttendanceModal } from "@/components/attendance/AttendanceModal";
 import { useAuth } from "@/hooks/context/AuthContext";
+import { RecurringSessionModal } from "@/components/schedule/RecurringSessionModal";
+import { SingleSessionModal } from "@/components/schedule/SingleSessionModal";
 
 // Sample data
 const trainingSessions = [
@@ -75,9 +77,10 @@ export default function SchedulePage() {
   const [teamFilter, setTeamFilter] = useState("Tất Cả Đội");
   const [courtFilter, setCourtFilter] = useState("Tất Cả Sân");
   const [showFilters, setShowFilters] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [attendanceModalOpen, setAttendanceModalOpen] = useState(false)
   const [selectedSession, setSelectedSession] = useState(trainingSessions[0])
+  const [recurringSessionModalOpen, setRecurringSessionModalOpen] = useState(false)
+  const [singleSessionModalOpen, setSingleSessionModalOpen] = useState(false)
 
   // Calculate week range
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Start from Monday
@@ -93,12 +96,8 @@ export default function SchedulePage() {
     const isInWeek = sessionDate >= weekStart && sessionDate <= weekEnd;
     const isTeamMatch = teamFilter === "Tất Cả Đội" || session.team === teamFilter;
     const isCourtMatch = courtFilter === "Tất Cả Sân" || session.court === courtFilter;
-    const matchesSearch =
-      searchTerm === "" ||
-      session.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      session.team.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return isInWeek && isTeamMatch && isCourtMatch && matchesSearch;
+    return isInWeek && isTeamMatch && isCourtMatch;
   });
 
   // Group sessions by day
@@ -119,7 +118,10 @@ export default function SchedulePage() {
       <div className="flex flex-col space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-3xl font-bold text-gray-900">Lịch Tập Luyện</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Lịch Chung</h1>
+          <div className="flex flex-wrap gap-2">
+
+          
           {user.roleCode == "Manager" && <button
             className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
             onClick={() => openAttendanceModal(selectedSession)}
@@ -127,13 +129,23 @@ export default function SchedulePage() {
             <UserCheck className="mr-2 h-4 w-4" />
             Thực hiện điểm danh
           </button>}
-          {user.roleCode == "Coach" && <button
-            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
-            onClick={() => { }}
+          {user.roleCode == "Coach" && <div>
+            <button
+            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200 mr-1"
+            onClick={() => setRecurringSessionModalOpen(true)}
           >
             <Plus className="mr-2 h-4 w-4" />
-            Tạo Buổi Tập
-          </button>}
+            Tạo Buổi Tập Lặp Lại
+            </button>
+            <button
+              className="inline-flex items-center justify-center px-4 py-2 border border-[#BD2427] text-sm font-medium rounded-md shadow-sm text-[#BD2427] bg-white hover:bg-[#BD2427]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
+              onClick={() => setSingleSessionModalOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Tạo Buổi Tập Lẻ
+          </button>
+          </div>}
+          </div>
         </div>
 
         {/* Main Card */}
@@ -160,21 +172,9 @@ export default function SchedulePage() {
             </div>
           </div>
 
-          {/* Search and Filters */}
+          {/* Filters */}
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-grow">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-[#BD2427] focus:border-[#BD2427] sm:text-sm"
-                  placeholder="Tìm kiếm buổi tập..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
               <div>
                 <button
                   type="button"
@@ -323,9 +323,7 @@ export default function SchedulePage() {
                                     href={`/training-sessions/${session.id}`}
                                     className="text-base font-medium text-[#BD2427] hover:underline block mb-1"
                                   >
-                                    {session.name}
-                                  </Link>
-                                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-500">
+                                    <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-500">
                                     <div className="flex items-center">
                                       <svg
                                         className="mr-1.5 h-4 w-4 text-gray-400"
@@ -386,6 +384,8 @@ export default function SchedulePage() {
                                       </span>
                                     </div>
                                   </div>
+                                  </Link>
+                                  
                                 </div>
                               </div>
                             ))}
@@ -403,12 +403,16 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      {/* Modal Điểm Danh */}
+      {/* Modal */}
       <AttendanceModal
         isOpen={attendanceModalOpen}
         onClose={() => setAttendanceModalOpen(false)}
         session={selectedSession}
       />
+
+      <RecurringSessionModal isOpen={recurringSessionModalOpen} onClose={() => setRecurringSessionModalOpen(false)} />
+
+      <SingleSessionModal isOpen={singleSessionModalOpen} onClose={() => setSingleSessionModalOpen(false)} />
     </div>
   );
 }
