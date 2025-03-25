@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/context/AuthContext";
 import { RecurringSessionModal } from "@/components/schedule/RecurringSessionModal";
 import { SingleSessionModal } from "@/components/schedule/SingleSessionModal";
 
+
 // Sample data
 const trainingSessions = [
   {
