@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, set } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -9,64 +9,65 @@ import { AttendanceModal } from "@/components/attendance/AttendanceModal";
 import { useAuth } from "@/hooks/context/AuthContext";
 import { RecurringSessionModal } from "@/components/schedule/RecurringSessionModal";
 import { SingleSessionModal } from "@/components/schedule/SingleSessionModal";
+import scheduleApi from "@/api/schedule";
 
 // Sample data
-const trainingSessions = [
-  {
-    id: 1,
-    name: "Luyện Tập Ném Rổ",
-    team: "Đội Chính",
-    court: "Sân A",
-    day: new Date(2025, 2, 17), // 17/3/2025
-    startTime: "16:00",
-    endTime: "17:00",
-  },
-  {
-    id: 2,
-    name: "Bài Tập Phòng Thủ",
-    team: "Đội Trẻ",
-    court: "Sân B",
-    day: new Date(2025, 2, 17), // 17/3/2025
-    startTime: "17:30",
-    endTime: "19:00",
-  },
-  {
-    id: 3,
-    name: "Đấu Tập",
-    team: "Đội Chính",
-    court: "Sân A",
-    day: new Date(2025, 2, 18), // 18/3/2025
-    startTime: "15:00",
-    endTime: "17:00",
-  },
-  {
-    id: 4,
-    name: "Tập Thể Lực",
-    team: "Tất Cả Đội",
-    court: "Sân C",
-    day: new Date(2025, 2, 19), // 19/3/2025
-    startTime: "16:30",
-    endTime: "18:00",
-  },
-  {
-    id: 5,
-    name: "Luyện Ném Phạt",
-    team: "Đội Trẻ",
-    court: "Sân B",
-    day: new Date(2025, 2, 20), // 20/3/2025
-    startTime: "15:30",
-    endTime: "16:30",
-  },
-  {
-    id: 6,
-    name: "Chiến Thuật Trận Đấu",
-    team: "Đội Chính",
-    court: "Sân A",
-    day: new Date(2025, 2, 21), // 21/3/2025
-    startTime: "17:00",
-    endTime: "19:00",
-  },
-];
+// const trainingSessions = [
+//   {
+//     id: 1,
+//     name: "Luyện Tập Ném Rổ",
+//     team: "Đội Chính",
+//     court: "Sân A",
+//     day: new Date(2025, 2, 17), // 17/3/2025
+//     startTime: "16:00",
+//     endTime: "17:00",
+//   },
+//   {
+//     id: 2,
+//     name: "Bài Tập Phòng Thủ",
+//     team: "Đội Trẻ",
+//     court: "Sân B",
+//     day: new Date(2025, 2, 17), // 17/3/2025
+//     startTime: "17:30",
+//     endTime: "19:00",
+//   },
+//   {
+//     id: 3,
+//     name: "Đấu Tập",
+//     team: "Đội Chính",
+//     court: "Sân A",
+//     day: new Date(2025, 2, 18), // 18/3/2025
+//     startTime: "15:00",
+//     endTime: "17:00",
+//   },
+//   {
+//     id: 4,
+//     name: "Tập Thể Lực",
+//     team: "Tất Cả Đội",
+//     court: "Sân C",
+//     day: new Date(2025, 2, 19), // 19/3/2025
+//     startTime: "16:30",
+//     endTime: "18:00",
+//   },
+//   {
+//     id: 5,
+//     name: "Luyện Ném Phạt",
+//     team: "Đội Trẻ",
+//     court: "Sân B",
+//     day: new Date(2025, 2, 20), // 20/3/2025
+//     startTime: "15:30",
+//     endTime: "16:30",
+//   },
+//   {
+//     id: 6,
+//     name: "Chiến Thuật Trận Đấu",
+//     team: "Đội Chính",
+//     court: "Sân A",
+//     day: new Date(2025, 2, 21), // 21/3/2025
+//     startTime: "17:00",
+//     endTime: "19:00",
+//   },
+// ];
 
 const teams = ["Tất Cả Đội", "Đội Chính", "Đội Trẻ", "Đội Thiếu Niên"];
 const courts = ["Tất Cả Sân", "Sân A", "Sân B", "Sân C"];
@@ -78,9 +79,47 @@ export default function SchedulePage() {
   const [courtFilter, setCourtFilter] = useState("Tất Cả Sân");
   const [showFilters, setShowFilters] = useState(false);
   const [attendanceModalOpen, setAttendanceModalOpen] = useState(false)
-  const [selectedSession, setSelectedSession] = useState(trainingSessions[0])
+  const [selectedSession, setSelectedSession] = useState(null)
   const [recurringSessionModalOpen, setRecurringSessionModalOpen] = useState(false)
   const [singleSessionModalOpen, setSingleSessionModalOpen] = useState(false)
+  const [trainingSessions, setTrainingSessions] = useState([]);
+  const [filteredSessions, setFilterSessions] = useState([]);
+
+  useEffect(() => {
+    fetchTrainingSessions();
+  }, [currentDate, teamFilter, courtFilter]);
+
+  // Fetch schedule
+  const fetchTrainingSessions = async () => {
+    try {
+      const data = {
+        startDate: weekStart,
+        endDate: weekEnd,
+        // courtId: courtFilter,
+        // teamId: teamFilter
+      }
+      const response = await scheduleApi.getTrainingSessions(data);
+      console.log("trainingSessions", response?.data.data);
+      setTrainingSessions(response?.data.data);
+
+      // Filter sessions for the current week
+      const filteredSessions = response?.data.data?.filter((session) => {
+        const sessionDate = new Date(session.scheduledDate);
+        const isInWeek = sessionDate >= weekStart && sessionDate <= weekEnd;
+        // const isTeamMatch = teamFilter === "Tất Cả Đội" || session.team === teamFilter;
+        // const isCourtMatch = courtFilter === "Tất Cả Sân" || session.court === courtFilter;
+
+        // return isInWeek && isTeamMatch && isCourtMatch;
+        return isInWeek;
+      });
+
+      setFilterSessions(filteredSessions);
+      console.log(filteredSessions);
+      
+    } catch (error) {
+      console.error("Error fetching training sessions:", error);
+    }
+  }
 
   // Calculate week range
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Start from Monday
@@ -89,16 +128,6 @@ export default function SchedulePage() {
   // Navigation functions
   const previousWeek = () => setCurrentDate(subWeeks(currentDate, 1));
   const nextWeek = () => setCurrentDate(addWeeks(currentDate, 1));
-
-  // Filter sessions for the current week
-  const filteredSessions = trainingSessions.filter((session) => {
-    const sessionDate = new Date(session.day);
-    const isInWeek = sessionDate >= weekStart && sessionDate <= weekEnd;
-    const isTeamMatch = teamFilter === "Tất Cả Đội" || session.team === teamFilter;
-    const isCourtMatch = courtFilter === "Tất Cả Sân" || session.court === courtFilter;
-
-    return isInWeek && isTeamMatch && isCourtMatch;
-  });
 
   // Group sessions by day
   const days = [];
@@ -121,30 +150,30 @@ export default function SchedulePage() {
           <h1 className="text-3xl font-bold text-gray-900">Lịch Chung</h1>
           <div className="flex flex-wrap gap-2">
 
-          
-          {user.roleCode == "Manager" && <button
-            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
-            onClick={() => openAttendanceModal(selectedSession)}
-          >
-            <UserCheck className="mr-2 h-4 w-4" />
-            Thực hiện điểm danh
-          </button>}
-          {user.roleCode == "Coach" && <div>
-            <button
-            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200 mr-1"
-            onClick={() => setRecurringSessionModalOpen(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Tạo Buổi Tập Lặp Lại
-            </button>
-            <button
-              className="inline-flex items-center justify-center px-4 py-2 border border-[#BD2427] text-sm font-medium rounded-md shadow-sm text-[#BD2427] bg-white hover:bg-[#BD2427]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
-              onClick={() => setSingleSessionModalOpen(true)}
+
+            {user.roleCode == "Manager" && <button
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
+              onClick={() => openAttendanceModal(selectedSession)}
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Tạo Buổi Tập Lẻ
-          </button>
-          </div>}
+              <UserCheck className="mr-2 h-4 w-4" />
+              Thực hiện điểm danh
+            </button>}
+            {user.roleCode == "Coach" && <div>
+              <button
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200 mr-1"
+                onClick={() => setRecurringSessionModalOpen(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Tạo Buổi Tập Lặp Lại
+              </button>
+              <button
+                className="inline-flex items-center justify-center px-4 py-2 border border-[#BD2427] text-sm font-medium rounded-md shadow-sm text-[#BD2427] bg-white hover:bg-[#BD2427]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
+                onClick={() => setSingleSessionModalOpen(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Tạo Buổi Tập Lẻ
+              </button>
+            </div>}
           </div>
         </div>
 
@@ -299,9 +328,8 @@ export default function SchedulePage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {days.map((day, dayIndex) => {
                   const daySessions = filteredSessions.filter(
-                    (session) => format(new Date(session.day), "yyyy-MM-dd") === format(day, "yyyy-MM-dd"),
+                    (session) => session.scheduledDate === format(day, "yyyy-MM-dd"),
                   );
-
                   return (
                     <tr key={format(day, "yyyy-MM-dd")} className={dayIndex % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -315,77 +343,77 @@ export default function SchedulePage() {
                           <div className="space-y-4">
                             {daySessions.map((session) => (
                               <div
-                                key={session.id}
+                                key={session.trainingSessionId}
                                 className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
                               >
                                 <div className="px-4 py-3 border-l-4 border-[#BD2427]">
                                   <Link
-                                    href={`/training-sessions/${session.id}`}
+                                    href={`/training-sessions/${session.trainingSessionId}`}
                                     className="text-base font-medium text-[#BD2427] hover:underline block mb-1"
                                   >
                                     <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-500">
-                                    <div className="flex items-center">
-                                      <svg
-                                        className="mr-1.5 h-4 w-4 text-gray-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                                        />
-                                      </svg>
-                                      <span>{session.team}</span>
+                                      <div className="flex items-center">
+                                        <svg
+                                          className="mr-1.5 h-4 w-4 text-gray-400"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                          />
+                                        </svg>
+                                        <span>{session.teamName}</span>
+                                      </div>
+                                      <div className="flex items-center">
+                                        <svg
+                                          className="mr-1.5 h-4 w-4 text-gray-400"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                          />
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                          />
+                                        </svg>
+                                        <span>{session.courtName}</span>
+                                      </div>
+                                      <div className="flex items-center">
+                                        <svg
+                                          className="mr-1.5 h-4 w-4 text-gray-400"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                          />
+                                        </svg>
+                                        <span>
+                                          {session.scheduledStartTime} - {session.scheduledEndTime}
+                                        </span>
+                                      </div>
                                     </div>
-                                    <div className="flex items-center">
-                                      <svg
-                                        className="mr-1.5 h-4 w-4 text-gray-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                        />
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                        />
-                                      </svg>
-                                      <span>{session.court}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                      <svg
-                                        className="mr-1.5 h-4 w-4 text-gray-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
-                                      </svg>
-                                      <span>
-                                        {session.startTime} - {session.endTime}
-                                      </span>
-                                    </div>
-                                  </div>
                                   </Link>
-                                  
+
                                 </div>
                               </div>
                             ))}

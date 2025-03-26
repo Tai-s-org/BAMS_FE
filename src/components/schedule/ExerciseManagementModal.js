@@ -14,7 +14,7 @@ const coaches = [
 const sampleExercises = [
   {
     id: "1",
-    trainingSessionId: "1",
+    trainingSessionId: "TS001",
     exerciseName: "Khởi động",
     description: "Chạy nhẹ quanh sân và các bài tập khởi động cơ bản",
     duration: 15,
@@ -22,7 +22,7 @@ const sampleExercises = [
   },
   {
     id: "2",
-    trainingSessionId: "1",
+    trainingSessionId: "TS001",
     exerciseName: "Ném rổ cơ bản",
     description: "Luyện tập kỹ thuật ném rổ cơ bản từ các vị trí khác nhau",
     duration: 30,
@@ -30,7 +30,7 @@ const sampleExercises = [
   },
   {
     id: "3",
-    trainingSessionId: "1",
+    trainingSessionId: "TS001",
     exerciseName: "Phòng thủ cá nhân",
     description: "Luyện tập kỹ thuật phòng thủ 1-1",
     duration: 25,
@@ -38,8 +38,8 @@ const sampleExercises = [
   },
 ]
 
-export function ExerciseManagementModal({ isOpen, onClose, sessionId }) {
-  const [exercises, setExercises] = useState([])
+export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExercises }) {
+  const [exercises, setExercises] = useState(initialExercises || [])
   const [editingExercise, setEditingExercise] = useState(null)
   const [isAdding, setIsAdding] = useState(false)
   const [newExercise, setNewExercise] = useState({
@@ -52,7 +52,7 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId }) {
 
   useEffect(() => {
     // Trong thực tế, bạn sẽ tải dữ liệu từ API
-    setExercises(sampleExercises.filter((ex) => ex.trainingSessionId === sessionId))
+    // setExercises(sampleExercises.filter((ex) => ex.trainingSessionId === sessionId))
   }, [sessionId])
 
   const handleAddExercise = () => {
