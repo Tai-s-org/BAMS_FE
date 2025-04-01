@@ -20,6 +20,9 @@ const coachApi = {
     updateManager: (data) => {
         return api.put('/manager/update-manager', data);
     },
+    listCoaches: (data) => {
+        return api.get('/coach/list', {params: data});
+    },
 };
 
 export default coachApi;

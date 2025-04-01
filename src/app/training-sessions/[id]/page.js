@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { vi } from "date-fns/locale";
-import { ArrowLeft, UserCheck, Check, X, Clock1, Edit, ListChecks } from "lucide-react"
+import { ArrowLeft, UserCheck, Check, X, Clock1, Edit, ListChecks, Plus } from "lucide-react"
 import Link from "next/link";
 import { useAuth } from "@/hooks/context/AuthContext";
 import Image from "next/image";
 import { EditSessionModal } from "@/components/schedule/EditSessionModal"
 import { ExerciseManagementModal } from "@/components/schedule/ExerciseManagementModal"
+import scheduleApi from "@/api/schedule";
+import courtApi from "@/api/court";
+import coachApi from "@/api/coach";
 
 // Dữ liệu mẫu
 const trainingSessions = [
@@ -155,7 +158,7 @@ const exercises = [
 ]
 
 export default function TrainingSessionDetail() {
-    const { user } = useAuth();
+    const { user, userInfo } = useAuth();
 
     const params = useParams();
     const router = useRouter();
@@ -165,27 +168,78 @@ export default function TrainingSessionDetail() {
     const [sessionExercises, setSessionExercises] = useState([])
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [exerciseModalOpen, setExerciseModalOpen] = useState(false)
+    const [courts, setCourts] = useState([])
+    const [coaches, setCoaches] = useState([])
+
+    const fetchCoaches = async () => {
+        try {
+            if (session) {
+                const response = await coachApi.listCoaches({ TeamId: userInfo?.roleInformation.teamId });
+                console.log("fetchCoaches", response?.data.data.items);
+                setCoaches(response?.data.data.items);
+            }
+        } catch (error) {
+            console.error("Error fetching coaches:", error)
+        }
+    }
+
+    const fetchCourts = async () => {
+        try {
+            const response = await courtApi.courtList()
+            const filteredCourt = response?.data.items.filter((court) => court.usagePurpose == "2" || court.usagePurpose == "3");
+            setCourts(filteredCourt);
+        } catch (error) {
+            console.error("Error fetching courts:", error)
+        }
+    }
+
+    useEffect(() => {
+        fetchCourts()
+        fetchCoaches()
+    }, [session])
 
     useEffect(() => {
         // Tìm buổi tập với ID tương ứng
-        const id = Number(params.id)
-        const foundSession = trainingSessions.find((s) => s.id === id)
+        const id = params.id
+        fetchTrainingSession(id);
+        // const foundSession = trainingSessions.find((s) => s.id === id)
+        const foundSession = {
+            id: 1,
+            name: "Luyện Tập Ném Rổ",
+            team: "Đội Chính",
+            court: "Sân A",
+            day: new Date(2025, 2, 17), // 17/3/2025
+            startTime: "16:00",
+            endTime: "17:00",
+            coach: "Nguyễn Văn A",
+            description:
+                "Tập trung vào cải thiện độ chính xác và kỹ thuật ném rổ. Cầu thủ sẽ luyện tập ném phạt, ném ba điểm và ném tầm trung.",
+            equipment: ["Bóng rổ", "Máy ném bóng", "Cọc tiêu"],
+        }
 
         if (foundSession) {
-            setSession(foundSession)
             // Lọc cầu thủ theo đội của buổi tập
             const teamPlayers = players.filter(
                 (player) => foundSession.team === "Tất Cả Đội" || player.team === foundSession.team,
             )
             setFilteredPlayers(teamPlayers)
 
-            // Lọc bài tập theo buổi tập
-            setSessionExercises(exercises.filter((ex) => ex.trainingSessionId === id.toString()))
         } else {
             // Xử lý khi không tìm thấy buổi tập
-            router.push("/schedule")
+            router.push("/schedules")
         }
     }, [params.id, router])
+
+    const fetchTrainingSession = async (id) => {
+        try {
+            const response = await scheduleApi.getTrainingSessionById(id);
+            console.log("TrainingSessionDetail", response?.data.data);
+            setSession(response?.data.data);
+            setSessionExercises(response?.data.data.exercises);
+        } catch (error) {
+            console.error("Lỗi:", error);
+        }
+    };
 
     const getStatusBadge = (status) => {
         switch (status) {
@@ -242,7 +296,7 @@ export default function TrainingSessionDetail() {
                     {/* Main Content */}
                     <div className="md:col-span-2 space-y-8">
                         {/* Session Details Card */}
-                        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                        {session && <div className="bg-white rounded-xl shadow-md overflow-hidden">
                             <div className="px-6 py-5 border-b border-gray-200">
                                 <h2 className="text-xl font-semibold text-gray-800">Chi Tiết Buổi Tập</h2>
                             </div>
@@ -270,7 +324,7 @@ export default function TrainingSessionDetail() {
                                         <div className="ml-4">
                                             <div className="text-sm font-medium text-gray-900">Ngày</div>
                                             <div className="text-sm text-gray-500">
-                                                {format(new Date(session.day), "EEEE, dd/MM/yyyy", { locale: vi })}
+                                                {session.scheduledDate}
                                             </div>
                                         </div>
                                     </div>
@@ -294,7 +348,7 @@ export default function TrainingSessionDetail() {
                                         <div className="ml-4">
                                             <div className="text-sm font-medium text-gray-900">Thời gian</div>
                                             <div className="text-sm text-gray-500">
-                                                {session.startTime} - {session.endTime}
+                                                {session.time}
                                             </div>
                                         </div>
                                     </div>
@@ -317,7 +371,7 @@ export default function TrainingSessionDetail() {
                                         </div>
                                         <div className="ml-4">
                                             <div className="text-sm font-medium text-gray-900">Đội</div>
-                                            <div className="text-sm text-gray-500">{session.team}</div>
+                                            <div className="text-sm text-gray-500">{session.teamName}</div>
                                         </div>
                                     </div>
                                     <div className="flex items-center">
@@ -345,14 +399,14 @@ export default function TrainingSessionDetail() {
                                         </div>
                                         <div className="ml-4">
                                             <div className="text-sm font-medium text-gray-900">Địa điểm</div>
-                                            <div className="text-sm text-gray-500">{session.court}</div>
+                                            <div className="text-sm text-gray-500">{session.court.courtName}</div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="px-6 py-5 border-t border-gray-200 w-full">
                                     <div className="relative w-full h-64">
                                         <Image
-                                            src={session.courtImage || "/assets/information/information4.jpg"}
+                                            src={process.env.NEXT_PUBLIC_IMAGE_API_URL + session.court.imageUrl}
                                             alt="Court Image"
                                             layout="fill"
                                             objectFit="cover"
@@ -388,13 +442,13 @@ export default function TrainingSessionDetail() {
                                                     <p className="text-sm text-gray-500 mb-2">{exercise.description}</p>
                                                     <div className="text-xs text-gray-500">
                                                         <span className="font-medium">HLV:</span>{" "}
-                                                        {coaches.find((c) => c.id.toString() === exercise.coachId)?.name || "Không xác định"}
+                                                        {exercise.coachUsername}
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                                        userInfo?.roleInformation.teamId === session.teamId && <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
                                             <p className="text-sm text-gray-500">Chưa có bài tập nào được thêm vào.</p>
                                             <button
                                                 onClick={() => setExerciseModalOpen(true)}
@@ -407,7 +461,7 @@ export default function TrainingSessionDetail() {
                                     )}
                                 </div>
                             </div>
-                        </div>
+                        </div>}
                         {/* Attendance List */}
                         {showAttendance && (
                             <div className="bg-white rounded-xl shadow-md overflow-hidden">
@@ -577,7 +631,7 @@ export default function TrainingSessionDetail() {
                     {/* Sidebar */}
                     <div className="space-y-6">
                         {/* Actions Card */}
-                        {user?.roleCode === "Coach" &&
+                        {userInfo?.roleInformation.teamId === session?.teamId && user?.roleCode === "Coach" &&
                             <div className="bg-white rounded-xl shadow-md overflow-hidden">
                                 <div className="px-6 py-5 border-b border-gray-200">
                                     <h2 className="text-lg font-medium text-gray-900">Thao Tác</h2>
@@ -624,13 +678,18 @@ export default function TrainingSessionDetail() {
             </div>
 
             {/* Modal Chỉnh Sửa Buổi Tập */}
-            <EditSessionModal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} session={session} />
+            <EditSessionModal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} session={session} courts={courts} />
 
             {/* Modal Quản Lý Chi Tiết Buổi Tập */}
             <ExerciseManagementModal
                 isOpen={exerciseModalOpen}
-                onClose={() => setExerciseModalOpen(false)}
+                onClose={() => {
+                    fetchTrainingSession(params.id);
+                    setExerciseModalOpen(false)
+                }}
                 sessionId={params.id.toString()}
+                initialExercises={session?.exercises}
+                coaches={coaches}
             />
         </div>
     );
