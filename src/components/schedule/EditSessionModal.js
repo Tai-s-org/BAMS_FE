@@ -4,18 +4,20 @@ import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { X, Clock, MapPin, Save } from "lucide-react"
 
-const courts = ["Sân A", "Sân B", "Sân C"]
-
-export function EditSessionModal({ isOpen, onClose, session }) {
+export function EditSessionModal({ isOpen, onClose, session, courts }) {
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
-  const [court, setCourt] = useState("")
+  const [court, setCourt] = useState({})
 
   useEffect(() => {
     if (session) {
-      setStartTime(session.startTime)
-      setEndTime(session.endTime)
-      setCourt(session.court)
+      const [startTime, endTime] = session.time.split(" - ")
+
+      setStartTime(startTime)
+      setEndTime(endTime)
+      console.log(startTime, endTime);
+      
+      setCourt(session.court.courtId)
     }
   }, [session])
 
@@ -120,8 +122,8 @@ export function EditSessionModal({ isOpen, onClose, session }) {
                     onChange={(e) => setCourt(e.target.value)}
                   >
                     {courts.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
+                      <option key={c.courtId} value={c.courtId}>
+                        {c.courtName}
                       </option>
                     ))}
                   </select>

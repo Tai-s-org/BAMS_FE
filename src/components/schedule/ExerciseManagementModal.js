@@ -2,58 +2,35 @@
 
 import { useState, useEffect } from "react"
 import { X, Plus, Edit, Trash2, Clock, Save } from "lucide-react"
+import scheduleApi from "@/api/schedule"
 
-// Dữ liệu mẫu cho huấn luyện viên
-const coaches = [
-  { id: "1", name: "Nguyễn Văn A", role: "Huấn Luyện Viên Trưởng" },
-  { id: "2", name: "Trần Thị B", role: "Huấn Luyện Viên Phụ" },
-  { id: "3", name: "Lê Văn C", role: "Huấn Luyện Viên Thể Lực" },
-]
-
-// Dữ liệu mẫu cho bài tập
-const sampleExercises = [
-  {
-    id: "1",
-    trainingSessionId: "TS001",
-    exerciseName: "Khởi động",
-    description: "Chạy nhẹ quanh sân và các bài tập khởi động cơ bản",
-    duration: 15,
-    coachId: "1",
-  },
-  {
-    id: "2",
-    trainingSessionId: "TS001",
-    exerciseName: "Ném rổ cơ bản",
-    description: "Luyện tập kỹ thuật ném rổ cơ bản từ các vị trí khác nhau",
-    duration: 30,
-    coachId: "2",
-  },
-  {
-    id: "3",
-    trainingSessionId: "TS001",
-    exerciseName: "Phòng thủ cá nhân",
-    description: "Luyện tập kỹ thuật phòng thủ 1-1",
-    duration: 25,
-    coachId: "3",
-  },
-]
-
-export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExercises }) {
+export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExercises, coaches }) {
   const [exercises, setExercises] = useState(initialExercises || [])
   const [editingExercise, setEditingExercise] = useState(null)
   const [isAdding, setIsAdding] = useState(false)
+  const [isModified, setIsModified] = useState(false);
   const [newExercise, setNewExercise] = useState({
     trainingSessionId: sessionId,
     exerciseName: "",
     description: "",
     duration: 15,
-    coachId: coaches[0]?.id || "",
+    coachId: coaches[0]?.userId,
   })
 
   useEffect(() => {
     // Trong thực tế, bạn sẽ tải dữ liệu từ API
-    // setExercises(sampleExercises.filter((ex) => ex.trainingSessionId === sessionId))
-  }, [sessionId])
+    fetchExercises();
+  }, [sessionId, isModified])
+
+  const fetchExercises = async () => {
+    try {
+      const response = await scheduleApi.getTrainingSessionById(sessionId);
+      setExercises(response?.data.data.exercises);
+      
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu bài tập:", error);
+    }
+  };
 
   const handleAddExercise = () => {
     setIsAdding(true)
@@ -69,30 +46,21 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
     setExercises(exercises.filter((ex) => ex.id !== id))
   }
 
-  const handleSaveNewExercise = () => {
-    if (!newExercise.exerciseName) return
-
-    const newId = Math.max(...exercises.map((ex) => Number.parseInt(ex.id || "0"))) + 1
-    const exerciseToAdd = {
-      ...newExercise,
-      id: newId.toString(),
+  const handleSaveNewExercise = async () => {
+    try {
+      const response = await scheduleApi.createExercise(newExercise);
+      console.log("Thêm bài tập thành công:", response.data);
+      setIsModified(!isModified);
+    } catch (error) {
+      console.error("Lỗi khi thêm bài tập:", error.response.data);
     }
-
-    setExercises([...exercises, exerciseToAdd])
-    setNewExercise({
-      trainingSessionId: sessionId,
-      exerciseName: "",
-      description: "",
-      duration: 15,
-      coachId: coaches[0]?.id || "",
-    })
     setIsAdding(false)
   }
 
   const handleSaveEditedExercise = () => {
     if (!editingExercise || !editingExercise.exerciseName) return
 
-    setExercises(exercises.map((ex) => (ex.id === editingExercise.id ? editingExercise : ex)))
+    setExercises(exercises.map((ex) => (ex.exerciseId === editingExercise.exerciseId ? editingExercise : ex)))
     setEditingExercise(null)
   }
 
@@ -160,26 +128,26 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
             </div>
 
             {/* Danh sách bài tập */}
-            <div className="space-y-4 mb-6">
+            {exercises && <div className="space-y-4 mb-6">
               {exercises.length === 0 ? (
                 <p className="text-gray-500 text-center py-4">Chưa có bài tập nào được thêm vào.</p>
               ) : (
                 exercises.map((exercise) => (
                   <div
-                    key={exercise.id}
+                    key={exercise.exerciseId}
                     className={`border rounded-lg p-4 ${
-                      editingExercise?.id === exercise.id ? "border-[#BD2427] bg-[#BD2427]/5" : "border-gray-200"
+                      editingExercise?.exerciseId === exercise.exerciseId ? "border-[#BD2427] bg-[#BD2427]/5" : "border-gray-200"
                     }`}
                   >
-                    {editingExercise?.id === exercise.id ? (
-                      <div className="space-y-4">
+                    {editingExercise?.exerciseId === exercise.exerciseId ? (
+                      <div key={exercise.exerciseId} className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Tên bài tập</label>
                           <input
                             type="text"
                             name="exerciseName"
                             className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                            value={editingExercise.exerciseName}
+                            value={editingExercise?.exerciseName}
                             onChange={(e) => handleInputChange(e, false)}
                           />
                         </div>
@@ -189,7 +157,7 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                             name="description"
                             rows={2}
                             className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                            value={editingExercise.description}
+                            value={editingExercise?.description}
                             onChange={(e) => handleInputChange(e, false)}
                           />
                         </div>
@@ -201,7 +169,7 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                               name="duration"
                               min="1"
                               className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                              value={editingExercise.duration}
+                              value={editingExercise?.duration}
                               onChange={(e) => handleInputChange(e, false)}
                             />
                           </div>
@@ -210,12 +178,12 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                             <select
                               name="coachId"
                               className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                              value={editingExercise.coachId}
+                              value={editingExercise?.coachId}
                               onChange={(e) => handleInputChange(e, false)}
                             >
                               {coaches.map((coach) => (
-                                <option key={coach.id} value={coach.id}>
-                                  {coach.name}
+                                <option key={coach.userId} value={coach.userId}>
+                                  {coach.fullname}
                                 </option>
                               ))}
                             </select>
@@ -254,7 +222,7 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                             <button
                               type="button"
                               className="text-gray-400 hover:text-red-600"
-                              onClick={() => handleDeleteExercise(exercise.id)}
+                              onClick={() => handleDeleteExercise(exercise.exerciseId)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -269,7 +237,7 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                           <div className="flex items-center">
                             <span className="font-medium">HLV:</span>
                             <span className="ml-1">
-                              {coaches.find((c) => c.id === exercise.coachId)?.name || "Không xác định"}
+                              {coaches.find((c) => c.userId === exercise.coachId)?.fullname || "Không xác định"}
                             </span>
                           </div>
                         </div>
@@ -278,7 +246,7 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                   </div>
                 ))
               )}
-            </div>
+            </div>}
 
             {/* Form thêm bài tập mới */}
             {isAdding && (
@@ -328,8 +296,8 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                         onChange={(e) => handleInputChange(e, true)}
                       >
                         {coaches.map((coach) => (
-                          <option key={coach.id} value={coach.id}>
-                            {coach.name}
+                          <option key={coach.userId} value={coach.userId}>
+                            {coach.fullname}
                           </option>
                         ))}
                       </select>

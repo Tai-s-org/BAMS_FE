@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { vi } from "date-fns/locale";
 import { ArrowLeft, UserCheck, Check, X, Clock1, Edit, ListChecks, Plus } from "lucide-react"
 import Link from "next/link";
@@ -11,6 +11,8 @@ import Image from "next/image";
 import { EditSessionModal } from "@/components/schedule/EditSessionModal"
 import { ExerciseManagementModal } from "@/components/schedule/ExerciseManagementModal"
 import scheduleApi from "@/api/schedule";
+import courtApi from "@/api/court";
+import coachApi from "@/api/coach";
 
 // Dữ liệu mẫu
 const trainingSessions = [
@@ -156,7 +158,7 @@ const exercises = [
 ]
 
 export default function TrainingSessionDetail() {
-    const { user } = useAuth();
+    const { user, userInfo } = useAuth();
 
     const params = useParams();
     const router = useRouter();
@@ -166,7 +168,36 @@ export default function TrainingSessionDetail() {
     const [sessionExercises, setSessionExercises] = useState([])
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [exerciseModalOpen, setExerciseModalOpen] = useState(false)
-    
+    const [courts, setCourts] = useState([])
+    const [coaches, setCoaches] = useState([])
+
+    const fetchCoaches = async () => {
+        try {
+            if (session) {
+                const response = await coachApi.listCoaches({ TeamId: userInfo?.roleInformation.teamId });
+                console.log("fetchCoaches", response?.data.data.items);
+                setCoaches(response?.data.data.items);
+            }
+        } catch (error) {
+            console.error("Error fetching coaches:", error)
+        }
+    }
+
+    const fetchCourts = async () => {
+        try {
+            const response = await courtApi.courtList()
+            const filteredCourt = response?.data.items.filter((court) => court.usagePurpose == "2" || court.usagePurpose == "3");
+            setCourts(filteredCourt);
+        } catch (error) {
+            console.error("Error fetching courts:", error)
+        }
+    }
+
+    useEffect(() => {
+        fetchCourts()
+        fetchCoaches()
+    }, [session])
+
     useEffect(() => {
         // Tìm buổi tập với ID tương ứng
         const id = params.id
@@ -200,10 +231,9 @@ export default function TrainingSessionDetail() {
     }, [params.id, router])
 
     const fetchTrainingSession = async (id) => {
-        try {            
+        try {
             const response = await scheduleApi.getTrainingSessionById(id);
-            // setSession(response.data);
-            console.log("TrainingSessionDetail",response?.data.data);
+            console.log("TrainingSessionDetail", response?.data.data);
             setSession(response?.data.data);
             setSessionExercises(response?.data.data.exercises);
         } catch (error) {
@@ -412,13 +442,13 @@ export default function TrainingSessionDetail() {
                                                     <p className="text-sm text-gray-500 mb-2">{exercise.description}</p>
                                                     <div className="text-xs text-gray-500">
                                                         <span className="font-medium">HLV:</span>{" "}
-                                                        {coaches.find((c) => c.id.toString() === exercise.coachId)?.name || "Không xác định"}
+                                                        {exercise.coachUsername}
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                                        userInfo?.roleInformation.teamId === session.teamId && <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
                                             <p className="text-sm text-gray-500">Chưa có bài tập nào được thêm vào.</p>
                                             <button
                                                 onClick={() => setExerciseModalOpen(true)}
@@ -601,7 +631,7 @@ export default function TrainingSessionDetail() {
                     {/* Sidebar */}
                     <div className="space-y-6">
                         {/* Actions Card */}
-                        {user?.roleCode === "Coach" &&
+                        {userInfo?.roleInformation.teamId === session?.teamId && user?.roleCode === "Coach" &&
                             <div className="bg-white rounded-xl shadow-md overflow-hidden">
                                 <div className="px-6 py-5 border-b border-gray-200">
                                     <h2 className="text-lg font-medium text-gray-900">Thao Tác</h2>
@@ -648,14 +678,18 @@ export default function TrainingSessionDetail() {
             </div>
 
             {/* Modal Chỉnh Sửa Buổi Tập */}
-            <EditSessionModal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} session={session} />
+            <EditSessionModal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} session={session} courts={courts} />
 
             {/* Modal Quản Lý Chi Tiết Buổi Tập */}
             <ExerciseManagementModal
                 isOpen={exerciseModalOpen}
-                onClose={() => setExerciseModalOpen(false)}
+                onClose={() => {
+                    fetchTrainingSession(params.id);
+                    setExerciseModalOpen(false)
+                }}
                 sessionId={params.id.toString()}
                 initialExercises={session?.exercises}
+                coaches={coaches}
             />
         </div>
     );

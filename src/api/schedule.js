@@ -6,7 +6,7 @@ const scheduleApi = {
     },
 
     createTrainingSession: (data) => {
-        return api.post('/training-session', data);
+        return api.post('/training-session/create-additional', data);
     },
     getTrainingSessionById: (id) => {
         return api.get(`/training-session/${id}`);
