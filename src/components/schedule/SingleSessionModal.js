@@ -5,7 +5,7 @@ import { format } from "date-fns"
 import { X, Calendar, Clock, MapPin, Check } from "lucide-react"
 import scheduleApi from "@/api/schedule"
 
-export function SingleSessionModal({ isOpen, onClose, teamId, courts }) {
+export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified }) {
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"))
   const [startTime, setStartTime] = useState("16:00")
   const [endTime, setEndTime] = useState("17:30")
@@ -21,10 +21,9 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts }) {
         startTime: startTime + ":00",
         endTime: endTime + ":00",
       }
-      console.log("create data", data);
 
       const response = await scheduleApi.createTrainingSession(data);
-      console.log("Buổi tập đơn lẻ đã được tạo:", response)
+      isModified();
     } catch (error) {
       console.error("Lỗi khi tạo buổi tập đơn lẻ:", error.response.data.errors)
     }
