@@ -1,30 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import { Check, X, UserCheck, UserX, Save, Clock } from "lucide-react";
-
-// Sample data for coaches
-const coaches = [
-  { id: 1, name: "Nguyễn Văn A", role: "Huấn Luyện Viên Trưởng" },
-  { id: 2, name: "Trần Thị B", role: "Huấn Luyện Viên Phụ" },
-  { id: 3, name: "Lê Văn C", role: "Huấn Luyện Viên Thể Lực" },
-];
-
-// Sample data for players
-const players = [
-  { id: 1, name: "Phạm Văn D", number: 5, position: "Hậu vệ", team: "Đội Chính" },
-  { id: 2, name: "Hoàng Thị E", number: 7, position: "Tiền vệ", team: "Đội Chính" },
-  { id: 3, name: "Đỗ Văn F", number: 10, position: "Tiền đạo", team: "Đội Chính" },
-  { id: 4, name: "Ngô Thị G", number: 12, position: "Hậu vệ", team: "Đội Chính" },
-  { id: 5, name: "Vũ Văn H", number: 15, position: "Tiền vệ", team: "Đội Chính" },
-  { id: 6, name: "Đinh Thị I", number: 3, position: "Tiền đạo", team: "Đội Trẻ" },
-  { id: 7, name: "Bùi Văn J", number: 8, position: "Hậu vệ", team: "Đội Trẻ" },
-  { id: 8, name: "Lý Thị K", number: 11, position: "Tiền vệ", team: "Đội Trẻ" },
-  { id: 9, name: "Dương Văn L", number: 14, position: "Tiền đạo", team: "Đội Trẻ" },
-  { id: 10, name: "Đặng Thị M", number: 20, position: "Hậu vệ", team: "Đội Trẻ" },
-];
+import { Check, X, UserCheck, UserX, Save } from "lucide-react";
 
 export function AttendanceModal({ isOpen, onClose, session }) {
   const [coachAttendance, setCoachAttendance] = useState([]);
@@ -33,17 +10,10 @@ export function AttendanceModal({ isOpen, onClose, session }) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Filter players by session team
-  const filteredPlayers = session
-    ? players.filter((player) => session.team === "Tất Cả Đội" || player.team === session.team)
-    : [];
-
   // Initialize attendance data
   useEffect(() => {
-    if (session) {
-      setCoachAttendance(coaches.map((coach) => ({ id: coach.id, status: "none", note: "" })));
-      setPlayerAttendance(filteredPlayers.map((player) => ({ id: player.id, status: "none", note: "" })));
-    }
+    console.log("Session data:", session);
+    
   }, [session]);
 
   // Update coach attendance status
@@ -122,20 +92,15 @@ export function AttendanceModal({ isOpen, onClose, session }) {
             <>
               {/* Session Info */}
               <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Buổi tập</p>
-                    <p className="mt-1 text-base font-semibold text-gray-900">{session.name}</p>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-500">Đội</p>
-                    <p className="mt-1 text-base font-semibold text-gray-900">{session.team}</p>
+                    <p className="mt-1 text-base font-semibold text-gray-900">{session.teamId}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">Thời gian</p>
                     <p className="mt-1 text-base font-semibold text-gray-900">
-                      {format(new Date(session.day), "EEEE, dd/MM/yyyy", { locale: vi })} ({session.startTime} -{" "}
-                      {session.endTime})
+                      {(session.scheduledDate)} ({session.scheduledStartTime} - {session.scheduledEndTime})
                     </p>
                   </div>
                 </div>
@@ -152,7 +117,8 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
-                    Huấn Luyện Viên ({coaches.length})
+                    Huấn Luyện Viên 
+                    {/* ({coaches.length}) */}
                   </button>
                   <button
                     onClick={() => setActiveTab("players")}
@@ -162,7 +128,8 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
-                    Cầu Thủ ({filteredPlayers.length})
+                    Cầu Thủ 
+                    {/* ({filteredPlayers.length}) */}
                   </button>
                 </nav>
               </div>
@@ -245,7 +212,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {coaches.map((coach) => {
+                        {/* {coaches.map((coach) => {
                           const attendance = coachAttendance.find((a) => a.id === coach.id) || {
                             status: "none",
                             note: "",
@@ -305,7 +272,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                               </td>
                             </tr>
                           );
-                        })}
+                        })} */}
                       </tbody>
                     </table>
                   </div>
@@ -347,7 +314,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredPlayers.map((player) => {
+                        {/* {filteredPlayers.map((player) => {
                           const attendance = playerAttendance.find((a) => a.id === player.id) || {
                             status: "none",
                             note: "",
@@ -413,7 +380,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                               </td>
                             </tr>
                           );
-                        })}
+                        })} */}
                       </tbody>
                     </table>
                   </div>

@@ -35,6 +35,13 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
   const handleAddExercise = () => {
     setIsAdding(true)
     setEditingExercise(null)
+    setNewExercise({
+      trainingSessionId: sessionId,
+      exerciseName: "",
+      description: "",
+      duration: 15,
+      coachId: coaches[0]?.userId,
+    });
   }
 
   const handleEditExercise = (exercise) => {
@@ -42,14 +49,19 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
     setIsAdding(false)
   }
 
-  const handleDeleteExercise = (id) => {
-    setExercises(exercises.filter((ex) => ex.id !== id))
+  const handleDeleteExercise = async (id) => {
+    try {
+      const response = await scheduleApi.deleteExercise(id);
+      setIsModified(!isModified);
+    }
+    catch (error) {
+      console.error("Lỗi khi xóa bài tập:", error);
+    }
   }
 
   const handleSaveNewExercise = async () => {
     try {
       const response = await scheduleApi.createExercise(newExercise);
-      console.log("Thêm bài tập thành công:", response.data);
       setIsModified(!isModified);
     } catch (error) {
       console.error("Lỗi khi thêm bài tập:", error.response.data);
@@ -57,10 +69,21 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
     setIsAdding(false)
   }
 
-  const handleSaveEditedExercise = () => {
+  const handleSaveEditedExercise = async () => {
     if (!editingExercise || !editingExercise.exerciseName) return
-
-    setExercises(exercises.map((ex) => (ex.exerciseId === editingExercise.exerciseId ? editingExercise : ex)))
+    try {
+      let updatedExercise = {
+        coachId: editingExercise.coachId,
+        description: editingExercise.description,
+        duration: editingExercise.duration,
+        exerciseId: editingExercise.exerciseId,
+        exerciseName: editingExercise.exerciseName,
+      }
+      const response = await scheduleApi.editExercise(updatedExercise);
+      setIsModified(!isModified);
+    } catch (error) {
+      console.error("Lỗi khi chiềnh sách bài tập:", error.response.data);
+    }
     setEditingExercise(null)
   }
 

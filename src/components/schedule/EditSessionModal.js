@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { format } from "date-fns"
+import { format, parse, set } from "date-fns"
 import { X, Clock, MapPin, Save } from "lucide-react"
+import scheduleApi from "@/api/schedule"
+import { vi } from "date-fns/locale"
 
-export function EditSessionModal({ isOpen, onClose, session, courts }) {
+export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, isModified }) {
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
   const [court, setCourt] = useState({})
@@ -12,28 +14,35 @@ export function EditSessionModal({ isOpen, onClose, session, courts }) {
   useEffect(() => {
     if (session) {
       const [startTime, endTime] = session.time.split(" - ")
-
       setStartTime(startTime)
       setEndTime(endTime)
-      console.log(startTime, endTime);
-      
       setCourt(session.court.courtId)
     }
   }, [session])
 
   const handleSubmit = () => {
     if (!session) return
+    let parsedDate = parse(session.scheduledDate, "EEEE, dd/MM/yyyy", new Date(), { locale: vi });
+    let date = format(parsedDate, "yyyy-MM-dd");
 
     // Xử lý cập nhật buổi tập
-    console.log({
-      id: session.id,
-      startTime,
-      endTime,
-      court,
+    handleUpdateSession({
+      scheduledDate: date,
+      startTime: startTime + ":00",
+      endTime: endTime + ":00",
+      courtId: court,
     })
-
     // Đóng modal sau khi xử lý
     onClose()
+  }
+
+  const handleUpdateSession = async (data) => {
+    try {
+      const response = await scheduleApi.updateTrainingSession(sessionId, data);
+      isModified();      
+    } catch (error) {
+      console.error("Lỗi khi chỉnh buổi tập:", error.response.data.errors);
+    }
   }
 
   if (!isOpen || !session) return null

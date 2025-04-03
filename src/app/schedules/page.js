@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, set } from "date-fns";
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays } from "date-fns";
 import { vi } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Plus, Filter, UserCheck } from "lucide-react"
 import { AttendanceModal } from "@/components/attendance/AttendanceModal";
@@ -11,14 +11,13 @@ import { RecurringSessionModal } from "@/components/schedule/RecurringSessionMod
 import { SingleSessionModal } from "@/components/schedule/SingleSessionModal";
 import scheduleApi from "@/api/schedule";
 import courtApi from "@/api/court";
+import teamApi from "@/api/team";
 
 export default function SchedulePage() {
   const { user, userInfo } = useAuth();
-  console.log("userInfo", userInfo);
-  console.log("user", user);
 
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [teamFilter, setTeamFilter] = useState("Tất Cả Đội");
+  const [teamFilter, setTeamFilter] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [attendanceModalOpen, setAttendanceModalOpen] = useState(false)
   const [selectedSession, setSelectedSession] = useState(null)
@@ -27,11 +26,20 @@ export default function SchedulePage() {
   const [trainingSessions, setTrainingSessions] = useState([]);
   const [filteredSessions, setFilterSessions] = useState([]);
   const [courts, setCourts] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [isModified, setIsModified] = useState(false)
 
   useEffect(() => {
     fetchTrainingSessions();
+  }, [currentDate, teamFilter, isModified]);
+
+  useEffect(() => {
+    setTeamFilter(userInfo?.roleInformation.teamId);
+    if (user?.roleCode === "Coach") {
+      fetchTeams();
+    }
     fetchCourts();
-  }, [currentDate, teamFilter]);
+  }, [userInfo?.roleInformation.teamId]);
 
   const fetchCourts = async () => {
     try {
@@ -47,8 +55,9 @@ export default function SchedulePage() {
 
   const fetchTeams = async () => {
     try {
-      // const response = await scheduleApi.getTeams();
-      // console.log("teams", response?.data.data);
+      const response = await teamApi.listTeams({ pageSize: 100 });
+      console.log("teams", response?.data.data.items);
+      setTeams(response?.data.data.items);
     } catch (error) {
       console.error("Error fetching teams:", error);
     }
@@ -60,6 +69,7 @@ export default function SchedulePage() {
       let data = {
         startDate: weekStart,
         endDate: weekEnd,
+        teamId: teamFilter ? teamFilter : userInfo?.roleInformation.teamId,
       }
       if (user?.roleCode !== "Coach") {
         data = {
@@ -67,19 +77,21 @@ export default function SchedulePage() {
           teamId: userInfo?.roleInformation.teamId,
         }
       }
-      
+
       const response = await scheduleApi.getTrainingSessions(data);
       setTrainingSessions(response?.data.data);
+
+      console.log("trainingSessions", response?.data.data);
 
       // Filter sessions for the current week
       const filteredSessions = response?.data.data?.filter((session) => {
         const sessionDate = new Date(session.scheduledDate);
         const isInWeek = sessionDate >= weekStart && sessionDate <= weekEnd;
-        return isInWeek;
+        const isInTeam = teamFilter ? session.teamId === teamFilter : true;
+        return isInWeek && isInTeam;
       });
 
       setFilterSessions(filteredSessions);
-      console.log("filteredSessions", filteredSessions);
       // Take the currentSession base on Date, time is between start time and end time
       const currentSession = filteredSessions.find((session) => {
         const sessionDate = new Date(session.scheduledDate);
@@ -89,7 +101,6 @@ export default function SchedulePage() {
 
         return sessionDate.toDateString() === currentDate.toDateString() && currentTime >= startTime && currentTime <= endTime;
       })
-      console.log("currentSession", currentSession);
 
       if (currentSession) {
         setSelectedSession(currentSession);
@@ -111,6 +122,15 @@ export default function SchedulePage() {
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
     return hours * 3600 + minutes * 60 + seconds;
+  }
+
+  // Take team info
+  const takeTeamNameById = (teamId) => {
+    const team = teams?.find((team) => team.teamId === teamId);
+    if (team) {
+      return team.teamName;
+    }
+    return "Unknown Team";
   }
 
   // Calculate week range
@@ -194,109 +214,69 @@ export default function SchedulePage() {
           </div>
 
           {/* Filters */}
-          {/* <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-              <div className="flex flex-col sm:flex-row gap-4">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            {user?.roleCode === "Coach" && <div className="flex flex-col sm:flex-row gap-4">
+              <div>
+                <button
+                  type="button"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427]"
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  <Filter className="mr-2 h-4 w-4 text-gray-500" />
+                  Bộ Lọc
+                  <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#BD2427] text-white">
+                    {teamFilter !== userInfo?.roleInformation.teamId ? 1 : 0}
+                  </span>
+                </button>
+              </div>
+            </div>}
+
+            {/* Filter Options */}
+            {showFilters && (
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
+                  <label htmlFor="team-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                    Đội
+                  </label>
+                  <select
+                    id="team-filter"
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#BD2427] focus:border-[#BD2427] sm:text-sm rounded-md"
+                    value={teamFilter}
+                    onChange={(e) => setTeamFilter(e.target.value)}
+                  >
+                    {teams?.map((team) => (
+                      <option key={team.teamId} value={team.teamId}>
+                        {team.teamName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Active Filters */}
+            {(teamFilter !== userInfo?.roleInformation.teamId) && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                  Đội: {takeTeamNameById(teamFilter)}
                   <button
                     type="button"
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427]"
-                    onClick={() => setShowFilters(!showFilters)}
+                    className="ml-1.5 inline-flex items-center justify-center h-5 w-5 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none"
+                    onClick={() => { setTeamFilter(userInfo?.roleInformation.teamId); }}
                   >
-                    <Filter className="mr-2 h-4 w-4 text-gray-500" />
-                    Bộ Lọc
-                    {(teamFilter !== "Tất Cả Đội" || courtFilter !== "Tất Cả Sân") && (
-                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#BD2427] text-white">
-                        {teamFilter !== "Tất Cả Đội" && courtFilter !== "Tất Cả Sân" ? 2 : 1}
-                      </span>
-                    )}
+                    <span className="sr-only">Xóa bộ lọc</span>
+                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
                   </button>
-                </div>
-              </div> */}
-
-          {/* Filter Options */}
-          {/* {showFilters && (
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="team-filter" className="block text-sm font-medium text-gray-700 mb-1">
-                      Đội
-                    </label>
-                    <select
-                      id="team-filter"
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#BD2427] focus:border-[#BD2427] sm:text-sm rounded-md"
-                      value={teamFilter}
-                      onChange={(e) => setTeamFilter(e.target.value)}
-                    >
-                      {teams.map((team) => (
-                        <option key={team} value={team}>
-                          {team}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="court-filter" className="block text-sm font-medium text-gray-700 mb-1">
-                      Sân
-                    </label>
-                    <select
-                      id="court-filter"
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#BD2427] focus:border-[#BD2427] sm:text-sm rounded-md"
-                      value={courtFilter}
-                      onChange={(e) => setCourtFilter(e.target.value)}
-                    >
-                      {courts.map((court) => (
-                        <option key={court} value={court}>
-                          {court}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              )} */}
-
-          {/* Active Filters */}
-          {/* {(teamFilter !== "Tất Cả Đội" || courtFilter !== "Tất Cả Sân") && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {teamFilter !== "Tất Cả Đội" && (
-                    <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                      Đội: {teamFilter}
-                      <button
-                        type="button"
-                        className="ml-1.5 inline-flex items-center justify-center h-5 w-5 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none"
-                        onClick={() => setTeamFilter("Tất Cả Đội")}
-                      >
-                        <span className="sr-only">Xóa bộ lọc</span>
-                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </span>
-                  )}
-                  {courtFilter !== "Tất Cả Sân" && (
-                    <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                      Sân: {courtFilter}
-                      <button
-                        type="button"
-                        className="ml-1.5 inline-flex items-center justify-center h-5 w-5 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none"
-                        onClick={() => setCourtFilter("Tất Cả Sân")}
-                      >
-                        <span className="sr-only">Xóa bộ lọc</span>
-                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </span>
-                  )}
-                </div>
-              )}
-            </div> */}
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* Schedule Table */}
           <div className="overflow-hidden">
@@ -430,9 +410,9 @@ export default function SchedulePage() {
         session={selectedSession}
       />
 
-      <RecurringSessionModal isOpen={recurringSessionModalOpen} onClose={() => setRecurringSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts}/>
+      <RecurringSessionModal isOpen={recurringSessionModalOpen} onClose={() => setRecurringSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts} />
 
-      <SingleSessionModal isOpen={singleSessionModalOpen} onClose={() => setSingleSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts}/>
+      <SingleSessionModal isOpen={singleSessionModalOpen} onClose={() => setSingleSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts} isModified={() => setIsModified(!isModified)} />
     </div>
   );
 }

@@ -20,11 +20,11 @@ const scheduleApi = {
     createExercise: (data) => {
         return api.post('/training-session/add-exercise', data);
     },
-    editExercise: (id, data) => {
-        return api.put(`/training-session/edit-exercise/${id}`, data);
+    editExercise: (data) => {
+        return api.put(`/training-session/edit-exercise`, data);
     },
     deleteExercise: (id) => {
-        return api.delete(`/training-session/exercise/${id}`);
+        return api.delete(`/training-session/${id}`);
     },
 };
 
