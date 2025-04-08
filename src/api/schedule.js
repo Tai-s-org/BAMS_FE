@@ -26,6 +26,15 @@ const scheduleApi = {
     deleteExercise: (id) => {
         return api.delete(`/training-session/${id}`);
     },
+    createTrainingSessionAutomation: (data) => {
+        return api.post('/training-session/generate', data);
+    },
+    createTrainingSessionBulk: (data) => {
+        return api.post('/training-session/bulk-create', data);
+    },
+    checkSessionConflict: (data) => {
+        return api.get(`/training-session/check-conflict`, {params: data});
+    }
 };
 
 export default scheduleApi;
