@@ -56,7 +56,6 @@ export default function SchedulePage() {
   const fetchTeams = async () => {
     try {
       const response = await teamApi.listTeams({ pageSize: 100 });
-      console.log("teams", response?.data.data.items);
       setTeams(response?.data.data.items);
     } catch (error) {
       console.error("Error fetching teams:", error);

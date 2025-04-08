@@ -25,6 +25,11 @@ const courtApi = {
     deleteCourt: (id) => {
         return api.put(`/court/disable/${id}`);
     },
+    getAvailableCourt: (data) => {
+        return api.get('/training-session/available-courts', {
+            params: data,
+        });
+    }
 };
 
 export default courtApi;
