@@ -1,13 +1,13 @@
 "use client";
 
-import RegistrationSessionDetail from "@/components/registration-session/RegisTrationSessionDetail";
+import RegistrationManagementDetail from "@/components/registration-management/RegisTrationManagementDetail";
 import { useParams } from 'next/navigation';
 
 export default function RegistrationSessionDetailPage() {
     const { id } = useParams();
     return (
         <div>
-            <RegistrationSessionDetail id={id} />
+            <RegistrationManagementDetail id={id} />
         </div>
     );
 }

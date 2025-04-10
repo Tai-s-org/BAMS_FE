@@ -2,10 +2,14 @@ import api from "./axios";
 
 const registerApi = {
     managerRegister: (data) => {
-        return api.get('/manager-registration/register', data);
+        return api.post('/manager-registration/register', data);
     },
-    getAllManagerRegistration: () => {
-        return api.get('/manager-registration/get-all');
+    getAllManagerRegistration: (filters = {}) => {
+        const validFilters = Object.fromEntries(
+            Object.entries(filters).filter(([_, value]) => value !== undefined && value !== null)
+        );
+
+        return api.get('/manager-registration/list', { params: validFilters });
     },
     approveManager: (id) => {
         return api.post(`/manager-registration/approve/${id}`);
@@ -13,12 +17,41 @@ const registerApi = {
     rejectManager: (id) => {
         return api.post(`/manager-registration/reject/${id}`);
     },
-    updateProfile: (data) => {
-        return api.post('/my-account/update-profile', data);
+    updateManagerForm: (data) => {
+        return api.post('/manager-registration/update-registration-form', data);
     },
-    resetPassword: (userId, data) => {
-        return api.post(`/my-account/reset-password/${userId}`, data);
+
+
+    // Player Registration
+    playerRegister: (data) => {
+        return api.post('/player-registration/player-register', data);
     },
+    getAllPlayerRegistration: (filters = {}) => {
+        const validFilters = Object.fromEntries(
+            Object.entries(filters).filter(([_, value]) => value !== undefined && value !== null)
+        );
+
+        return api.get('/player-registration/registration-list', { params: validFilters });
+    },
+    approvePlayer: (id) => {
+        return api.post(`/player-registration/approve/${id}`);
+    },
+    callPlayerTryOut: (data) => {
+        return api.post(`/player-registration/call-try-out`, data);
+    },
+    rejectPlayer: (id) => {
+        return api.post(`/api/player-registration/reject-registration-form?id=${id}`);
+    },
+    updatePlayerForm: (data) => {
+        return api.put('/player-registration/update-player-register', data);
+    },
+    noteTryOut: (id, data) => {
+        return api.post(`/player-registration/${id}/tryout-note`, data);
+    },
+    updatePlayerFormById: (id, status) => {
+        return api.post(`/player-registration/update-status-form-by-id?id=${id}&status=${status}`);
+    },
+
 };
 
 export default registerApi;
