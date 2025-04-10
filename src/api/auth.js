@@ -8,6 +8,9 @@ const authApi = {
     logout: () => {
         return api.post('/auth/logout');
     },
+    refreshToken: () => {
+        return api.post('/auth/refresh-token');
+    },
     changePassword: (data) => {
         return api.post('/auth/change-password', data);
     },

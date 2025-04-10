@@ -1,20 +1,25 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarIcon } from "lucide-react"
-import { format } from "@/utils/format"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/Button"
-import { Calendar } from "@/components/ui/Calendar"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
-//import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/Radio-group"
 import { Textarea } from "@/components/ui/Textarea"
-//import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
+import { DatePicker } from "@/components/ui/DatePicker"
 
 export default function PlayerRegistrationForm() {
     const [date, setDate] = useState(null)
+    const storedEmail = localStorage.getItem("userEmail");
+
+    const handleChange = (e) => {
+        const { name, value } = e.target
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value
+        }))
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -54,14 +59,14 @@ export default function PlayerRegistrationForm() {
 
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" required />
+                            <Input id="email" name="email" type="email" value={storedEmail} onChange={handleChange} disabled />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Giới Tính</Label>
-                            {/* <RadioGroup defaultValue="male" className="flex space-x-4">
+                            <RadioGroup defaultValue="male" className="flex space-x-4">
                                 <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="male" id="male" />
                                     <Label htmlFor="male">Nam</Label>
@@ -70,25 +75,14 @@ export default function PlayerRegistrationForm() {
                                     <RadioGroupItem value="female" id="female" />
                                     <Label htmlFor="female">Nữ</Label>
                                 </div>
-                            </RadioGroup> */}
+                            </RadioGroup>
                         </div>
-
                         <div className="space-y-2">
-                            <Label htmlFor="dateOfBirth">Ngày Sinh</Label>
-                            {/* <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {date ? format(date, "PPP") : "Chọn ngày"}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
-                                </PopoverContent>
-                            </Popover> */}
+                            <DatePicker
+                                value={date}
+                                onChange={setDate}
+                                placeholder="Ngày Sinh"
+                            />
                         </div>
                     </div>
 

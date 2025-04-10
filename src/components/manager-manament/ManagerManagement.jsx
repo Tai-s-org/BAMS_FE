@@ -23,7 +23,7 @@ export default function ManagerManagement() {
     const router = useRouter();
     // Fetch data from API
     const fetchData = async () => {
-        setLoading(true)
+        //setLoading(true)
         setError(null)
 
         try {
@@ -45,7 +45,7 @@ export default function ManagerManagement() {
             // Call the API using your service
             const response = await managerApi.getManagers(filters)
             console.log(response.data.data);
-            
+
             setData(response.data)
         } catch (err) {
             console.error("Error fetching data:", err)
@@ -140,35 +140,27 @@ export default function ManagerManagement() {
                         </div>
                     )}
 
-                    {/* Loading state */}
-                    {loading ? (
-                        <div className="flex justify-center items-center py-12">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#bd2427]" />
-                            <span className="ml-2 text-lg">Loading...</span>
-                        </div>
-                    ) : (
-                        <>
-                            {/* Table Component */}
-                            <ManagerList
-                                managers={data?.data.items || []}
-                                isDescending={isDescending}
-                                toggleSortDirection={toggleSortDirection}
-                                onViewDetails={handleViewDetails}
-                            />
+                    <>
+                        {/* Table Component */}
+                        <ManagerList
+                            managers={data?.data.items || []}
+                            isDescending={isDescending}
+                            toggleSortDirection={toggleSortDirection}
+                            onViewDetails={handleViewDetails}
+                        />
 
-                            {/* Pagination Component */}
-                            {data && (
-                                <ManagerPagination
-                                    currentPage={data.data.currentPage}
-                                    totalPages={data.data.totalPages}
-                                    pageSize={pageSize}
-                                    totalRecords={data.data.totalRecords}
-                                    onPageChange={setCurrentPage}
-                                    onPageSizeChange={handlePageSizeChange}
-                                />
-                            )}
-                        </>
-                    )}
+                        {/* Pagination Component */}
+                        {data && (
+                            <ManagerPagination
+                                currentPage={data.data.currentPage}
+                                totalPages={data.data.totalPages}
+                                pageSize={pageSize}
+                                totalRecords={data.data.totalRecords}
+                                onPageChange={setCurrentPage}
+                                onPageSizeChange={handlePageSizeChange}
+                            />
+                        )}
+                    </>
                 </div>
             </div>
         </div>

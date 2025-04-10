@@ -1,7 +1,6 @@
 "use client";
 
-import RegistrationManagement from "@/components/registration-session/RegistrationSessionList";
-
+import RegistrationManagement from "@/components/registration-management/RegistrationManagementList";
 
 
 export default function RegistrationManagementPage() {

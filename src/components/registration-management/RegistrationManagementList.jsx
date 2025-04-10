@@ -13,9 +13,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/Radio-group"
 
 import { DatePicker } from "@/components/ui/DatePicker"
 import registrationSessionApi from "@/api/registrationSession"
-import { RegistrationSessionCard } from "./RegistrationSessionCard"
+import { RegistrationManagementCard } from "./RegistrationManagementCard"
 
-export default function RegistrationList() {
+export default function RegistrationManagement() {
   const [campaigns, setCampaigns] = useState([])
   const [loading, setLoading] = useState(true)
   const [totalItems, setTotalItems] = useState(0)
@@ -34,11 +34,10 @@ export default function RegistrationList() {
   const [pageSize, setPageSize] = useState(6)
   const [totalPages, setTotalPages] = useState(1)
 
-  // Function to check if a campaign is active
-  const isCampaignActive = (endDate) => {
-    const now = new Date()
-    const campaignEndDate = new Date(endDate)
-    return now < campaignEndDate
+  // Format date for display
+  const formatDate = (date) => {
+    if (!date) return ""
+    return format(new Date(date), "dd/MM/yyyy", { locale: vi })
   }
 
   // Fetch data from API
@@ -64,9 +63,6 @@ export default function RegistrationList() {
 
       if (response.data && response.data.status === "Success") {
         setCampaigns(response.data.data.items || [])
-        // if (response.data.data.items) {
-        //   setCampaigns(response.data.data.items.filter((campaign) => isCampaignActive(campaign.endDate)))
-        // }
         setTotalItems(response.data.data.totalItems || 0)
         setTotalPages(response.data.data.totalPages)
       } else {
@@ -88,17 +84,7 @@ export default function RegistrationList() {
   // Fetch data when filters or pagination changes
   useEffect(() => {
     fetchData()
-  }, [
-    searchQuery,
-    startDate,
-    endDate,
-    isEnable,
-    isAllowPlayerRecruit,
-    isAllowManagerRecruit,
-    sortOrder,
-    currentPage,
-    pageSize,
-  ])
+  }, [searchQuery, startDate, endDate, isEnable, isAllowPlayerRecruit, isAllowManagerRecruit, sortOrder, currentPage, pageSize,])
 
   // Handle page change
   const handlePageChange = (page) => {
@@ -153,6 +139,33 @@ export default function RegistrationList() {
                 />
               </div>
 
+              {/* Player Recruitment Filter
+              <div>
+                <Label className="text-sm font-medium mb-1 block">Tuyển cầu thủ</Label>
+                <RadioGroup
+                  value={isAllowPlayerRecruit === null ? "all" : isAllowPlayerRecruit ? "yes" : "no"}
+                  onValueChange={(value) => {
+                    if (value === "all") setIsAllowPlayerRecruit(null)
+                    else if (value === "yes") setIsAllowPlayerRecruit(true)
+                    else setIsAllowPlayerRecruit(false)
+                  }}
+                  className="flex space-x-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="all" id="player-all" />
+                    <Label htmlFor="player-all">Tất cả</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="player-yes" />
+                    <Label htmlFor="player-yes">Có</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="player-no" />
+                    <Label htmlFor="player-no">Không</Label>
+                  </div>
+                </RadioGroup>
+              </div> */}
+
               <div>
                 <Label className="text-sm font-medium mb-1 block">Tuyển dụng</Label>
                 <select
@@ -170,6 +183,33 @@ export default function RegistrationList() {
                   <option value={JSON.stringify({ isAllowPlayerRecruit: false, isAllowManagerRecruit: true })}>Chỉ HLV</option>
                 </select>
               </div>
+
+              {/* Manager Recruitment Filter
+              <div>
+                <Label className="text-sm font-medium mb-1 block">Tuyển HLV</Label>
+                <RadioGroup
+                  value={isAllowManagerRecruit === null ? "all" : isAllowManagerRecruit ? "yes" : "no"}
+                  onValueChange={(value) => {
+                    if (value === "all") setIsAllowManagerRecruit(null)
+                    else if (value === "yes") setIsAllowManagerRecruit(true)
+                    else setIsAllowManagerRecruit(false)
+                  }}
+                  className="flex space-x-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="all" id="manager-all" />
+                    <Label htmlFor="manager-all">Tất cả</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="manager-yes" />
+                    <Label htmlFor="manager-yes">Có</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="manager-no" />
+                    <Label htmlFor="manager-no">Không</Label>
+                  </div>
+                </RadioGroup>
+              </div> */}
             </div>
 
             <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -201,7 +241,7 @@ export default function RegistrationList() {
       ) : campaigns.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {campaigns.map((campaign) => (
-            <RegistrationSessionCard key={campaign.id} campaign={campaign} />
+            <RegistrationManagementCard key={campaign.id} campaign={campaign} />
           ))}
         </div>
       ) : (

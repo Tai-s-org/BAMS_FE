@@ -1,13 +1,6 @@
 import { Calendar, Users } from "lucide-react"
-import Link from "next/link"
 import { Button } from "../ui/Button"
-
-// Function to check if a campaign is active
-const isCampaignActive = (endDate) => {
-    const now = new Date()
-    const campaignEndDate = new Date(endDate)
-    return now < campaignEndDate
-}
+import { useRouter } from "next/navigation"
 
 // Function to format date to a more readable format
 const formatDate = (dateString) => {
@@ -17,10 +10,15 @@ const formatDate = (dateString) => {
         month: "2-digit",
         year: "numeric",
     })
-};
+}
 
+export function RegistrationManagementCard({ campaign }) {
+    const router = useRouter();
 
-export function RegistrationSessionCard({ campaign }) {
+    const handleDetailButtonClick = (campaignId) => {
+        router.push(`/dashboard/registration-session-management/${campaignId}`);
+        localStorage.setItem("memberRegistrationSessionId", campaignId);
+    }
     return (
         <div className="bg-white rounded-lg overflow-hidden border border-gray-200 border-t-4 border-t-[#BD2427] shadow-lg">
             <div className="p-4 pb-2">
@@ -64,25 +62,10 @@ export function RegistrationSessionCard({ campaign }) {
                     </div>
 
                     <div className="pt-2">
-                        {isCampaignActive(campaign.endDate) ? (
-                            <Link href={`/auth/registration/${campaign.id}`} >
-                                <Button className="w-full py-2 px-4 bg-[#BD2427] hover:bg-[#BD2427]/90 text-white font-medium rounded-md transition-colors"
-                                    onClick={() => {
-                                        localStorage.setItem("memberRegistrationSessionId", campaign.id)
-                                    }}
-                                >
-                                    Đăng ký
-                                </Button>
-                            </Link>
-
-                        ) : (
-                            <button
-                                className="w-full py-2 px-4 bg-gray-100 text-gray-400 font-medium rounded-md border border-gray-300 cursor-not-allowed"
-                                disabled
-                            >
-                                Hết hạn
-                            </button>
-                        )}
+                        <Button className="w-full py-2 px-4 bg-[#BD2427] hover:bg-[#BD2427]/90 text-white font-medium rounded-md transition-colors"
+                            onClick={() => handleDetailButtonClick(campaign.id)}>
+                            Chi tiết
+                        </Button>
                     </div>
                 </div>
             </div>

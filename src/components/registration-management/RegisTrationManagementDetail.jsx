@@ -13,12 +13,11 @@ import Link from "next/link"
 import registrationSessionApi from "@/api/registrationSession"
 
 
-export default function RegistrationSessionDetail({ id }) {
+export default function RegistrationManagementDetail({ id }) {
     const router = useRouter()
     const [session, setSession] = useState();
     const [loading, setLoading] = useState(true)
     const { addToast } = useToasts();
-    localStorage.setItem("registrationSessionId", id);
 
     useEffect(() => {
         const fetchSessionDetails = async () => {
@@ -57,10 +56,7 @@ export default function RegistrationSessionDetail({ id }) {
             month: "2-digit",
             year: "numeric",
         })
-    };
-
-    console.log(session);
-
+    }
 
     const isActive = () => {
         if (!session) return false
@@ -70,19 +66,12 @@ export default function RegistrationSessionDetail({ id }) {
         return session.isEnable && now >= startDate && now <= endDate
     }
 
-    const handlePlayerRegister = () => {
-        router.push("/auth/register")
-        localStorage.setItem("registraionRoleCode", "player");
-    }
-
-    const handleManagerRegister = () => {
-        router.push("/auth/register")
-        localStorage.setItem("registraionRoleCode", "manager");
+    const handleSubmitRegistration = async () => {
     }
 
     if (!session) {
         return (
-            <div className="max-w-4xl mx-auto py-12 px-4">
+            <div className="py-12 px-4">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-800 mb-4">Không tìm thấy đợt tuyển quân</h1>
                     <p className="text-gray-600 mb-6">Đợt tuyển quân này không tồn tại hoặc đã bị xóa.</p>
@@ -96,7 +85,7 @@ export default function RegistrationSessionDetail({ id }) {
     }
 
     return (
-        <div className="max-w-4xl mx-auto py-8 px-4">
+        <div className="mx-auto py-8 px-4">
             <Button onClick={() => router.back()} variant="ghost" className="mb-6">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Quay lại danh sách
@@ -187,28 +176,27 @@ export default function RegistrationSessionDetail({ id }) {
                     <Separator className="my-6" />
 
                     <div className="space-y-4">
-                        <h2 className="text-lg font-semibold">Đăng ký tham gia</h2>
-                        <p className="text-gray-600">Chọn vai trò bạn muốn đăng ký tham gia:</p>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                            <Button
-                                onClick={handlePlayerRegister}
-                                disabled={!isActive() || !session.isAllowPlayerRecruit}
-                                className="h-auto py-4 bg-[#BD2427] hover:bg-[#9a1e1f]"
-                            >
-                                <Users className="mr-2 h-5 w-5" />
-                                Đăng ký làm cầu thủ
-                            </Button>
-                            <Button
-                                onClick={handleManagerRegister}
-                                disabled={!isActive() || !session.isAllowManagerRecruit}
-                                variant="outline"
-                                className="h-auto py-4 border-[#BD2427] text-[#BD2427] hover:bg-[#fef2f2]"
-                            >
-                                <Briefcase className="mr-2 h-5 w-5" />
-                                Đăng ký làm quản lý
-                            </Button>
+                            <Link href={'/dashboard/registration-session-management/player-registration-list'}>
+                                <Button
+                                    disabled={!isActive() || !session.isAllowPlayerRecruit}
+                                    className="h-auto py-4 bg-[#BD2427] hover:bg-[#9a1e1f]"
+                                >
+                                    <Users className="mr-2 h-5 w-5" />
+                                    Danh sách cầu thủ đăng ký
+                                </Button>
+                            </Link>
+                            <Link href={'/dashboard/registration-session-management/manager-registration-list'}>
+                                <Button
+                                    disabled={!isActive() || !session.isAllowManagerRecruit}
+                                    variant="outline"
+                                    className="h-auto py-4 border-[#BD2427] text-[#BD2427] hover:bg-[#fef2f2]"
+                                >
+                                    <Briefcase className="mr-2 h-5 w-5" />
+                                    Danh sách quản lý đăng ký
+                                </Button>
+                            </Link>
                         </div>
 
                         {!isActive() && (
