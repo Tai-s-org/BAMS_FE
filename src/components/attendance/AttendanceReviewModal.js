@@ -1,54 +1,44 @@
 "use client"
 
-import { useState } from "react"
-import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { Check, X, UserCheck, Edit } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Check, X, UserCheck } from "lucide-react"
+import attendanceApi from "@/api/attendance"
 
-// Sample data for coaches
-const coaches = [
-  { id: 1, name: "Nguyễn Văn A", role: "Huấn Luyện Viên Trưởng", status: "present", note: "" },
-  { id: 2, name: "Trần Thị B", role: "Huấn Luyện Viên Phụ", status: "absent", note: "Đi công tác" },
-  { id: 3, name: "Lê Văn C", role: "Huấn Luyện Viên Thể Lực", status: "present", note: "" },
-]
-
-// Sample data for players
-const players = [
-  { id: 1, name: "Phạm Văn D", number: 5, position: "Hậu vệ", team: "T001", status: "present", note: "" },
-  { id: 2, name: "Hoàng Thị E", number: 7, position: "Tiền vệ", team: "T001", status: "present", note: "" },
-  { id: 3, name: "Đỗ Văn F", number: 10, position: "Tiền đạo", team: "T001", status: "absent", note: "Bị ốm" },
-  {
-    id: 4,
-    name: "Ngô Thị G",
-    number: 12,
-    position: "Hậu vệ",
-    team: "T001",
-    status: "absent",
-    note: "Chấn thương",
-  },
-  { id: 5, name: "Vũ Văn H", number: 15, position: "Tiền vệ", team: "T001", status: "present", note: "" },
-  { id: 6, name: "Đinh Thị I", number: 3, position: "Tiền đạo", team: "T001", status: "present", note: "" },
-  { id: 7, name: "Bùi Văn J", number: 8, position: "Hậu vệ", team: "T001", status: "absent", note: "Lý do cá nhân" },
-  { id: 8, name: "Lý Thị K", number: 11, position: "Tiền vệ", team: "T001", status: "present", note: "" },
-  {
-    id: 9,
-    name: "Dương Văn L",
-    number: 14,
-    position: "Tiền đạo",
-    team: "Đội Trẻ",
-    status: "absent",
-    note: "Thi đấu giải khác",
-  },
-  { id: 10, name: "Đặng Thị M", number: 20, position: "Hậu vệ", team: "Đội Trẻ", status: "present", note: "" },
-]
-
-export function AttendanceReviewModal({ isOpen, onClose, session }) {
+export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
   const [activeTab, setActiveTab] = useState("coaches")
+  const [playerAttendance, setPlayerAttendance] = useState([])
+  const [coachAttendance, setCoachAttendance] = useState([])
 
-  // Filter players by session team
-  const filteredPlayers = session
-    ? players.filter((player) => session.teamId === "Tất Cả Đội" || player.team === session.teamId)
-    : []
+  useEffect(() => {
+    if (isOpen) {
+      fetchPlayerAttendance()
+      fetchCoachAttendance()
+    }
+  }, [isOpen, session])
+
+  const fetchPlayerAttendance = async () => {
+    try {
+      const data = {
+        trainingSessionId: sessionId,
+      }
+      const response = await attendanceApi.getPlayerAttendance(data)
+      setPlayerAttendance(response?.data.data)
+    } catch (error) {
+      console.log("Error fetching player attendance:", error)
+    }
+  }
+
+  const fetchCoachAttendance = async () => {
+    try {
+      const data = {
+        trainingSessionId: sessionId,
+      }  
+      const response = await attendanceApi.getCoachAttendance(data)
+      setCoachAttendance(response?.data.data)
+    } catch (error) {
+      console.log("Error fetching coach attendance:", error)
+    }
+  }
 
   // Count attendance status
   const getStatusCount = (items, status) => {
@@ -58,14 +48,14 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
   // Display status badge
   const getStatusBadge = (status) => {
     switch (status) {
-      case "present":
+      case 1:
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
             <Check className="mr-1 h-3 w-3" />
             Có mặt
           </span>
         )
-      case "absent":
+      case 0:
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
             <X className="mr-1 h-3 w-3" />
@@ -116,7 +106,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-500">Đội</p>
-                    <p className="mt-1 text-base font-semibold text-gray-900">{session.teamId}</p>
+                    <p className="mt-1 text-base font-semibold text-gray-900">{session.teamName}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">Thời gian</p>
@@ -137,7 +127,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
-                    Huấn Luyện Viên ({coaches.length})
+                    Huấn Luyện Viên ({coachAttendance.length})
                   </button>
                   <button
                     onClick={() => setActiveTab("players")}
@@ -147,7 +137,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
-                    Cầu Thủ ({filteredPlayers.length})
+                    Cầu Thủ ({playerAttendance.length})
                   </button>
                 </nav>
               </div>
@@ -162,8 +152,8 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
                       <p className="text-sm font-medium text-green-800">Có mặt</p>
                       <p className="text-xl font-semibold text-green-900">
                         {activeTab === "coaches"
-                          ? getStatusCount(coaches, "present")
-                          : getStatusCount(filteredPlayers, "present")}
+                          ? getStatusCount(coachAttendance, 1)
+                          : getStatusCount(playerAttendance, 1)}
                       </p>
                     </div>
                   </div>
@@ -175,8 +165,8 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
                       <p className="text-sm font-medium text-red-800">Vắng mặt</p>
                       <p className="text-xl font-semibold text-red-900">
                         {activeTab === "coaches"
-                          ? getStatusCount(coaches, "absent")
-                          : getStatusCount(filteredPlayers, "absent")}
+                          ? getStatusCount(coachAttendance, 0)
+                          : getStatusCount(playerAttendance, 0)}
                       </p>
                     </div>
                   </div>
@@ -188,8 +178,8 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
                       <p className="text-sm font-medium text-gray-800">Tỷ lệ tham gia</p>
                       <p className="text-xl font-semibold text-gray-900">
                         {activeTab === "coaches"
-                          ? Math.round((getStatusCount(coaches, "present") / coaches.length) * 100)
-                          : Math.round((getStatusCount(filteredPlayers, "present") / filteredPlayers.length) * 100)}
+                          ? Math.round((getStatusCount(coachAttendance, 1) / coachAttendance.length) * 100)
+                          : Math.round((getStatusCount(playerAttendance, 1) / playerAttendance.length) * 100)}
                         %
                       </p>
                     </div>
@@ -211,42 +201,24 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
                             scope="col"
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           >
-                            Vai Trò
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
                             Trạng Thái
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Ghi Chú
                           </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {coaches.map((coach) => (
-                          <tr key={coach.id}>
+                        {coachAttendance.map((coach) => (
+                          <tr key={coach.userId}>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                  <span className="font-medium text-gray-600">{coach.name.charAt(0)}</span>
+                                  <span className="font-medium text-gray-600">{coach.fullName.charAt(0)}</span>
                                 </div>
                                 <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">{coach.name}</div>
+                                  <div className="text-sm font-medium text-gray-900">{coach.fullName}</div>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-500">{coach.role}</div>
-                            </td>
                             <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(coach.status)}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-500">{coach.note || "-"}</div>
-                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -267,13 +239,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
                             scope="col"
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           >
-                            Số Áo
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Vị Trí
+                            Sinh nhật
                           </th>
                           <th
                             scope="col"
@@ -290,26 +256,21 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredPlayers.map((player) => (
-                          <tr key={player.id}>
+                        {playerAttendance.map((player) => (
+                          <tr key={player.userId}>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#BD2427]/10 flex items-center justify-center">
-                                  <span className="font-medium text-[#BD2427]">{player.name.charAt(0)}</span>
+                                  <span className="font-medium text-[#BD2427]">{player.fullName.charAt(0)}</span>
                                 </div>
                                 <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">{player.name}</div>
-                                  <div className="text-xs text-gray-500">{player.team}</div>
+                                  <div className="text-sm font-medium text-gray-900">{player.fullName}</div>
+                                  <div className="text-xs text-gray-500"></div>
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-100">
-                                <span className="text-xs font-medium">{player.number}</span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-500">{player.position}</div>
+                              <div className="text-sm text-gray-500">20/11/2005</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(player.status)}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
@@ -325,7 +286,6 @@ export function AttendanceReviewModal({ isOpen, onClose, session }) {
 
               <div className="bg-gray-50 px-6 py-4 flex items-center justify-between">
                 <div className="text-sm text-gray-500">
-                  Điểm danh được cập nhật lần cuối: {format(new Date(), "dd/MM/yyyy HH:mm", { locale: vi })}
                 </div>
                 <div className="flex space-x-3">
                   <button

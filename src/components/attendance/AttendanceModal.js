@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, X, UserCheck, UserX, Save } from "lucide-react";
+import { Check, X, UserCheck, UserX, Save, CircleX } from "lucide-react";
+import attendanceApi from "@/api/attendance";
 
 export function AttendanceModal({ isOpen, onClose, session }) {
   const [coachAttendance, setCoachAttendance] = useState([]);
@@ -9,49 +10,118 @@ export function AttendanceModal({ isOpen, onClose, session }) {
   const [activeTab, setActiveTab] = useState("coaches");
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
 
   // Initialize attendance data
   useEffect(() => {
     console.log("Session data:", session);
-    
+    fetchPlayerAttendance();
+    fetchCoachAttendance();
   }, [session]);
+
+  const fetchPlayerAttendance = async () => {
+    try {
+      const data = {
+        trainingSessionId: session.trainingSessionId,
+      }
+      const response = await attendanceApi.getPlayerAttendance(data);
+      setPlayerAttendance(response?.data.data);
+      console.log("Player Attendance:", response?.data.data);
+      
+    } catch (error) {
+      console.log("Error fetching player attendance:", error);
+    }
+  }
+
+  const fetchCoachAttendance = async () => {
+    try {
+      const data = {
+        trainingSessionId: session.trainingSessionId,
+      }
+      const response = await attendanceApi.getCoachAttendance(data);
+      setCoachAttendance(response?.data.data);
+      
+      // setCoachAttendance(response?.data.data);
+    } catch (error) {
+      console.log("Error fetching coach attendance:", error);
+    }
+  }
+
+  const checkMissingAttendance = () => {
+    return playerAttendance.some((record) => record.status === null) || coachAttendance.some((record) => record.status === null);
+  };
 
   // Update coach attendance status
   const updateCoachStatus = (id, status) => {
-    setCoachAttendance((prev) => prev.map((record) => (record.id === id ? { ...record, status } : record)));
-  };
-
-  // Update coach note
-  const updateCoachNote = (id, note) => {
-    setCoachAttendance((prev) => prev.map((record) => (record.id === id ? { ...record, note } : record)));
+    setCoachAttendance((prev) => prev.map((record) => (record.userId === id ? { ...record, status } : record)));
   };
 
   // Update player attendance status
   const updatePlayerStatus = (id, status) => {
-    setPlayerAttendance((prev) => prev.map((record) => (record.id === id ? { ...record, status } : record)));
+    setPlayerAttendance((prev) => prev.map((record) => (record.userId === id ? { ...record, status } : record)));
   };
 
   // Update player note
   const updatePlayerNote = (id, note) => {
-    setPlayerAttendance((prev) => prev.map((record) => (record.id === id ? { ...record, note } : record)));
+    setPlayerAttendance((prev) => prev.map((record) => (record.userId === id ? { ...record, note } : record)));
   };
 
   // Save attendance
-  const saveAttendance = () => {
+  const saveAttendance = async () => {
     setIsSaving(true);
 
     // Simulate API call
-    setTimeout(() => {
-      console.log("Coach Attendance:", coachAttendance);
-      console.log("Player Attendance:", playerAttendance);
-      setIsSaving(false);
-      setSaveSuccess(true);
+    try {
+      const data = [
+        ...coachAttendance.map((coach) => ({
+          ...coach,
+          trainingSessionId: session.trainingSessionId,
+          note: null,
+        })),
+        ...playerAttendance.map((player) => ({
+          ...player,
+          trainingSessionId: session.trainingSessionId,
+        })),
+      ]
+      // const response = await attendanceApi.takeAttendance(data)
+      console.log("Attendance Data:", data?.map((record) => ({
+        userId: record.userId,
+        status: record.status,
+        note: record.note,
+        trainingSessionId: record.trainingSessionId,
+      })));
+      const response = await attendanceApi.takeAttendance(data?.map((record) => ({
+        userId: record.userId,
+        status: record.status,
+        note: record.note,
+        trainingSessionId: record.trainingSessionId,
+      })));
 
-      // Hide success message after 3 seconds
+      console.log("Attendance saved successfully:", response?.data.message);
       setTimeout(() => {
-        setSaveSuccess(false);
-      }, 3000);
-    }, 1000);
+        setIsSaving(false);
+        setSaveSuccess(true);
+  
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setSaveSuccess(false);
+        }, 3000);
+      }, 1000);
+      
+    } catch (error) {
+      console.error("Error saving attendance:", error);
+      setTimeout(() => {
+        setIsSaving(false);
+        setSaveFailed(true);
+  
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setSaveFailed(false);
+        }, 3000);
+      }, 1000);
+    }
+
+    
   };
 
   // Count attendance status
@@ -129,7 +199,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                     } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
                     Cầu Thủ 
-                    {/* ({filteredPlayers.length}) */}
+                    ({playerAttendance.length})
                   </button>
                 </nav>
               </div>
@@ -146,8 +216,8 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                       <p className="text-sm font-medium text-green-800">Có mặt</p>
                       <p className="text-xl font-semibold text-green-900">
                         {activeTab === "coaches"
-                          ? getStatusCount(coachAttendance, "present")
-                          : getStatusCount(playerAttendance, "present")}
+                          ? getStatusCount(coachAttendance, 1)
+                          : getStatusCount(playerAttendance, 1)}
                       </p>
                     </div>
                   </div>
@@ -159,8 +229,8 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                       <p className="text-sm font-medium text-red-800">Vắng mặt</p>
                       <p className="text-xl font-semibold text-red-900">
                         {activeTab === "coaches"
-                          ? getStatusCount(coachAttendance, "absent")
-                          : getStatusCount(playerAttendance, "absent")}
+                          ? getStatusCount(coachAttendance, 0)
+                          : getStatusCount(playerAttendance, 0)}
                       </p>
                     </div>
                   </div>
@@ -172,8 +242,8 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                       <p className="text-sm font-medium text-gray-800">Chưa điểm danh</p>
                       <p className="text-xl font-semibold text-gray-900">
                         {activeTab === "coaches"
-                          ? getStatusCount(coachAttendance, "none")
-                          : getStatusCount(playerAttendance, "none")}
+                          ? getStatusCount(coachAttendance, null)
+                          : getStatusCount(playerAttendance, null)}
                       </p>
                     </div>
                   </div>
@@ -195,51 +265,31 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                             scope="col"
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           >
-                            Vai Trò
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
                             Trạng Thái
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Ghi Chú
                           </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {/* {coaches.map((coach) => {
-                          const attendance = coachAttendance.find((a) => a.id === coach.id) || {
-                            status: "none",
-                            note: "",
-                          };
-
+                        {coachAttendance.map((coach) => {
                           return (
-                            <tr key={coach.id}>
+                            <tr key={coach.userId}>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
                                   <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                    <span className="font-medium text-gray-600">{coach.name.charAt(0)}</span>
+                                    <span className="font-medium text-gray-600">{coach.fullName.charAt(0)}</span>
                                   </div>
                                   <div className="ml-4">
-                                    <div className="text-sm font-medium text-gray-900">{coach.name}</div>
+                                    <div className="text-sm font-medium text-gray-900">{coach.fullName}</div>
                                   </div>
                                 </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-500">{coach.role}</div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex space-x-2">
                                   <button
                                     type="button"
-                                    onClick={() => updateCoachStatus(coach.id, "present")}
+                                    onClick={() => updateCoachStatus(coach.userId, 1)}
                                     className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      attendance.status === "present"
+                                      coach.status === 1
                                         ? "bg-green-100 text-green-800 ring-2 ring-green-500"
                                         : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
                                     }`}
@@ -249,9 +299,9 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => updateCoachStatus(coach.id, "absent")}
+                                    onClick={() => updateCoachStatus(coach.userId, 0)}
                                     className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      attendance.status === "absent"
+                                      coach.status === 0
                                         ? "bg-red-100 text-red-800 ring-2 ring-red-500"
                                         : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
                                     }`}
@@ -261,18 +311,9 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   </button>
                                 </div>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <input
-                                  type="text"
-                                  className="shadow-sm focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                                  placeholder="Thêm ghi chú..."
-                                  value={attendance.note}
-                                  onChange={(e) => updateCoachNote(coach.id, e.target.value)}
-                                />
-                              </td>
                             </tr>
                           );
-                        })} */}
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -291,13 +332,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                             scope="col"
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           >
-                            Số Áo
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Vị Trí
+                            Sinh nhật
                           </th>
                           <th
                             scope="col"
@@ -314,40 +349,31 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {/* {filteredPlayers.map((player) => {
-                          const attendance = playerAttendance.find((a) => a.id === player.id) || {
-                            status: "none",
-                            note: "",
-                          };
+                        {playerAttendance.map((player) => {
 
                           return (
-                            <tr key={player.id}>
+                            <tr key={player.userId}>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
                                   <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#BD2427]/10 flex items-center justify-center">
-                                    <span className="font-medium text-[#BD2427]">{player.name.charAt(0)}</span>
+                                    <span className="font-medium text-[#BD2427]">{player.fullName.charAt(0)}</span>
                                   </div>
                                   <div className="ml-4">
-                                    <div className="text-sm font-medium text-gray-900">{player.name}</div>
-                                    <div className="text-xs text-gray-500">{player.team}</div>
+                                    <div className="text-sm font-medium text-gray-900">{player.fullName}</div>
+                                    <div className="text-xs text-gray-500"></div>
                                   </div>
                                 </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-100">
-                                  <span className="text-xs font-medium">{player.number}</span>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-500">{player.position}</div>
+                                <div className="text-sm text-gray-500">20/11/2025</div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex space-x-2">
                                   <button
                                     type="button"
-                                    onClick={() => updatePlayerStatus(player.id, "present")}
+                                    onClick={() => updatePlayerStatus(player.userId, 1)}
                                     className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      attendance.status === "present"
+                                      player.status === 1
                                         ? "bg-green-100 text-green-800 ring-2 ring-green-500"
                                         : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
                                     }`}
@@ -357,9 +383,9 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => updatePlayerStatus(player.id, "absent")}
+                                    onClick={() => updatePlayerStatus(player.userId, 0)}
                                     className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      attendance.status === "absent"
+                                      player.status === 0
                                         ? "bg-red-100 text-red-800 ring-2 ring-red-500"
                                         : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
                                     }`}
@@ -374,13 +400,13 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   type="text"
                                   className="shadow-sm focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
                                   placeholder="Thêm ghi chú..."
-                                  value={attendance.note}
-                                  onChange={(e) => updatePlayerNote(player.id, e.target.value)}
+                                  value={player.note}
+                                  onChange={(e) => updatePlayerNote(player.userId, e.target.value)}
                                 />
                               </td>
                             </tr>
                           );
-                        })} */}
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -396,6 +422,12 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                       <span className="text-sm">Đã lưu điểm danh thành công</span>
                     </div>
                   )}
+                  {saveFailed && (
+                    <div className="flex items-center text-red-700 bg-red-50 px-3 py-1 rounded-md">
+                      <CircleX className="h-4 w-4 mr-1" />
+                      <span className="text-sm">Đã lưu điểm danh thất bại</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex space-x-3">
                   <button
@@ -407,9 +439,10 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                   </button>
                   <button
                     type="button"
-                    className="inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427]"
+                    className="inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] disabled:opacity-50"
                     onClick={saveAttendance}
-                    disabled={isSaving}
+                    disabled={isSaving || checkMissingAttendance()}
+                    
                   >
                     {isSaving ? (
                       <>
