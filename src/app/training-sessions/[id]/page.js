@@ -380,7 +380,7 @@ export default function TrainingSessionDetail() {
             />
 
             {/* Modal Xem Kết Quả Điểm Danh */}
-            <AttendanceReviewModal isOpen={attendanceRvOpen} onClose={() => setAttendanceRvOpen(false)} session={session} />
+            <AttendanceReviewModal isOpen={attendanceRvOpen} onClose={() => setAttendanceRvOpen(false)} session={session} sessionId={params.id}/>
         </div>
     );
 }
