@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input"
 import { DatePicker } from "@/components/ui/DatePicker"
 import registerApi from "@/api/register"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import { TimePicker } from "@/components/ui/TimePicker"
 
 export function TryoutModal({ open, onClose, selectedCount, selectedPlayers }) {
     const [date, setDate] = useState(null)
@@ -85,6 +86,7 @@ export function TryoutModal({ open, onClose, selectedCount, selectedPlayers }) {
                                     value={date}
                                     onChange={setDate}
                                     placeholder="Chọn ngày"
+                                    minDate={new Date()}
                                 />
                             </div>
                         </div>
@@ -94,8 +96,13 @@ export function TryoutModal({ open, onClose, selectedCount, selectedPlayers }) {
                                 Giờ
                             </Label>
                             <div className="col-span-3 relative">
-                                <Input id="time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
+                                <TimePicker
+                                    value={time}
+                                    onChange={setTime}
+                                    placeholder="Chọn giờ"
+                                />
                             </div>
+
                         </div>
 
                         <div className="grid grid-cols-4 items-center gap-4">

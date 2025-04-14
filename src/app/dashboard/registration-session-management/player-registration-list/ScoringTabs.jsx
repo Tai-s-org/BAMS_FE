@@ -26,7 +26,7 @@ export function ScoringTab({ players, onStatusChange }) {
                                     <TableCell>{player.email}</TableCell>
                                     <TableCell>{player.phoneNumber}</TableCell>
                                     <TableCell>{player.candidateNumber}</TableCell>
-                                    <TableCell>{player.gender}</TableCell>
+                                    <TableCell>{player.gender ? "Nam" : "Nữ"}</TableCell>
                                     <TableCell>
                                         <ScoreButton
                                             playerId={player.playerRegistrationId}
@@ -36,6 +36,7 @@ export function ScoringTab({ players, onStatusChange }) {
                                             email={player.email}
                                             onScoreSubmitted={onStatusChange}
                                             candidateNumber={player.candidateNumber}
+                                            onStatusChange = {onStatusChange}
                                         />
                                     </TableCell>
                                 </TableRow>

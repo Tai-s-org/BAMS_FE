@@ -219,7 +219,7 @@ export function PlayerScoreDetailsModal({ open, onClose, playerId }) {
                                         <TableCell>{score.measurementName}</TableCell>
                                         <TableCell>{score.score}</TableCell>
                                         <TableCell>ID: {score.scoredBy}</TableCell>
-                                        <TableCell>{formatDateTime(score.scoredAt)}</TableCell>
+                                        <TableCell>{formatDateTime(score.updatedAt)}</TableCell>
                                     </TableRow>
                                 ))}
                         </TableBody>

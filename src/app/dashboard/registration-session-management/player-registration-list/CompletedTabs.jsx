@@ -17,7 +17,7 @@ export function CompletedTab({ players }) {
               <TableHead>Điểm trung bình</TableHead>
               <TableHead>Trạng thái</TableHead>
               <TableHead>Ngày cập nhật</TableHead>
-            </TableRow>
+            </TableRow> 
           </TableHeader>
           <TableBody>
             {players.length > 0 ? (

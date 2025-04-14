@@ -23,24 +23,7 @@ export default function RegistrationManagementDetail({ id }) {
         const fetchSessionDetails = async () => {
             try {
                 const response = await registrationSessionApi.getRegistrationSessionById(id);
-
-                // Mock data for demonstration
-                const RegistrationSession = {
-                    "id": id,
-                    "registrationName": "TUYỂN QUÂN THÁNG 5 NĂM 2025",
-                    "startDate": "2025-03-05T23:59:59",
-                    "endDate": "2025-06-05T23:59:59",
-                    "isAllowPlayerRecruit": true,
-                    "isAllowManagerRecruit": true,
-                    "isEnable": true,
-                    "createdAt": "2025-02-15T00:00:00",
-                    "updatedAt": null,
-                    "description":
-                        "Đợt tuyển quân mới nhất dành cho các cầu thủ và quản lý muốn tham gia vào đội bóng. Chúng tôi đang tìm kiếm những người có đam mê với bóng đá và mong muốn phát triển kỹ năng trong môi trường chuyên nghiệp.",
-                };
-
                 setSession(response.data)
-                addToast({ message: response.data.message, type: "success" });
             } catch (error) {
                 addToast({ message: error.response.data.message, type: "error" });
             }

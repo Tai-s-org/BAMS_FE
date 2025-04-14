@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button"
 import { ScorePopup } from "./score-popup"
 
 
-export function ScoreButton({ playerId, playerName, registrationName, gender, email, candidateNumber }) {
+export function ScoreButton({ playerId, playerName, registrationName, gender, email, candidateNumber, onStatusChange }) {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
@@ -14,6 +14,7 @@ export function ScoreButton({ playerId, playerName, registrationName, gender, em
 
             <ScorePopup
                 open={isOpen}
+                onStatusChange = {onStatusChange}
                 onClose={() => setIsOpen(false)}
                 player={{
                     id: playerId,
