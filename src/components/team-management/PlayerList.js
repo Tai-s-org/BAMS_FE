@@ -26,15 +26,15 @@ export default function PlayerList({ players }) {
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg?height=40&width=40" alt={player.playerName} />
+                      <AvatarImage src="/placeholder.svg?height=40&width=40" alt={player.fullname} />
                       <AvatarFallback>
-                        {player.playerName
+                        {player.fullname
                           .split(" ")
                           .map((n) => n[0])
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
-                    <span>{player.playerName}</span>
+                    <span>{player.fullname}</span>
                   </div>
                 </TableCell>
                 <TableCell>{player.position}</TableCell>
