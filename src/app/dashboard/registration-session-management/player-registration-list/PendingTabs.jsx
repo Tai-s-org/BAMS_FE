@@ -38,7 +38,7 @@ export function PendingTab({ players, onStatusChange }) {
 
     const handleTryoutSubmit = async (data) => {
         try {
-            
+ 
             setIsTryoutModalOpen(false)
             setSelectedPlayers([])
             onStatusChange()
@@ -53,7 +53,7 @@ export function PendingTab({ players, onStatusChange }) {
     const handleRejectConfirm = async () => {
         try {
             // Call API to update players status to Rejected
-            await registerApi.updatePlayerFormById(selectedPlayers,"Rejected");
+            await registerApi.updatePlayerFormById(selectedPlayers, "Rejected");
 
             addToast({
                 message: "Cầu thủ đã bị từ chối",
@@ -126,7 +126,7 @@ export function PendingTab({ players, onStatusChange }) {
                                     <TableCell>{player.fullName}</TableCell>
                                     <TableCell>{player.email}</TableCell>
                                     <TableCell>{player.phoneNumber}</TableCell>
-                                    <TableCell>{player.gender}</TableCell>
+                                    <TableCell>{player.gender ? "Nam" : "Nữ"}</TableCell>
                                     <TableCell>{formatDate(player.submitedDate)}</TableCell>
                                 </TableRow>
                             ))

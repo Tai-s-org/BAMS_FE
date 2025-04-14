@@ -571,7 +571,7 @@ import { useToasts } from "@/hooks/providers/ToastProvider"
 import registerApi from "@/api/register"
 import { Eye } from "lucide-react"
 
-export function ScorePopup({ open, onClose, player }) {
+export function ScorePopup({ open, onClose, player, onStatusChange }) {
   // State to store all scores
   const [scores, setScores] = useState([])
   const [notes, setNotes] = useState({})
@@ -677,6 +677,7 @@ export function ScorePopup({ open, onClose, player }) {
       if (response.data.status == "Success") {
         await registerApi.updatePlayerFormById(player.id, "Scored")
       }
+      onStatusChange();
     } catch (error) {
       console.error("Error submitting scores:", error)
     }
@@ -704,7 +705,7 @@ export function ScorePopup({ open, onClose, player }) {
             </div>
             <div>
               <p className="text-sm text-gray-500">Giới tính</p>
-              <p className="font-medium">{player.gender}</p>
+              <p className="font-medium">{player.gender? "Nam" : "Nữ"}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Email</p>

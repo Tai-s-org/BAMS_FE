@@ -61,15 +61,15 @@ export function CheckInTab({ players, onStatusChange }) {
                                     <TableCell>{player.phoneNumber}</TableCell>
                                     <TableCell>{player.candidateNumber}</TableCell>
                                     <TableCell>
-                                        {player.tryoutDetails?.date ? format(new Date(player.tryoutDetails.date), "dd/MM/yyyy") : "N/A"}
+                                        {player.submitedDate? format(new Date(player.submitedDate), "dd/MM/yyyy") : "N/A"}
                                     </TableCell>
-                                    <TableCell>{player.tryoutDetails?.time || "N/A"}</TableCell>
+                                    <TableCell>{player.submitedDate?.time || "N/A"}</TableCell>
                                     <TableCell>{player.tryoutDetails?.location || "N/A"}</TableCell>
                                     <TableCell>
                                         <Button onClick={() => handleCheckIn(player)}>Điểm danh</Button>
                                     </TableCell>
                                 </TableRow>
-                            ))
+                            )) 
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={7} className="text-center py-4">

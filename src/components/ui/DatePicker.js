@@ -7,8 +7,7 @@ import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 
-
-export function DatePicker({ value, onChange, placeholder, label }) {
+export function DatePicker({ value, onChange, placeholder, label, minDate }) {
     const [isOpen, setIsOpen] = useState(false)
     const [currentMonth, setCurrentMonth] = useState(new Date())
     const [yearSelectOpen, setYearSelectOpen] = useState(false)
@@ -130,6 +129,12 @@ export function DatePicker({ value, onChange, placeholder, label }) {
         )
     }
 
+    // Check if a date is before minDate
+    const isBeforeMinDate = (date) => {
+        if (!minDate) return false
+        return date < minDate
+    }
+
     // Format date for display
     const formatDate = (date) => {
         if (!date) return ""
@@ -138,6 +143,7 @@ export function DatePicker({ value, onChange, placeholder, label }) {
 
     // Handle date selection
     const handleDateSelect = (date) => {
+        if (minDate && date < minDate) return
         onChange(date)
         setIsOpen(false)
     }
@@ -255,11 +261,14 @@ export function DatePicker({ value, onChange, placeholder, label }) {
                                             <button
                                                 type="button"
                                                 onClick={() => handleDateSelect(day)}
+                                                disabled={isBeforeMinDate(day)}
                                                 className={`h-8 w-8 rounded-full flex items-center justify-center text-sm ${isSelected(day)
                                                         ? "bg-[#BD2427] text-white"
                                                         : isToday(day)
                                                             ? "bg-gray-100 hover:bg-gray-200"
-                                                            : "hover:bg-gray-100"
+                                                            : isBeforeMinDate(day)
+                                                                ? "text-gray-300 cursor-not-allowed"
+                                                                : "hover:bg-gray-100"
                                                     }`}
                                             >
                                                 {day.getDate()}
@@ -279,8 +288,10 @@ export function DatePicker({ value, onChange, placeholder, label }) {
                                 size="sm"
                                 onClick={() => {
                                     const today = new Date()
-                                    handleDateSelect(today)
-                                    setCurrentMonth(today)
+                                    if (!(minDate && today < minDate)) {
+                                        handleDateSelect(today)
+                                        setCurrentMonth(today)
+                                    }
                                 }}
                                 className="text-xs"
                             >
@@ -305,4 +316,3 @@ export function DatePicker({ value, onChange, placeholder, label }) {
         </div>
     )
 }
-

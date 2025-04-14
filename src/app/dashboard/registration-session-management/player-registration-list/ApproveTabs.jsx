@@ -55,7 +55,7 @@ export function ApprovalTab({ players, onStatusChange }) {
         setSelectedPlayerId(playerId)
         setIsScoreDetailsOpen(true)
     }
-
+ 
     useEffect(() => {
         const fetchAllScores = async () => {
             const scores = {};

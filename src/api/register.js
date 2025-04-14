@@ -11,6 +11,13 @@ const registerApi = {
 
         return api.get('/manager-registration/list', { params: validFilters });
     },
+    getAllManagerByRegistrationID: (id, filters = {}) => {
+        const validFilters = Object.fromEntries(
+            Object.entries(filters).filter(([_, value]) => value !== undefined && value !== null)
+        );
+
+        return api.get(`/manager-registration/list?memberRegistrationSessionId=${id}`, { params: validFilters });
+    },
     approveManager: (id) => {
         return api.post(`/manager-registration/approve/${id}`);
     },
@@ -32,6 +39,13 @@ const registerApi = {
         );
 
         return api.get('/player-registration/registration-list', { params: validFilters });
+    },
+    getAllPlayerByRegistrationID: (id, filters = {}) => {
+        const validFilters = Object.fromEntries(
+            Object.entries(filters).filter(([_, value]) => value !== undefined && value !== null)
+        );
+
+        return api.get(`/player-registration/registration-list?memberRegistrationSessionId=${id}`, { params: validFilters });
     },
     approvePlayer: (id) => {
         return api.post(`/player-registration/approve/${id}`);

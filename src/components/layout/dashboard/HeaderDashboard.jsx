@@ -37,7 +37,6 @@ export default function HeaderDashboard() {
                     <MessageCircleMore className="h-5 w-5" />
                 </Button>
                 <UserDropdown user={user} />
-                <UserDropdown user={user} />
             </div>
         </header>
     );

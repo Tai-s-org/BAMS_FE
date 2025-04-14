@@ -35,7 +35,7 @@ export default function PlayerRegistrationPage() {
     const [totalPages, setTotalPages] = useState(1)
 
     const { addToast } = useToasts();
-
+    const memberRegistrationSessionId = localStorage.getItem("memberRegistrationSessionId")
     const fetchData = async () => {
         try {
             const filters = {
@@ -46,11 +46,11 @@ export default function PlayerRegistrationPage() {
                 PageNumber: currentPage,
                 PageSize: pageSize,
             }
-
-            const response = await registerApi.getAllPlayerRegistration(filters);
-            console.log(response)
-            setPlayers(response.data.data);
-            //setTotalPages(response.data.totalPages);
+            if (memberRegistrationSessionId) {
+                const response = await registerApi.getAllPlayerByRegistrationID(memberRegistrationSessionId, filters);
+                console.log(response)
+                setPlayers(response.data.data);
+            }
         } catch (error) {
             addToast({ message: error.response.data.message, type: "error" });
             setPlayers([])
@@ -60,33 +60,6 @@ export default function PlayerRegistrationPage() {
     useEffect(() => {
         fetchData();
     }, [searchTerm, statusFilter, dateFilter, currentPage, pageSize])
-
-    // Handle approve action
-    const handleApprove = (id) => {
-
-    }
-
-    // Handle reject action
-    const handleReject = (id) => {
-
-    }
-
-    // Open modal with selected item
-    const openDetailsModal = (item) => {
-        setSelectedItem(item)
-        setIsModalOpen(true)
-    }
-
-    // Handle page change
-    const handlePageChange = (page) => {
-        setCurrentPage(page)
-    }
-
-    // Handle page size change
-    const handlePageSizeChange = (event) => {
-        setPageSize(Number.parseInt(event.target.value))
-        setCurrentPage(1) // Reset to first page when changing page size
-    }
 
     const pendingPlayers = players?.filter((player) => player.status === "Pending")
     const tryoutPlayers = players?.filter((player) => player.status === "Called")

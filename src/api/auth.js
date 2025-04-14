@@ -1,4 +1,4 @@
-import SetNewPassword from "@/app/auth/set-new-password/page";
+import axios from "axios";
 import api from "./axios";
 
 const authApi = {
@@ -9,7 +9,9 @@ const authApi = {
         return api.post('/auth/logout');
     },
     refreshToken: () => {
-        return api.post('/auth/refresh-token');
+        return axios.post('/auth/refresh-token', {}, {
+            withCredentials: true,
+        });
     },
     changePassword: (data) => {
         return api.post('/auth/change-password', data);
@@ -25,9 +27,6 @@ const authApi = {
     },
     information: () => {
         return api.get('/auth/my-information');
-    },
-    test: () => {
-        return api.get('/club-contact');
     },
 };
 

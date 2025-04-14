@@ -16,9 +16,9 @@ export function UserDropdown({ user }) {
     const router = useRouter();
 
     const menuItems = [
-        { icon: User, label: "View Profile", href: "/profile" },
+        { icon: User, label: "Thông tin cá nhân", href: "/profile" },
         { icon: Settings, label: "Settings", href: "/settings" },
-        { icon: KeyRound, label: "Đổi mật khẩu", href: "/change-password" },
+        { icon: KeyRound, label: "Đổi mật khẩu", href: "/auth/change-password" },
         { icon: History, label: "Changelog", href: "/changelog" },
         { icon: Users, label: "Team", href: "/team" },
         { icon: UserPlus, label: "Invite Member", href: "/invite" },
@@ -111,7 +111,7 @@ export function UserDropdown({ user }) {
                         >
                             <div className="flex items-center gap-3">
                                 <LogOut className="h-4 w-4 text-gray-500" />
-                                <span>Sign Out</span>
+                                <span>Đăng xuất</span>
                             </div>
                         </div>
                     </div>

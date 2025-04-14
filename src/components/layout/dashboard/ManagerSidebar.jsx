@@ -22,16 +22,8 @@ export default function ManagerSidebar() {
         { title: "Balances", icon: BarChart3, url: "/balances" },
         { title: "Customers", icon: Users, url: "/customers" },
         { title: "Products", icon: Package, url: "/products" },
-        { title: "Reports", icon: FileText, url: "/reports" },
+        { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
     ];
-
-    const generalItems = [
-        { title: "Developers", icon: Code, url: "/developers" },
-        { title: "View Test Data", icon: Database, url: "/test-data" },
-        { title: "Settings", icon: Settings, url: "/settings", highlight: true },
-    ];
-
-    const updatesItems = [{ title: "Changelog", icon: History, url: "/changelog" }];
 
     return (
         <Sidebar className="border-r border-sidebar-border bg-[#1F2937]">
@@ -47,7 +39,7 @@ export default function ManagerSidebar() {
                 </div>
                 <SidebarMenu>
                     {mainMenuItems.map((item) => {
-                        const isActive = pathname === item.url;
+                        const isActive = pathname.includes(item.url);
                         return (
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton
@@ -71,57 +63,7 @@ export default function ManagerSidebar() {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {menuItems.map((item) => {
-                                const isActive = pathname === item.url;
-                                return (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton
-                                            asChild
-                                            className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
-                                                }`}
-                                        >
-                                            <a href={item.url} className="flex items-center gap-2">
-                                                <item.icon className="h-5 w-5" />
-                                                <span>{item.title}</span>
-                                            </a>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                );
-                            })}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-xs font-semibold text-gray-400">General</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {generalItems.map((item) => {
-                                const isActive = pathname === item.url;
-                                return (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton
-                                            asChild
-                                            className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : item.highlight ? "text-[#bd2427]" : "text-white"
-                                                }`}
-                                        >
-                                            <a href={item.url} className="flex items-center gap-2">
-                                                <item.icon className={`h-5 w-5 ${isActive ? "text-white" : item.highlight ? "text-[#bd2427]" : "text-white"}`} />
-                                                <span>{item.title}</span>
-                                            </a>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                );
-                            })}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-xs font-semibold text-gray-400">Updates</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {updatesItems.map((item) => {
-                                const isActive = pathname === item.url;
+                                const isActive = pathname.includes(item.url);
                                 return (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton
