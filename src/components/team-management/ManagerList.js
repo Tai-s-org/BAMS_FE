@@ -26,9 +26,7 @@ export default function ManagerList({ managers }) {
                       <AvatarImage src="/placeholder.svg?height=40&width=40" alt={manager.managerName} />
                       <AvatarFallback>
                         {manager.managerName
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
+                          .charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span>{manager.managerName}</span>

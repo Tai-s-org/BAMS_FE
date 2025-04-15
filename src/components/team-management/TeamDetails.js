@@ -6,11 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { CalendarDays, MapPin, Trophy, Edit, Power } from "lucide-react";
 import { Input } from "@/components/ui/Input";
-// import { toast } from "@/components/ui/use-toast";
 import PlayerList from "./PlayerList";
 import ManagerList from "./ManagerList";
 import CoachList from "./CoachList";
 import teamApi from "@/api/team";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function TeamDetails() {
   const [teams, setTeams] = useState([]);
@@ -21,11 +21,13 @@ export default function TeamDetails() {
   const [showCoaches, setShowCoaches] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
+  const {addToast} = useToasts();
 
   const fetchTeams = async () => {
     try {
-      const response = await teamApi.listTeams({pageSize: 100});
-
+      const response = await teamApi.listTeams({pageSize: 100, status: 1});
+      console.log("Teams:", response?.data.data.items);
+      
       setTeams(response?.data.data.items);
 
     } catch (error) {
@@ -67,18 +69,16 @@ export default function TeamDetails() {
         status: selectedTeam.status
       }
       const response = await teamApi.updateTeamName(data, selectedTeamId);
+      addToast({ message: response?.data.message, type: response?.data.status });
     } catch (error) {
       console.error("Error updating team name:", error);
+      addToast({ message: error?.response?.data.message, type: "error" });
     }
   };
 
   const handleSaveName = () => {
     if (!editedName.trim()) {
-      // toast({
-      //   title: "Lỗi",
-      //   description: "Tên đội không được để trống",
-      //   variant: "destructive",
-      // });
+      addToast({ message: "Vui lí nhập tên đội", type: "error" });
       return;
     }
 
@@ -90,19 +90,18 @@ export default function TeamDetails() {
     setSelectedTeam({ ...selectedTeam, teamName: editedName });
     setIsEditing(false);
     submitName();
-
-    // toast({
-    //   title: "Thành công",
-    //   description: "Đã cập nhật tên đội",
-    // });
   };
 
   const submitDissolve = async () => {
     try {
-      
-      const response = await teamApi.dissolveTeam(selectedTeamId);
+      const data = {
+        note: "Thích - test"
+      }
+      const response = await teamApi.dissolveTeam(selectedTeamId, data);
+      addToast({ message: response?.data.message, type: response?.data.status });
     } catch (error) {
       console.error("Error updating team name:", error);
+      addToast({ message: error?.response?.data.message, type: "error" });
     }
   };
 
@@ -114,10 +113,6 @@ export default function TeamDetails() {
     submitDissolve();
     setSelectedTeam(updatedTeams[0]);
     setSelelectedTeamId(updatedTeams[0].teamId);
-    // toast({
-    //   title: "Thành công",
-    //   description: newStatus === 1 ? "Đã kích hoạt đội" : "Đã vô hiệu hóa đội",
-    // });
   };
 
   const handleSelectTeam = (team) => {
@@ -131,13 +126,13 @@ export default function TeamDetails() {
   return (
     <div className="space-y-6">
       {teams.length > 0 && <Tabs className="w-full">
-        <TabsList className="w-full justify-start overflow-auto bg-gray-100 p-1">
+        <TabsList className="w-full justify-start overflow-auto bg-gray-200 p-1">
           {teams.map((team) => (
             <TabsTrigger
               key={team.teamId}
               value={team.teamId.toString()}
               onClick={() => handleSelectTeam(team)}
-              className={team.teamId === selectedTeamId ? "border-2 border-red-400 bg-white p-2 rounded-md mx-1" : "border-2 border-red-200 border-r-red-500 rounded-md opacity-60 p-2 mx-1"}
+              className={team.teamId === selectedTeamId ? "border-2 border-red-400 bg-white p-2 rounded-md mx-1 font-bold" : "border-2 border-red-200 border-r-red-500 rounded-md opacity-60 p-2 mx-1 bg-white font-bold"}
             >
               {team.teamName}
             </TabsTrigger>

@@ -16,7 +16,7 @@ const courtApi = {
         return api.put(`/court/update`, data);
     },
     uploadImage: (data) => {
-        return api.post('/file/upload', data, {
+        return api.post('/court/upload-image-and-get-url', data, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

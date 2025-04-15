@@ -31,7 +31,7 @@ export default function TeamManagement() {
       <main className="container mx-auto py-6 px-4">
         <div className="mt-4">
           <Tabs key={activeTab} value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 bg-gray-100 p-1">
+            <TabsList className="grid w-full grid-cols-2 bg-gray-200 p-1">
               <TabsTrigger value="view">Xem Đội</TabsTrigger>
               <TabsTrigger value="create">Tạo Đội Mới</TabsTrigger>
             </TabsList>

@@ -26,12 +26,10 @@ export default function PlayerList({ players }) {
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/placeholder.svg?height=40&width=40" alt={player.fullname} />
+                      <AvatarImage src="/placeholder.svg" alt={player.fullname} />
                       <AvatarFallback>
                         {player.fullname
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
+                          .charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span>{player.fullname}</span>

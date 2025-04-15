@@ -228,7 +228,7 @@ export default function ScheduleConfirmation() {
                     selected={dateRange}
                     onSelect={setDateRange}
                     numberOfMonths={2}
-                    className="[&_.rdp-day_button:hover]:bg-brand-red/10 [&_.rdp-day_button:focus]:bg-brand-red/20 [&_.rdp-day_button.rdp-day_selected]:bg-brand-red"
+                    className="[&_.rdp-day_button:hover]:bg-[#BD2427]/10 [&_.rdp-day_button:focus]:bg-[#BD2427]/20 [&_.rdp-day_button.rdp-day_selected]:bg-[#BD2427]"
                   />
                 </PopoverContent>
               </Popover>
@@ -237,13 +237,13 @@ export default function ScheduleConfirmation() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-3 mb-6">
-              <TabsTrigger value="create" className="data-[state=active]:bg-brand-red data-[state=active]:text-white">
+              <TabsTrigger value="create" >
                 Tạo mới ({filteredCreateSchedules.length})
               </TabsTrigger>
-              <TabsTrigger value="update" className="data-[state=active]:bg-brand-red data-[state=active]:text-white">
+              <TabsTrigger value="update">
                 Chỉnh sửa ({filteredUpdateSchedules.length})
               </TabsTrigger>
-              <TabsTrigger value="cancel" className="data-[state=active]:bg-brand-red data-[state=active]:text-white">
+              <TabsTrigger value="cancel">
                 Hủy lịch ({filteredCancelSchedules.length})
               </TabsTrigger>
             </TabsList>

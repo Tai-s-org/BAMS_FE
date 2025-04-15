@@ -8,6 +8,7 @@ import Footer from "@/components/home/Footer"
 import DemoButtons from "@/components/demo_button"
 import Banner from "@/components/home/Banner"
 import Header from "@/components/home/Header"
+import ChatBot from "@/components/chatbot/Chatbot"
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         <AchievementsSection />
         <GallerySection />
         <ContactSection />
+        <ChatBot/>
       </main>
       <Footer />
     </div>

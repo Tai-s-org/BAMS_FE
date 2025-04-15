@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 import { BarChart3, CreditCard, FileText, Grid, Home, LayoutDashboard, Package, Settings, Users, Code, Database, History } from "lucide-react";
 import { GiWhistle, GiBasketballJersey } from "react-icons/gi"
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
+import { RiGroup2Fill } from "react-icons/ri";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
 
 export default function PresidentSidebar() {
@@ -18,6 +19,7 @@ export default function PresidentSidebar() {
 
     const menuItems = [
         { title: "Accounts", icon: LayoutDashboard, url: "/dashboard/accounts" },
+        { title: "Đội bóng", icon: RiGroup2Fill, url: "/team-management" },
         { title: "Payments", icon: CreditCard, url: "/payments" },
         { title: "Balances", icon: BarChart3, url: "/balances" },
         { title: "Huấn luyện viên", icon: GiWhistle, url: "/dashboard/coach-management" },
