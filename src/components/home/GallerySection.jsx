@@ -2,12 +2,12 @@ import React from "react";
 
 const GallerySection = () => {
     const images = [
-        { src: "/gallery1.jpg", alt: "Trận đấu gay cấn" },
-        { src: "/gallery2.jpg", alt: "Khoảnh khắc chiến thắng" },
-        { src: "/gallery3.jpg", alt: "Đội tuyển Yên Hòa Storm" },
-        { src: "/gallery4.jpg", alt: "Huấn luyện viên và cầu thủ" },
-        { src: "/gallery5.jpg", alt: "Khoảnh khắc ăn mừng" },
-        { src: "/gallery6.jpg", alt: "Sân tập Yên Hòa Storm" },
+        { src: "", alt: "Trận đấu gay cấn" },
+        { src: "", alt: "Khoảnh khắc chiến thắng" },
+        { src: "", alt: "Đội tuyển Yên Hòa Storm" },
+        { src: "", alt: "Huấn luyện viên và cầu thủ" },
+        { src: "", alt: "Khoảnh khắc ăn mừng" },
+        { src: "", alt: "Sân tập Yên Hòa Storm" },
     ];
 
     return (

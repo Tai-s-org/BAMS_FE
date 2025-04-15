@@ -6,10 +6,9 @@ const Banner = () => {
             <Image
                 src="/assets/banner/banner1.jpg"
                 alt="Yên Hòa Storm Banner"
-                layout="fill"
-                objectFit="cover"
+                fill
                 loading="lazy"
-                className="brightness-50"
+                className="brightness-50 object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-red-900/50 to-transparent"></div>
             {/* <div className="absolute inset-0 flex items-center justify-center">
