@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { format } from "date-fns"
 // Import additional icons
 import { CalendarDays, Plus, Trash2, User, Users, BellIcon as Whistle, Clock, MapPin, Trophy } from "lucide-react"
@@ -19,6 +19,11 @@ import {
   DialogTitle,
 } from "@/components/ui/Dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
+import { useAuth } from "@/hooks/context/AuthContext"
+import teamApi from "@/api/team"
+import playerApi from "@/api/player"
+import scheduleApi from "@/api/schedule"
+import matchApi from "@/api/match"
 
 // Mock data for the team
 const teamData = {
@@ -93,122 +98,68 @@ const teamData = {
   ],
 }
 
-// Mock data for non-team players
-const nonTeamPlayers = [
-  {
-    userId: "0f03a8d3-dd16-4fd3-a2d5-de8ac3b73840",
-    fullname: "Ngô Hoàng Anh",
-    email: "user21@example.com",
-    phone: "0834567890",
-    address: "N/A",
-    roleCode: "Player",
-    isEnable: true,
-    relationshipWithParent: "Con trai",
-    weight: 10,
-    height: 10,
-    position: "Tiền vệ",
-    shirtNumber: null,
-    clubJoinDate: "2025-04-03",
-  },
-  {
-    userId: "11b9cf78-50a2-4f1c-ab05-460582abaa09",
-    fullname: "Nguyễn Văn Sơn",
-    email: "vodvum@mkomail.cyou",
-    phone: "0344858585",
-    address: "N/A",
-    roleCode: "Player",
-    isEnable: true,
-    relationshipWithParent: "Con trai",
-    weight: 10,
-    height: 10,
-    position: "Tiền Đạo",
-    shirtNumber: null,
-    clubJoinDate: "2025-04-03",
-  },
-  {
-    userId: "1f615e210741446a8060a144c2a980c6",
-    fullname: "An Hoàng Tuấn",
-    email: "tuanballboo3@example.com",
-    phone: "string",
-    address: "N/A",
-    roleCode: "Player",
-    isEnable: true,
-    relationshipWithParent: "Con trai",
-    weight: 0,
-    height: 0,
-    position: "PG",
-    shirtNumber: null,
-    clubJoinDate: "2025-03-05",
-  },
-]
-
-// Add mock data for training sessions and matches
-const trainingSessionsData = [
-  {
-    trainingSessionId: "35386aec-c899-41c9-9af3-33f79fcaf5f9",
-    teamId: "T001",
-    teamName: "Đội A",
-    playerId: null,
-    playerName: null,
-    courtId: "81657d43-cb30-4ec3-a331-1954d8d604f1",
-    courtName: "Sân bóng rổ chính",
-    scheduledDate: "2025-04-15",
-    scheduledStartTime: "18:00:00",
-    scheduledEndTime: "19:30:00",
-    status: 0,
-    note: null,
-  },
-]
-
-const matchesData = [
-  {
-    matchId: 11,
-    matchName: "GIAO HỮU THÁNG",
-    scheduledDate: "2025-04-18",
-    scheduledStartTime: "16:16:00",
-    scheduledEndTime: "17:16:00",
-    homeTeamId: null,
-    homeTeamName: "Khách",
-    scoreHome: 0,
-    awayTeamId: "T001",
-    awayTeamName: "Đội A",
-    scoreAway: 0,
-    status: "Sắp diễn ra",
-    courtId: "3d5e35e1-253f-482c-a3f8-5b8bdeed941c",
-    courtName: "Nhà thi đấu huyện Thanh Trì",
-    courtAddress: "303 Đường Nam Kỳ Khởi Nghĩa, Quận 3, TP.HCMinh",
-    createdByCoachId: "550e8400-e29b-41d4-a716-556655440002",
-    homeTeamPlayers: [],
-    awayTeamPlayers: [],
-    matchArticles: [],
-  },
-  {
-    matchId: 13,
-    matchName: "GIAO HỮU THÁNG Test",
-    scheduledDate: "2025-04-24",
-    scheduledStartTime: "04:45:00",
-    scheduledEndTime: "05:45:00",
-    homeTeamId: "T001",
-    homeTeamName: "Đội A",
-    scoreHome: 0,
-    awayTeamId: "34a2e1f8-0bd4-4a8a-ad49-6bc8ea2d4a4d",
-    awayTeamName: "ABCD",
-    scoreAway: 0,
-    status: "Sắp diễn ra",
-    courtId: "3d5e35e1-253f-482c-a3f8-5b8bdeed941c",
-    courtName: "Nhà thi đấu huyện Thanh Trì",
-    courtAddress: "303 Đường Nam Kỳ Khởi Nghĩa, Quận 3, TP.HCMinh",
-    createdByCoachId: "550e8400-e29b-41d4-a716-556655440002",
-    homeTeamPlayers: [],
-    awayTeamPlayers: [],
-    matchArticles: [],
-  },
-]
-
 export default function TeamDashboard() {
   const [team, setTeam] = useState(teamData)
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
   const [selectedPlayers, setSelectedPlayers] = useState([])
+  const [trainingSessionsData, setTrainingSessionsData] = useState([])
+  const [matchesData, setMatchesData] = useState([])
+  const [nonTeamPlayers, setNonTeamPlayers] = useState([])
+  const { userInfo } = useAuth();
+
+  useEffect(() => {
+      fetchTeam();
+      fetchNonTeamPlayers();
+      fetchTodayTrainingSession();
+      fetchTodayMatches(); 
+  }, [userInfo?.roleInformation?.teamId]);
+  
+
+  const fetchTeam = async () => {
+    try {
+      const response = await teamApi.teamDetail(userInfo?.roleInformation.teamId);
+      console.log("Team details:", response?.data);
+    } catch (error) {
+      console.error("Error fetching team:", error)
+    }
+  }
+
+  const fetchNonTeamPlayers = async () => {
+    try {
+      const response = await playerApi.getNonTeamPlayers();
+      setNonTeamPlayers(response?.data.data.items);
+    } catch (error) {
+      console.error("Error fetching non-team players:", error)
+    }
+  }
+
+  const fetchTodayTrainingSession = async () => {
+    try {
+      const data = {
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date().toISOString().split("T")[0],
+        teamId: userInfo?.roleInformation.teamId
+      }
+      const response = await scheduleApi.getTrainingSessions(data);
+      setTrainingSessionsData(response?.data.data);
+    } catch (error) {
+      console.error("Error fetching tody training session:", error)
+    }
+  }
+
+  const fetchTodayMatches = async () => {
+    try {
+      const data = {
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date().toISOString().split("T")[0],
+        teamId: userInfo?.roleInformation.teamId
+      }
+      const response = await matchApi.getMatch(data);
+      setMatchesData(response?.data.data);
+    } catch (error) {
+      console.error("Error fetching today matches:", error)
+    }
+  }
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -345,9 +296,9 @@ export default function TeamDashboard() {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Trophy className="h-5 w-5 text-[#BD2427]" />
-              Trận đấu sắp tới
+              Trận đấu hôm nay
             </CardTitle>
-            <CardDescription>Các trận đấu đã lên lịch cho đội</CardDescription>
+            <CardDescription>Các trận đấu đã lên lịch cho đội hôm nay</CardDescription>
           </CardHeader>
           <CardContent>
             {matchesData.length > 0 ? (
@@ -387,7 +338,7 @@ export default function TeamDashboard() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-6 text-muted-foreground">Không có trận đấu nào sắp tới.</div>
+              <div className="text-center py-6 text-muted-foreground">Không có trận đấu nào hôm nay.</div>
             )}
           </CardContent>
         </Card>
@@ -402,15 +353,15 @@ export default function TeamDashboard() {
         <CardContent>
           <Tabs defaultValue="players" className="mt-4">
             <TabsList className="grid grid-cols-3 mb-6">
-              <TabsTrigger value="coaches" className="flex items-center gap-2">
+              <TabsTrigger value="coaches" >
                 <Whistle className="h-4 w-4" />
                 HLV ({team.coaches.length})
               </TabsTrigger>
-              <TabsTrigger value="managers" className="flex items-center gap-2">
+              <TabsTrigger value="managers">
                 <User className="h-4 w-4" />
                 Quản lý ({team.managers.length})
               </TabsTrigger>
-              <TabsTrigger value="players" className="flex items-center gap-2">
+              <TabsTrigger value="players">
                 <Users className="h-4 w-4" />
                 Cầu thủ ({team.players.length})
               </TabsTrigger>
