@@ -16,9 +16,12 @@ const teamApi = {
     createTeam: (data) => {
         return api.post('/team/create', data);
     },
-    dissolveTeam: (id) => {
-        return api.delete(`/team/teams/${id}`);
-    }
+    dissolveTeam: (id, note) => {
+        return api.delete(`/team/disband/${id}`, {params: note});
+    },
+    removePlayer: (teamId, data) => {
+        return api.delete(`/team/remove/${teamId}/players`, data);
+    },
 }
 
 export default teamApi;

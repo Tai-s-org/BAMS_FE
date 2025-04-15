@@ -6,21 +6,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import teamApi from "@/api/team";
-// import { toast } from "@/components/";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function TeamCreationForm({onTeamCreated}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [teamName, setTeamName] = useState("");
+  const {addToast} = useToasts();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!teamName.trim()) {
-      // toast({
-      //   title: "Lỗi",
-      //   description: "Vui lòng nhập tên đội",
-      //   variant: "destructive",
-      // });
+      addToast({ message: "Vui lòng nhập tên đội", type: "error" });
       return;
     }
 
@@ -31,10 +28,12 @@ export default function TeamCreationForm({onTeamCreated}) {
       const response = await teamApi.createTeam({ teamName: teamName, status: 0 });
 
       if (onTeamCreated) {
+        addToast({ message: response?.data.message, type: response?.data.status });
         onTeamCreated();
       }
     } catch (error) {
       console.error("Error creating team:", error);
+      addToast({ message: error?.response?.data.message, type: "error" });
     } finally {
       setIsSubmitting(false);
     }

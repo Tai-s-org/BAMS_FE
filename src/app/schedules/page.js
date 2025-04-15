@@ -80,8 +80,6 @@ export default function SchedulePage() {
       const response = await scheduleApi.getTrainingSessions(data);
       setTrainingSessions(response?.data.data);
 
-      console.log("trainingSessions", response?.data.data);
-
       // Filter sessions for the current week
       const filteredSessions = response?.data.data?.filter((session) => {
         const sessionDate = new Date(session.scheduledDate);
@@ -162,7 +160,7 @@ export default function SchedulePage() {
           <div className="flex flex-wrap gap-2">
 
 
-            {userInfo?.roleInformation.teamId === selectedSession?.teamId && user.roleCode == "Manager" && <button
+            {selectedSession && userInfo?.roleInformation.teamId === selectedSession?.teamId && user.roleCode == "Manager" && <button
               className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
               onClick={() => openAttendanceModal(selectedSession)}
             >

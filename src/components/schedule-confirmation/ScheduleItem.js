@@ -16,12 +16,12 @@ export default function ScheduleItem({ schedule, onApprove, onReject }) {
   }
 
   return (
-    <Card className="overflow-hidden border-brand-red/20 hover:border-brand-red/40 transition-colors">
+    <Card className="overflow-hidden border-[#BD2427]/20 hover:border-[#BD2427]/40 transition-colors">
       <CardContent className="p-0">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
           <div className="p-4">
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <h3 className="text-lg font-semibold text-brand-red">{schedule.courtName}</h3>
+              <h3 className="text-lg font-semibold text-[#BD2427]">{schedule.courtName}</h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
@@ -45,13 +45,13 @@ export default function ScheduleItem({ schedule, onApprove, onReject }) {
           <div className="flex items-center justify-end gap-2 p-4 bg-gray-50">
             <Button
               variant="outline"
-              className="border-brand-red text-brand-red hover:bg-brand-red/10 hover:text-brand-red"
+              className="border-[#BD2427] text-[#BD2427] hover:bg-[#BD2427]/10 hover:text-[#BD2427]"
               onClick={() => onReject(schedule.id)}
             >
               <XCircle className="mr-2 h-4 w-4" />
               Từ chối
             </Button>
-            <Button className="bg-brand-red hover:bg-brand-red/90 text-white" onClick={() => onApprove(schedule.id)}>
+            <Button className="bg-[#BD2427] hover:bg-[#BD2427]/90 text-white" onClick={() => onApprove(schedule.id)}>
               <CheckCircle className="mr-2 h-4 w-4" />
               Phê duyệt
             </Button>

@@ -35,9 +35,9 @@ export default function RejectionModal({ isOpen, onClose, onConfirm }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px] border-brand-red/30">
+      <DialogContent className="sm:max-w-[425px] border-[#BD2427]/30">
         <DialogHeader>
-          <DialogTitle className="text-brand-red">Từ chối yêu cầu lịch tập</DialogTitle>
+          <DialogTitle className="text-[#BD2427]">Từ chối yêu cầu lịch tập</DialogTitle>
           <DialogDescription>Vui lòng cung cấp lý do từ chối yêu cầu lịch tập này.</DialogDescription>
         </DialogHeader>
 
@@ -49,20 +49,20 @@ export default function RejectionModal({ isOpen, onClose, onConfirm }) {
               setReason(e.target.value)
               if (e.target.value.trim()) setError("")
             }}
-            className={`min-h-[100px] ${error ? "border-brand-red" : "focus-visible:ring-brand-red/30 border-brand-red/20"}`}
+            className={`min-h-[100px] ${error ? "border-[#BD2427]" : "focus-visible:ring-[#BD2427]/30 border-[#BD2427]/20"}`}
           />
-          {error && <p className="text-sm text-brand-red mt-1">{error}</p>}
+          {error && <p className="text-sm text-[#BD2427] mt-1">{error}</p>}
         </div>
 
         <DialogFooter>
           <Button
             variant="outline"
             onClick={handleClose}
-            className="border-brand-red/30 hover:border-brand-red/70 hover:bg-brand-red/10"
+            className="border-[#BD2427]/30 hover:border-[#BD2427]/70 hover:bg-[#BD2427]/10"
           >
             Hủy bỏ
           </Button>
-          <Button onClick={handleConfirm} className="bg-brand-red hover:bg-brand-red/90 text-white">
+          <Button onClick={handleConfirm} className="bg-[#BD2427] hover:bg-[#BD2427]/90 text-white">
             Xác nhận từ chối
           </Button>
         </DialogFooter>

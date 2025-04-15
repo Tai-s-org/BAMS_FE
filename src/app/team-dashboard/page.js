@@ -24,6 +24,8 @@ import teamApi from "@/api/team"
 import playerApi from "@/api/player"
 import scheduleApi from "@/api/schedule"
 import matchApi from "@/api/match"
+import { GiBasketballJersey, GiWhistle } from "react-icons/gi"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 // Mock data for the team
 const teamData = {
@@ -106,6 +108,7 @@ export default function TeamDashboard() {
   const [matchesData, setMatchesData] = useState([])
   const [nonTeamPlayers, setNonTeamPlayers] = useState([])
   const { userInfo } = useAuth();
+  const {addToast} = useToasts();
 
   useEffect(() => {
       fetchTeam();
@@ -126,7 +129,10 @@ export default function TeamDashboard() {
 
   const fetchNonTeamPlayers = async () => {
     try {
-      const response = await playerApi.getNonTeamPlayers();
+      const data = {
+        OnlyNoTeam: true
+      }
+      const response = await playerApi.getNonTeamPlayers(data);
       setNonTeamPlayers(response?.data.data.items);
     } catch (error) {
       console.error("Error fetching non-team players:", error)
@@ -180,8 +186,10 @@ export default function TeamDashboard() {
   }
 
   // Add selected players to team
-  const handleAddPlayersToTeam = () => {
+  const handleAddPlayersToTeam = async () => {
     // In a real app, you would make an API call here
+    const response = await playerApi.addToTeam(selectedPlayers, userInfo?.roleInformation.teamId);
+
     // For this demo, we'll just update the state
     const playersToAdd = nonTeamPlayers.filter(
       (player) => selectedPlayers.includes(player.userId) && !team.players.some((p) => p.userId === player.userId),
@@ -218,12 +226,19 @@ export default function TeamDashboard() {
   }
 
   // Remove player from team
-  const handleRemovePlayer = (userId) => {
-    // In a real app, you would make an API call here
-    setTeam({
-      ...team,
-      players: team.players.filter((player) => player.userId !== userId),
-    })
+  const handleRemovePlayer = async (userId) => {
+    try {
+      const data = [userId]
+      const response = await teamApi.removePlayer(data);
+      addToast({ message: response?.data.message, type: response?.data.status });
+      // In a real app, you would make an API call here
+      setTeam({
+        ...team,
+        players: team.players.filter((player) => player.userId !== userId),
+      })
+    } catch (error) {
+      addToast({ message: error?.response?.data.message, type: "error" });
+    }
   }
 
   return (
@@ -354,15 +369,15 @@ export default function TeamDashboard() {
           <Tabs defaultValue="players" className="mt-4">
             <TabsList className="grid grid-cols-3 mb-6">
               <TabsTrigger value="coaches" >
-                <Whistle className="h-4 w-4" />
+                <GiWhistle className="h-4 w-4" />
                 HLV ({team.coaches.length})
               </TabsTrigger>
               <TabsTrigger value="managers">
-                <User className="h-4 w-4" />
+                <Users className="h-4 w-4" />
                 Quản lý ({team.managers.length})
               </TabsTrigger>
               <TabsTrigger value="players">
-                <Users className="h-4 w-4" />
+                <GiBasketballJersey className="h-4 w-4" />
                 Cầu thủ ({team.players.length})
               </TabsTrigger>
             </TabsList>
@@ -494,16 +509,13 @@ export default function TeamDashboard() {
               </TableHeader>
               <TableBody>
                 {nonTeamPlayers.map((player) => {
-                  // Check if player is already in the team
-                  const isInTeam = team.players.some((p) => p.userId === player.userId)
 
                   return (
-                    <TableRow key={player.userId} className={isInTeam ? "opacity-50" : ""}>
+                    <TableRow key={player.userId}>
                       <TableCell>
                         <Checkbox
                           checked={selectedPlayers.includes(player.userId)}
-                          onCheckedChange={() => !isInTeam && handlePlayerSelection(player.userId)}
-                          disabled={isInTeam}
+                          onCheckedChange={() => handlePlayerSelection(player.userId)}
                         />
                       </TableCell>
                       <TableCell className="font-medium">{player.fullname}</TableCell>
