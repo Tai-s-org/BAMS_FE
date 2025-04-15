@@ -29,7 +29,6 @@ export function CheckInTab({ players, onStatusChange }) {
                 message: response.data.message,
                 type: "success",
             })
-            log
             setIsConfirmOpen(false)
             onStatusChange()
         } catch (error) {
@@ -87,6 +86,7 @@ export function CheckInTab({ players, onStatusChange }) {
                 onConfirm={confirmCheckIn}
                 title="Xác nhận điểm danh"
                 description={`Bạn có chắc chắn muốn điểm danh cho cầu thủ ${selectedPlayer?.fullName || ""}?`}
+                onStatusChange={onStatusChange}
             />
         </div>
     )

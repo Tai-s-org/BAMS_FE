@@ -11,7 +11,11 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/Alert-dialog"
 
-export function ConfirmationDialog({ open, onClose, onConfirm, title, description }) {
+export function ConfirmationDialog({ open, onClose, onConfirm, title, description, onStatusChange }) {
+    const handleConfirm = async () => {
+        await onConfirm();
+        onStatusChange();
+    }
     return (
         <AlertDialog open={open} onOpenChange={onClose}>
             <AlertDialogContent>
@@ -21,7 +25,7 @@ export function ConfirmationDialog({ open, onClose, onConfirm, title, descriptio
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Hủy</AlertDialogCancel>
-                    <AlertDialogAction onClick={onConfirm}>Xác nhận</AlertDialogAction>
+                    <AlertDialogAction onClick={onConfirm} >Xác nhận</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

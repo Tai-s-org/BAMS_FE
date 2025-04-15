@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { BarChart3, CreditCard, FileText, Grid, Home, LayoutDashboard, Package, Settings, Users, Code, Database, History } from "lucide-react";
-
+import { GiWhistle, GiBasketballJersey } from "react-icons/gi"
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
 
@@ -20,9 +20,11 @@ export default function PresidentSidebar() {
         { title: "Accounts", icon: LayoutDashboard, url: "/dashboard/accounts" },
         { title: "Payments", icon: CreditCard, url: "/payments" },
         { title: "Balances", icon: BarChart3, url: "/balances" },
+        { title: "Huấn luyện viên", icon: GiWhistle, url: "/dashboard/coach-management" },
+        { title: "Cầu thủ", icon: GiBasketballJersey, url: "/dashboard/coach-management" },
         { title: "Quản lý", icon: Users, url: "/dashboard/manager-management" },
         { title: "Products", icon: Package, url: "/products" },
-        { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
+        { title: "Đơn đăng kí", icon: FileText, url: "registration-session-management" },
     ];
 
     const generalItems = [

@@ -1,10 +1,9 @@
-"use client"
+'use client'
 
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
-import otpApi from "@/api/otp"
 import registrationSessionApi from "@/api/registrationSession"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 
@@ -109,16 +108,6 @@ export default function RegisterPage() {
                         )}
                     </button>
                 </form>
-
-                <div className="text-center">
-                    <button
-                        className="inline-flex items-center text-[#bd2427] hover:underline"
-                        onClick={() => console.log("Other login options clicked")}
-                    >
-                        <ArrowLeft className="mr-1 h-4 w-4" />
-                        Other Login options
-                    </button>
-                </div>
             </div>
         </div>
     );

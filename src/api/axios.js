@@ -44,29 +44,29 @@ export function setupAxiosInterceptors() {
             const originalRequest = error.config;
 
             // Nếu bị lỗi 401 và chưa retry lần nào
-            if (error.response?.status === 401 && !originalRequest._retry) {
-                originalRequest._retry = true;
+            // if (error.response?.status === 401 && !originalRequest._retry) {
+            //     originalRequest._retry = true;
 
-                try {
-                    // Gọi API refresh token (cookie đã được gửi kèm nhờ withCredentials: true)
-                    const res = await authApi.refreshToken();
+            //     try {
+            //         // Gọi API refresh token (cookie đã được gửi kèm nhờ withCredentials: true)
+            //         const res = await authApi.refreshToken();
 
-                    const newAccessToken = res.data.accessToken;
+            //         const newAccessToken = res.data.accessToken;
 
-                    // Lưu lại access token mới vào cookie
-                    document.cookie = `token=${newAccessToken}; path=/`;
+            //         // Lưu lại access token mới vào cookie
+            //         document.cookie = `token=${newAccessToken}; path=/`;
 
-                    // Cập nhật token mới cho request gốc
-                    originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            //         // Cập nhật token mới cho request gốc
+            //         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-                    // Gửi lại request cũ
-                    return axiosInstance(originalRequest);
-                } catch (refreshError) {
-                    console.error("Refresh token failed", refreshError);
-                    // Nếu refresh cũng fail → redirect về login
-                    window.location.href = "/login";
-                }
-            }
+            //         // Gửi lại request cũ
+            //         return axiosInstance(originalRequest);
+            //     } catch (refreshError) {
+            //         console.error("Refresh token failed", refreshError);
+            //         // Nếu refresh cũng fail → redirect về login
+            //         window.location.href = "/login";
+            //     }
+            // }
 
             return Promise.reject(error);
         }
