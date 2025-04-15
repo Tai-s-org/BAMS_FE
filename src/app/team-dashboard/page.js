@@ -494,8 +494,6 @@ export default function TeamDashboard() {
               </TableHeader>
               <TableBody>
                 {nonTeamPlayers.map((player) => {
-                  // Check if player is already in the team
-                  const isInTeam = team.players.some((p) => p.userId === player.userId)
 
                   return (
                     <TableRow key={player.userId} className={isInTeam ? "opacity-50" : ""}>
@@ -503,7 +501,6 @@ export default function TeamDashboard() {
                         <Checkbox
                           checked={selectedPlayers.includes(player.userId)}
                           onCheckedChange={() => !isInTeam && handlePlayerSelection(player.userId)}
-                          disabled={isInTeam}
                         />
                       </TableCell>
                       <TableCell className="font-medium">{player.fullname}</TableCell>
