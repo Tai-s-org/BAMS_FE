@@ -2,22 +2,20 @@
 
 import { useState, useEffect } from "react"
 import { Search, Calendar, ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent } from "@/components/ui/Card"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { Switch } from "@/components/ui/Switch"
 import { Label } from "@/components/ui/Label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/Radio-group"
 
-
+import { DatePicker } from "@/components/ui/DatePicker"
 import registrationSessionApi from "@/api/registrationSession"
 import { RegistrationSessionCard } from "./RegistrationSessionCard"
 
-export default function RegistrationManagement() {
+export default function RegistrationList() {
   const [campaigns, setCampaigns] = useState([])
   const [loading, setLoading] = useState(true)
   const [totalItems, setTotalItems] = useState(0)
@@ -36,10 +34,11 @@ export default function RegistrationManagement() {
   const [pageSize, setPageSize] = useState(6)
   const [totalPages, setTotalPages] = useState(1)
 
-  // Format date for display
-  const formatDate = (date) => {
-    if (!date) return ""
-    return format(new Date(date), "dd/MM/yyyy", { locale: vi })
+  // Function to check if a campaign is active
+  const isCampaignActive = (endDate) => {
+    const now = new Date()
+    const campaignEndDate = new Date(endDate)
+    return now < campaignEndDate
   }
 
   // Fetch data from API
@@ -60,11 +59,14 @@ export default function RegistrationManagement() {
         PageSize: pageSize,
       }
 
-      const response = await registrationSessionApi.getRegistrationSessions(filters);
-      console.log(response);
-      
+      const response = await registrationSessionApi.getRegistrationSessions(filters)
+      console.log(response)
+
       if (response.data && response.data.status === "Success") {
         setCampaigns(response.data.data.items || [])
+        // if (response.data.data.items) {
+        //   setCampaigns(response.data.data.items.filter((campaign) => isCampaignActive(campaign.endDate)))
+        // }
         setTotalItems(response.data.data.totalItems || 0)
         setTotalPages(response.data.data.totalPages)
       } else {
@@ -133,175 +135,44 @@ export default function RegistrationManagement() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Start Date Picker */}
               <div>
-                <Label htmlFor="start-date" className="text-sm font-medium mb-1 block">
-                  Từ ngày
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50"
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {startDate ? formatDate(startDate) : "Chọn ngày bắt đầu"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="p-0" align="start">
-                    <DayPicker
-                      mode="single"
-                      selected={startDate}
-                      onSelect={setStartDate}
-                      locale={vi}
-                      className="p-3"
-                      showOutsideDays={true}
-                      captionLayout="dropdown-buttons"
-                      fromYear={2020}
-                      toYear={2030}
-                      classNames={{
-                        day_selected:
-                          "bg-[#BD2427] text-white hover:bg-[#A61F22] hover:text-white focus:bg-[#BD2427] focus:text-white",
-                        day_today: "bg-gray-100",
-                        button: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-gray-100 focus:bg-gray-100",
-                        head_cell: "text-xs font-medium text-gray-500",
-                        cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-[#FDE8E8] first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
-                        caption: "flex justify-center pt-1 relative items-center px-2",
-                        caption_label: "text-sm font-medium hidden",
-                        caption_dropdowns: "flex justify-center gap-1 grow",
-                        dropdown:
-                          "appearance-none bg-white border border-gray-200 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#BD2427] focus:border-transparent",
-                        dropdown_month: "mr-1",
-                        dropdown_year: "ml-1",
-                        nav: "space-x-1 flex items-center",
-                        nav_button: "h-7 w-7 bg-transparent p-0 hover:bg-gray-100 rounded-full",
-                        nav_button_previous: "absolute left-1",
-                        nav_button_next: "absolute right-1",
-                        table: "w-full border-collapse space-y-1",
-                      }}
-                      components={{
-                        IconLeft: () => <ChevronLeft className="h-4 w-4" />,
-                        IconRight: () => <ChevronRight className="h-4 w-4" />,
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DatePicker
+                  value={startDate}
+                  onChange={setStartDate}
+                  placeholder="Chọn ngày bắt đầu"
+                  label="Từ ngày"
+                />
               </div>
 
               {/* End Date Picker */}
               <div>
-                <Label htmlFor="end-date" className="text-sm font-medium mb-1 block">
-                  Đến ngày
-                </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50"
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {endDate ? formatDate(endDate) : "Chọn ngày kết thúc"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="p-0" align="start">
-                    <DayPicker
-                      mode="single"
-                      selected={endDate}
-                      onSelect={setEndDate}
-                      locale={vi}
-                      className="p-3"
-                      showOutsideDays={true}
-                      captionLayout="dropdown-buttons"
-                      fromYear={2020}
-                      toYear={2030}
-                      classNames={{
-                        day_selected:
-                          "bg-[#BD2427] text-white hover:bg-[#A61F22] hover:text-white focus:bg-[#BD2427] focus:text-white",
-                        day_today: "bg-gray-100",
-                        button: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-gray-100 focus:bg-gray-100",
-                        head_cell: "text-xs font-medium text-gray-500",
-                        cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-[#FDE8E8] first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md",
-                        caption: "flex justify-center pt-1 relative items-center px-2",
-                        caption_label: "text-sm font-medium hidden",
-                        caption_dropdowns: "flex justify-center gap-1 grow",
-                        dropdown:
-                          "appearance-none bg-white border border-gray-200 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#BD2427] focus:border-transparent",
-                        dropdown_month: "mr-1",
-                        dropdown_year: "ml-1",
-                        nav: "space-x-1 flex items-center",
-                        nav_button: "h-7 w-7 bg-transparent p-0 hover:bg-gray-100 rounded-full",
-                        nav_button_previous: "absolute left-1",
-                        nav_button_next: "absolute right-1",
-                        table: "w-full border-collapse space-y-1",
-                      }}
-                      components={{
-                        IconLeft: () => <ChevronLeft className="h-4 w-4" />,
-                        IconRight: () => <ChevronRight className="h-4 w-4" />,
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DatePicker
+                  value={endDate}
+                  onChange={setEndDate}
+                  placeholder="Chọn ngày kết thúc"
+                  label="Đến ngày"
+                />
               </div>
 
-              {/* Player Recruitment Filter */}
               <div>
-                <Label className="text-sm font-medium mb-1 block">Tuyển cầu thủ</Label>
-                <RadioGroup
-                  value={isAllowPlayerRecruit === null ? "all" : isAllowPlayerRecruit ? "yes" : "no"}
-                  onValueChange={(value) => {
-                    if (value === "all") setIsAllowPlayerRecruit(null)
-                    else if (value === "yes") setIsAllowPlayerRecruit(true)
-                    else setIsAllowPlayerRecruit(false)
+                <Label className="text-sm font-medium mb-1 block">Tuyển dụng</Label>
+                <select
+                  value={JSON.stringify({ isAllowPlayerRecruit, isAllowManagerRecruit })}
+                  onChange={(e) => {
+                    const value = JSON.parse(e.target.value);
+                    setIsAllowPlayerRecruit(value.isAllowPlayerRecruit);
+                    setIsAllowManagerRecruit(value.isAllowManagerRecruit);
                   }}
-                  className="flex space-x-4"
+                  className="w-full pl-10 pr-4 py-2 border rounded-md appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#bd2427] focus:border-transparent"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="all" id="player-all" />
-                    <Label htmlFor="player-all">Tất cả</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="player-yes" />
-                    <Label htmlFor="player-yes">Có</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="player-no" />
-                    <Label htmlFor="player-no">Không</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {/* Manager Recruitment Filter */}
-              <div>
-                <Label className="text-sm font-medium mb-1 block">Tuyển HLV</Label>
-                <RadioGroup
-                  value={isAllowManagerRecruit === null ? "all" : isAllowManagerRecruit ? "yes" : "no"}
-                  onValueChange={(value) => {
-                    if (value === "all") setIsAllowManagerRecruit(null)
-                    else if (value === "yes") setIsAllowManagerRecruit(true)
-                    else setIsAllowManagerRecruit(false)
-                  }}
-                  className="flex space-x-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="all" id="manager-all" />
-                    <Label htmlFor="manager-all">Tất cả</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="manager-yes" />
-                    <Label htmlFor="manager-yes">Có</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="manager-no" />
-                    <Label htmlFor="manager-no">Không</Label>
-                  </div>
-                </RadioGroup>
+                  <option value={JSON.stringify({ isAllowPlayerRecruit: null, isAllowManagerRecruit: null })}>Tất cả</option>
+                  <option value={JSON.stringify({ isAllowPlayerRecruit: true, isAllowManagerRecruit: true })}>Cả cầu thủ & HLV</option>
+                  <option value={JSON.stringify({ isAllowPlayerRecruit: true, isAllowManagerRecruit: false })}>Chỉ cầu thủ</option>
+                  <option value={JSON.stringify({ isAllowPlayerRecruit: false, isAllowManagerRecruit: true })}>Chỉ HLV</option>
+                </select>
               </div>
             </div>
 
             <div className="flex flex-col md:flex-row justify-between gap-4">
-              {/* Active Status Filter */}
-              <div className="flex items-center space-x-2">
-                <Switch id="active-status" checked={isEnable} onCheckedChange={setIsEnable} />
-                <Label htmlFor="active-status">Chỉ hiện đợt đang hoạt động</Label>
-              </div>
 
               {/* Sort Order */}
               <div className="flex items-center space-x-4">
@@ -401,4 +272,6 @@ export default function RegistrationManagement() {
     </div>
   )
 }
+
+
 

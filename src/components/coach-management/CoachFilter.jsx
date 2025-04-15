@@ -62,11 +62,11 @@ export default function CoachFilter({ searchUserId, teamIdFilter, uniqueTeamIds,
                             className="w-full px-3 py-2 border rounded-md appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#bd2427] focus:border-transparent"
                         >
                             <option value="all">All Teams</option>
-                            {uniqueTeamIds.map((teamId) => (
+                            {/* {uniqueTeamIds.map((teamId) => (
                                 <option key={teamId} value={teamId}>
                                     Team {teamId}
                                 </option>
-                            ))}
+                            ))} */}
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                             <svg

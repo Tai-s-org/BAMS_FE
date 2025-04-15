@@ -24,11 +24,11 @@ const ToastItem = ({ toast, onRemove }) => {
 
     const getIcon = () => {
         switch (toast.type) {
-            case "success":
+            case "success", "Success":
                 return <FaCheckCircle className="w-5 h-5" />;
             case "warning":
                 return <FaExclamationTriangle className="w-5 h-5" />;
-            case "error":
+            case "error", "Failed":
                 return <FaTimesCircle className="w-5 h-5" />;
             default:
                 return <FaInfoCircle className="w-5 h-5" />;
@@ -37,11 +37,11 @@ const ToastItem = ({ toast, onRemove }) => {
 
     const getBgColor = () => {
         switch (toast.type) {
-            case "success":
+            case "success", "Success":
                 return "bg-green-100 border-green-500 text-green-700";
             case "warning":
                 return "bg-yellow-100 border-yellow-500 text-yellow-700";
-            case "error":
+            case "error", "Failed":
                 return "bg-red-100 border-red-500 text-red-700";
             default:
                 return "bg-blue-100 border-blue-500 text-blue-700";

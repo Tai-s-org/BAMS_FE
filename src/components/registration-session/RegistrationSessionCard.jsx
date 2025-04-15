@@ -1,5 +1,6 @@
 import { Calendar, Users } from "lucide-react"
 import Link from "next/link"
+import { Button } from "../ui/Button"
 
 // Function to check if a campaign is active
 const isCampaignActive = (endDate) => {
@@ -16,7 +17,8 @@ const formatDate = (dateString) => {
         month: "2-digit",
         year: "numeric",
     })
-}
+};
+
 
 export function RegistrationSessionCard({ campaign }) {
     return (
@@ -64,9 +66,13 @@ export function RegistrationSessionCard({ campaign }) {
                     <div className="pt-2">
                         {isCampaignActive(campaign.endDate) ? (
                             <Link href={`/auth/registration/${campaign.id}`} >
-                                <button className="w-full py-2 px-4 bg-[#BD2427] hover:bg-[#BD2427]/90 text-white font-medium rounded-md transition-colors">
+                                <Button className="w-full py-2 px-4 bg-[#BD2427] hover:bg-[#BD2427]/90 text-white font-medium rounded-md transition-colors"
+                                    onClick={() => {
+                                        localStorage.setItem("memberRegistrationSessionId", campaign.id)
+                                    }}
+                                >
                                     Đăng ký
-                                </button>
+                                </Button>
                             </Link>
 
                         ) : (

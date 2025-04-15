@@ -3,30 +3,30 @@
 import { useState } from "react"
 import { format } from "date-fns"
 import { X, Calendar, Clock, MapPin, Check } from "lucide-react"
+import scheduleApi from "@/api/schedule"
 
-const courts = ["Sân A", "Sân B", "Sân C"]
-const teams = ["Đội Chính", "Đội Trẻ", "Đội Thiếu Niên", "Tất Cả Đội"]
-
-export function SingleSessionModal({ isOpen, onClose }) {
-  const [sessionName, setSessionName] = useState("")
+export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified }) {
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"))
   const [startTime, setStartTime] = useState("16:00")
   const [endTime, setEndTime] = useState("17:30")
-  const [court, setCourt] = useState("Sân A")
-  const [team, setTeam] = useState("Đội Chính")
-  const [description, setDescription] = useState("")
+  const [court, setCourt] = useState(courts[0]?.courtId)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Xử lý tạo buổi tập đơn lẻ
-    console.log({
-      sessionName,
-      date,
-      startTime,
-      endTime,
-      court,
-      team,
-      description,
-    })
+    try {
+      const data = {
+        teamId: teamId,
+        courtId: court,
+        scheduledDate: date,
+        startTime: startTime + ":00",
+        endTime: endTime + ":00",
+      }
+
+      const response = await scheduleApi.createTrainingSession(data);
+      isModified();
+    } catch (error) {
+      console.error("Lỗi khi tạo buổi tập đơn lẻ:", error.response.data.errors)
+    }
 
     // Đóng modal sau khi xử lý
     onClose()
@@ -138,29 +138,12 @@ export function SingleSessionModal({ isOpen, onClose }) {
                       onChange={(e) => setCourt(e.target.value)}
                     >
                       {courts.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
+                        <option key={c.courtId} value={c.courtId}>
+                          {c.courtName}
                         </option>
                       ))}
                     </select>
                   </div>
-                </div>
-                <div>
-                  <label htmlFor="team" className="block text-sm font-medium text-gray-700">
-                    Đội
-                  </label>
-                  <select
-                    id="team"
-                    className="mt-1 focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                    value={team}
-                    onChange={(e) => setTeam(e.target.value)}
-                  >
-                    {teams.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
                 </div>
               </div>
 

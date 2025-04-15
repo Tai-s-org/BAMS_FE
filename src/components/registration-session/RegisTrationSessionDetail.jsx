@@ -10,28 +10,24 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Separator } from "@/components/ui/Seperator"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 import Link from "next/link"
+import registrationSessionApi from "@/api/registrationSession"
 
 
-export default function RegistrationSessionDetail({ params }) {
+export default function RegistrationSessionDetail({ id }) {
     const router = useRouter()
     const [session, setSession] = useState();
     const [loading, setLoading] = useState(true)
-    const [registrationType, setRegistrationType] = useState();
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    //const {addT} = useToasts();
+    const { addToast } = useToasts();
+    localStorage.setItem("registrationSessionId", id);
 
     useEffect(() => {
         const fetchSessionDetails = async () => {
-            //setLoading(true)
             try {
-                // In a real app, fetch from API
-                // const response = await fetch(`https://bamsapi.tranhiep.id.vn/api/member-registraion-session/${params.id}`)
-                // const data = await response.json()
+                const response = await registrationSessionApi.getRegistrationSessionById(id);
 
                 // Mock data for demonstration
                 const RegistrationSession = {
-                    "id": params,
+                    "id": id,
                     "registrationName": "TUYỂN QUÂN THÁNG 5 NĂM 2025",
                     "startDate": "2025-03-05T23:59:59",
                     "endDate": "2025-06-05T23:59:59",
@@ -44,23 +40,26 @@ export default function RegistrationSessionDetail({ params }) {
                         "Đợt tuyển quân mới nhất dành cho các cầu thủ và quản lý muốn tham gia vào đội bóng. Chúng tôi đang tìm kiếm những người có đam mê với bóng đá và mong muốn phát triển kỹ năng trong môi trường chuyên nghiệp.",
                 };
 
-                setSession(RegistrationSession)
+                setSession(response.data)
             } catch (error) {
-                console.error("Failed to fetch session details:", error)
+                addToast({ message: error.response.data.message, type: "error" });
             }
         }
 
         fetchSessionDetails();
-    }, [params])
+    }, [id])
 
-    const formatDate = () => {
-        const date = new Date()
-        return new Intl.DateTimeFormat("vi-VN", {
+    const formatDate = (dateString) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString("vi-VN", {
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
-        }).format(date)
-    }
+        })
+    };
+
+    console.log(session);
+
 
     const isActive = () => {
         if (!session) return false
@@ -70,49 +69,15 @@ export default function RegistrationSessionDetail({ params }) {
         return session.isEnable && now >= startDate && now <= endDate
     }
 
-    const handleRegister = () => {
-        setRegistrationType(type)
-        setIsDialogOpen(true)
+    const handlePlayerRegister = () => {
+        router.push("/auth/register")
+        localStorage.setItem("registraionRoleCode", "player");
     }
 
-    const handleSubmitRegistration = async () => {
-        // setIsSubmitting(true)
-        // try {
-        //     // In a real app, submit to API
-        //     // const response = await fetch(`https://bamsapi.tranhiep.id.vn/api/registration`, {
-        //     //   method: 'POST',
-        //     //   headers: {
-        //     //     'Content-Type': 'application/json',
-        //     //   },
-        //     //   body: JSON.stringify({
-        //     //     sessionId: session?.id,
-        //     //     type: registrationType
-        //     //   }),
-        //     // })
-
-        //     // Simulate API call
-        //     await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        //     setIsDialogOpen(false)
-        // } catch (error) {
-        //     console.error("Failed to submit registration:", error)
-        //     toast({
-        //         title: "Lỗi",
-        //         description: "Không thể đăng ký. Vui lòng thử lại sau.",
-        //         variant: "destructive",
-        //     })
-        // } finally {
-        //     setIsSubmitting(false)
-        // }
+    const handleManagerRegister = () => {
+        router.push("/auth/register")
+        localStorage.setItem("registraionRoleCode", "manager");
     }
-
-    // if (loading) {
-    //     return (
-    //         <div className="flex justify-center items-center min-h-screen">
-    //             <div className="w-12 h-12 border-4 border-gray-100 border-t-[#BD2427] rounded-full animate-spin"></div>
-    //         </div>
-    //     )
-    // }
 
     if (!session) {
         return (
@@ -225,17 +190,17 @@ export default function RegistrationSessionDetail({ params }) {
                         <p className="text-gray-600">Chọn vai trò bạn muốn đăng ký tham gia:</p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                             <Button
-                                onClick={() => handleRegister("player")}
+                                onClick={handlePlayerRegister}
                                 disabled={!isActive() || !session.isAllowPlayerRecruit}
                                 className="h-auto py-4 bg-[#BD2427] hover:bg-[#9a1e1f]"
                             >
                                 <Users className="mr-2 h-5 w-5" />
                                 Đăng ký làm cầu thủ
                             </Button>
-
                             <Button
-                                onClick={() => handleRegister("manager")}
+                                onClick={handleManagerRegister}
                                 disabled={!isActive() || !session.isAllowManagerRecruit}
                                 variant="outline"
                                 className="h-auto py-4 border-[#BD2427] text-[#BD2427] hover:bg-[#fef2f2]"
@@ -243,17 +208,6 @@ export default function RegistrationSessionDetail({ params }) {
                                 <Briefcase className="mr-2 h-5 w-5" />
                                 Đăng ký làm quản lý
                             </Button>
-                            {/* <Link href={'/registration'} >
-                                <Button
-                                    //onClick={()}
-                                    disabled={!isActive() || !session.isAllowManagerRecruit}
-                                    variant="outline"
-                                    className="h-auto py-4 border-[#BD2427] text-[#BD2427] hover:bg-[#fef2f2]"
-                                >
-                                    <Briefcase className="mr-2 h-5 w-5" />
-                                    Đăng ký
-                                </Button>
-                            </Link> */}
                         </div>
 
                         {!isActive() && (
@@ -263,40 +217,6 @@ export default function RegistrationSessionDetail({ params }) {
                 </CardContent>
             </Card>
 
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Xác nhận đăng ký</DialogTitle>
-                        <DialogDescription>
-                            Bạn đang đăng ký tham gia đợt tuyển quân "{session.registrationName}" với vai trò{" "}
-                            {registrationType === "player" ? "cầu thủ" : "quản lý"}.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <p className="text-sm text-gray-600 mt-2">
-                        Sau khi đăng ký, thông tin của bạn sẽ được gửi đến ban quản lý để xem xét. Bạn sẽ nhận được thông báo khi
-                        đơn đăng ký được phê duyệt.
-                    </p>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isSubmitting}>
-                            Hủy
-                        </Button>
-                        <Button
-                            onClick={handleSubmitRegistration}
-                            disabled={isSubmitting}
-                            className="bg-[#BD2427] hover:bg-[#9a1e1f]"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                    Đang xử lý...
-                                </>
-                            ) : (
-                                "Xác nhận đăng ký"
-                            )}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     )
 }

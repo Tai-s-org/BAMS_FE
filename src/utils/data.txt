@@ -1,0 +1,1581 @@
+{
+  "status": "Success",
+  "message": "Thao tác thành công.",
+  "data": [
+    {
+      "measurementScaleCode": "BasketballSkill",
+      "measurementName": "Kỹ năng bóng rổ",
+      "content": null,
+      "duration": null,
+      "location": null,
+      "description": null,
+      "equipment": null,
+      "measurementScale": null,
+      "sortOrder": 1,
+      "subScales": [
+        {
+          "measurementScaleCode": "Dribble",
+          "measurementName": "Dẫn bóng",
+          "content": "<ul><li>Stationary ( Pound; Pound + cross/double cross/ BTL/ BTB); 2 ball.</li>\n  <li>Moving: Luồn cọc; zig zag.</li>\n  <li>Reaction with tennis ball.</li>\n  <li>Tag dribbling 1on1; 2on2.</li>\n</ul>",
+          "duration": "<p>Dự kiến: 5 ph&uacute;t ( Cho mỗi trạm) x 4 lượt</p>\n<p>C&aacute;c&nbsp;HLV lưu &yacute; thời gian thực hiện, trong trường hợp bị l&acirc;u qu&aacute;, ch&uacute;ng ta sẽ cho chuyển nội dung để cố gắng thực hiện đủ hết c&aacute;c nội dung.</p>\n<p>Tổng thời gian kết th&uacute;c mỗi nh&oacute;m l&agrave; 40 ph&uacute;t/ nh&oacute;m.</p>\n<p>Ở lượt tiếp theo, BTC sẽ gọi loa c&aacute;c nh&oacute;m chuẩn bị v&agrave;o tham gia theo đ&uacute;ng lượt của m&igrave;nh.</p>",
+          "location": "<p>Góc sân</p>",
+          "description": "<ul>\n  <li>Stationary ( dẫn b&oacute;ng tại chỗ) thực hiện c&aacute;c động t&aacute;c trong 30s/ t&iacute;nh số lần nhanh nhất thực hiện được ở mỗi động t&aacute;c ( người đếm l&agrave; c&aacute;c bạn ở lượt tiếp theo)</li>\n  <li>Moving ( thực hiện dẫn b&oacute;ng di chuyển luồn cọc) với c&aacute;c kĩ thuật giống dẫn b&oacute;ng tại chỗ ( thực hiện mỗi kĩ thuật 2 lượt tr&aacute;i-phải)</li>\n  <li>Reaction tennis ball ( dẫn b&oacute;ng kết hợp tung bắt với b&oacute;ng tennis): Tập theo cặp với 1 người tung b&oacute;ng cho bắt</li>\n  <li>Tag dribbling ( dẫn b&oacute;ng ph&aacute; v&agrave; bảo vệ): 1on1; 2on2 theo khu vực v&ograve;ng tr&ograve;n giới hạn,</li>\n</ul>",
+          "equipment": "<p>Số lượng bóng cần 04 quả</p>",
+          "measurementScale": "<ul>\n  <li><em><strong>Tốt ( T)</strong></em>: Thực hiện li&ecirc;n tục, c&oacute; nhịp điệu, chắc v&agrave; hướng mắt hướng rộng xung quanh.</li>\n  <li><em><strong>Kh&aacute; ( K)</strong></em>: Thực hiện li&ecirc;n tục, đ&ocirc;i l&uacute;c hỏng, hướng mắt l&uacute;c l&ecirc;n l&uacute;c nh&igrave;n xuống.</li>\n  <li><em><strong>Trung b&igrave;nh ( TB)</strong></em>: Thực hiện hỏng, lập bập, chưa thể ngước l&ecirc;n quan s&aacute;t.</li>\n</ul>",
+          "sortOrder": 2,
+          "subScales": [],
+          "scoreCriteria": [
+            {
+              "scoreCriteriaId": 21,
+              "criteriaName": "Dẫn bóng (Nam)",
+              "unit": "mức",
+              "gender": true,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "T"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "K"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "TB"
+                }
+              ]
+            },
+            {
+              "scoreCriteriaId": 22,
+              "criteriaName": "Dẫn bóng (Nữ)",
+              "unit": "mức",
+              "gender": false,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "T"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "K"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "TB"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "measurementScaleCode": "Passing",
+          "measurementName": "Chuyền bóng",
+          "content": "<ul>\n  <li>Chest pass</li>\n  <li>Bounce pass</li>\n  <li>Overhead pass</li>\n  <li>1 hand left/right pass)</li>\n  <li>Hook pass/ behind the back pass</li>\n  <li>Tag pass</li>\n</ul>",
+          "duration": "<p>Dự kiến: 5 ph&uacute;t ( Cho mỗi trạm) x 4 lượt</p>\n<p>C&aacute;c&nbsp;HLV lưu &yacute; thời gian thực hiện, trong trường hợp bị l&acirc;u qu&aacute;, ch&uacute;ng ta sẽ cho chuyển nội dung để cố gắng thực hiện đủ hết c&aacute;c nội dung.</p>\n<p>Tổng thời gian kết th&uacute;c mỗi nh&oacute;m l&agrave; 40 ph&uacute;t/ nh&oacute;m.</p>\n<p>Ở lượt tiếp theo, BTC sẽ gọi loa c&aacute;c nh&oacute;m chuẩn bị v&agrave;o tham gia theo đ&uacute;ng lượt của m&igrave;nh.</p>",
+          "location": "<p>Góc sân</p>",
+          "description": "<ul>\n  <li>Chuyền b&oacute;ng: Trước ngực/ đập đất/ sau đầu/ 1 tay tr&aacute;i/phải/ chuyền nghi&ecirc;ng/ sau lưng. Mỗi kĩ thuật chuyền tổng qua lại 30 lần.</li>\n  <li>Chuyền b&oacute;ng ma: Theo nh&oacute;m 4 người với 1 người bắt; theo nh&oacute;m 8 người 3 người bắt. ( hoạt động k&eacute;o d&agrave;i 2-3 ph&uacute;t rồi chuyển)</li>\n</ul>",
+          "equipment": "<p>Số lượng bóng : 04 quả</p>",
+          "measurementScale": "<ul>\n  <li><strong><em>Tốt ( T):</em> </strong>Thực hiện li&ecirc;n tục, chuyền c&oacute; lực, ch&iacute;nh x&aacute;c.</li>\n  <li><em><strong>Kh&aacute; ( K): </strong></em>Thực hiện li&ecirc;n tục, đ&ocirc;i l&uacute;c hỏng.</li>\n  <li><em><strong>Trung b&igrave;nh ( TB):</strong></em> Thực hiện hỏng, chuyền kh&ocirc;ng đủ lực, hướng b&oacute;ng đi kh&ocirc;ng ch&iacute;nh x&aacute;c.</li>\n</ul>",
+          "sortOrder": 3,
+          "subScales": [],
+          "scoreCriteria": [
+            {
+              "scoreCriteriaId": 23,
+              "criteriaName": "Chuyền bóng (Nam)",
+              "unit": "mức",
+              "gender": true,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "T"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "K"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "TB"
+                }
+              ]
+            },
+            {
+              "scoreCriteriaId": 24,
+              "criteriaName": "Chuyền bóng (Nữ)",
+              "unit": "mức",
+              "gender": false,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "T"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "K"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "TB"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "measurementScaleCode": "Shooting",
+          "measurementName": "Ném rổ",
+          "content": "<ul>\n  <li>Catch &amp; shoot</li>\n  <li>1 dribble pull up</li>\n  <li>live ball handling shot</li>\n  <li>Transistion shot</li>\n</ul>",
+          "duration": "<p>Dự kiến: 5 ph&uacute;t ( Cho mỗi trạm) x 4 lượt</p>\n<p>C&aacute;c&nbsp;HLV lưu &yacute; thời gian thực hiện, trong trường hợp bị l&acirc;u qu&aacute;, ch&uacute;ng ta sẽ cho chuyển nội dung để cố gắng thực hiện đủ hết c&aacute;c nội dung.</p>\n<p>Tổng thời gian kết th&uacute;c mỗi nh&oacute;m l&agrave; 40 ph&uacute;t/ nh&oacute;m.</p>\n<p>Ở lượt tiếp theo, BTC sẽ gọi loa c&aacute;c nh&oacute;m chuẩn bị v&agrave;o tham gia theo đ&uacute;ng lượt của m&igrave;nh.</p>",
+          "location": "<p>1 rổ</p>",
+          "description": "<ol>\n  <li>2/2/2&nbsp;VỚI ( 2 quả bắt v&agrave; n&eacute;m; 2 quả với 1 đập qua người n&eacute;m tr&aacute;i/phải v&agrave; 2 quả n&eacute;m 3 điểm) - thực hiện 6 quả/ lượt</li>\n  <li>N&eacute;m rổ kết hợp xử l&yacute; b&oacute;ng ( Cross/BTL/BTB + pull up) - thực hiện 6 quả/ lượt</li>\n  <li>Transistion shot ( n&eacute;m rổ phản c&ocirc;ng) di chuyển từ cuối s&acirc;n l&ecirc;n giữa s&acirc;n rồi chạy tăng tốc về vị tr&iacute; n&eacute;m tại khu vực trung b&igrave;nh 02 quả/ khu vực 3 điểm 02 quả n&eacute;m rổ. Thực hiện 6 quả/ lượt.</li>\n</ol>",
+          "equipment": "<p>Số lượng bóng : 04 quả</p>",
+          "measurementScale": "<ul>\n  <li><em><strong>Tốt ( T):</strong></em> Thực hiện c&oacute; nhịp điệu, c&oacute; kĩ thuật, hiệu suất v&agrave;o tương đối.</li>\n  <li><em><strong>Kh&aacute; ( K):</strong></em> Thực hiện c&oacute; nhịp điệu, đảm bảo kĩ thuật, hiệu suất c&ograve;n chưa nhiều</li>\n  <li><em><strong>Trung b&igrave;nh ( TB): </strong></em>Thực hiện hỏng, kh&ocirc;ng c&oacute; nhịp điệu, kĩ thuật chưa ổn, n&eacute;m trượt nhiều.</li>\n</ul>",
+          "sortOrder": 4,
+          "subScales": [],
+          "scoreCriteria": [
+            {
+              "scoreCriteriaId": 25,
+              "criteriaName": "Ném bóng (Nam)",
+              "unit": "mức",
+              "gender": true,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "T"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "K"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "TB"
+                }
+              ]
+            },
+            {
+              "scoreCriteriaId": 26,
+              "criteriaName": "Chuyển bóng (Nữ)",
+              "unit": "mức",
+              "gender": false,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "T"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "K"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "TB"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "measurementScaleCode": "Finishing",
+          "measurementName": "Kết thúc rổ",
+          "content": "<p>Kết thúc rổ ( lên rổ, móc rổ, thả rổ, lên rổ 2 tay tính thời gian)</p>",
+          "duration": "<p>Dự kiến: 5 ph&uacute;t ( Cho mỗi trạm) x 4 lượt</p>\n<p>C&aacute;c&nbsp;HLV lưu &yacute; thời gian thực hiện, trong trường hợp bị l&acirc;u qu&aacute;, ch&uacute;ng ta sẽ cho chuyển nội dung để cố gắng thực hiện đủ hết c&aacute;c nội dung.</p>\n<p>Tổng thời gian kết th&uacute;c mỗi nh&oacute;m l&agrave; 40 ph&uacute;t/ nh&oacute;m.</p>\n<p>Ở lượt tiếp theo, BTC sẽ gọi loa c&aacute;c nh&oacute;m chuẩn bị v&agrave;o tham gia theo đ&uacute;ng lượt của m&igrave;nh.</p>",
+          "location": "<p>Góc sân</p>",
+          "description": "<ul>\n  <li>L&ecirc;n rổ/ m&oacute;c rổ/ floater ( thả rổ) tr&aacute;i- phải/ Power layup/ Giậm nhảy kết th&uacute;c rổ với 2 ch&acirc;n bật ( floater) Mỗi kĩ thuật thực hiện: 5 lượt.</li>\n  <li>Kết th&uacute;c rổ ( l&ecirc;n rổ, m&oacute;c rổ, thả rổ, l&ecirc;n rổ 2 tay t&iacute;nh thời gian).</li>\n</ul>",
+          "equipment": "<p>Số lượng bóng : 02 quả</p>",
+          "measurementScale": "<ul>\n  <li><em><strong>Tốt ( T):</strong></em> Thực hiện ho&agrave;n chỉnh v&agrave; hiệu suất.</li>\n  <li><strong><em>Kh&aacute; ( K):</em></strong> Thực hiện vững kĩ thuật, hiệu suất chưa cao.</li>\n  <li><em><strong>Trung b&igrave;nh ( TB):</strong></em> Thực hiện hỏng, lập bập, chưa thể th&agrave;nh c&ocirc;ng nhiều lần.</li>\n</ul>",
+          "sortOrder": 5,
+          "subScales": [],
+          "scoreCriteria": [
+            {
+              "scoreCriteriaId": 27,
+              "criteriaName": "Kết thúc rổ (Nam)",
+              "unit": "mức",
+              "gender": true,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "T"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "K"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "TB"
+                }
+              ]
+            },
+            {
+              "scoreCriteriaId": 28,
+              "criteriaName": "Kết thúc rổ (Nữ)",
+              "unit": "mức",
+              "gender": false,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "T"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "K"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": null,
+                  "scoreLevel": "TB"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "measurementScaleCode": "Scrimmage",
+          "measurementName": "Đấu tập",
+          "content": "<p>- 1on1; 2on2; 3on3; 5on5.</p>",
+          "duration": "<p>Dự kiến: 5 ph&uacute;t ( Cho mỗi trạm) x 4 lượt</p>\n<p>C&aacute;c&nbsp;HLV lưu &yacute; thời gian thực hiện, trong trường hợp bị l&acirc;u qu&aacute;, ch&uacute;ng ta sẽ cho chuyển nội dung để cố gắng thực hiện đủ hết c&aacute;c nội dung.</p>\n<p>Tổng thời gian kết th&uacute;c mỗi nh&oacute;m l&agrave; 40 ph&uacute;t/ nh&oacute;m.</p>\n<p>Ở lượt tiếp theo, BTC sẽ gọi loa c&aacute;c nh&oacute;m chuẩn bị v&agrave;o tham gia theo đ&uacute;ng lượt của m&igrave;nh.</p>",
+          "location": "<p>2 rổ ( chia 16 bạn/ rổ)</p>",
+          "description": "<ul>\n  <li>1on1/2on2/3on3 ( Chia 2/3 h&agrave;ng thi đấu nh&oacute;m bất k&igrave;) - ( 4 ph&uacute;t)</li>\n  <li>5on5 ( chia 4 đội 8 bạn) thi đấu 5 ph&uacute;t giờ tr&ocirc;i mỗi trận. Tổng số: 4 trận.</li>\n</ul>",
+          "equipment": "<ul>\n  <li>Số lượng b&oacute;ng:&nbsp;01 quả</li>\n  <li>&Aacute;o chiến thuật: 5 chiếc</li>\n  <li>Ch&acirc;n quay&nbsp;ghi h&igrave;nh</li>\n</ul>",
+          "measurementScale": "<ul>\n  <li>Mức 1: Yếu</li>\n  <li>Mức 2: K&eacute;m</li>\n  <li>Mức 3: Trung b&igrave;nh</li>\n  <li>Mức 4: Kh&aacute;</li>\n  <li>Mức 5: Tốt C&aacute;c ti&ecirc;u ch&iacute;: Th&aacute;i độ ( TĐ); Vai tr&ograve; l&atilde;nh đạo ( LS); Kĩ năng ( KN); Thể lực ( TL); Tư duy thi đấu ( IQ). V&iacute; dụ: Nguyễn Văn A - TĐ: 1 - LS: 5; KN: 4; TL: 3; IQ: 3.</li>\n</ul>",
+          "sortOrder": 6,
+          "subScales": [
+            {
+              "measurementScaleCode": "Attitude",
+              "measurementName": "Thái độ (TĐ)",
+              "content": null,
+              "duration": null,
+              "location": null,
+              "description": null,
+              "equipment": null,
+              "measurementScale": null,
+              "sortOrder": 7,
+              "subScales": [],
+              "scoreCriteria": [
+                {
+                  "scoreCriteriaId": 29,
+                  "criteriaName": "Thái độ (Nam)",
+                  "unit": "điểm",
+                  "gender": true,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                },
+                {
+                  "scoreCriteriaId": 30,
+                  "criteriaName": "Thái độ (Nữ)",
+                  "unit": "điểm",
+                  "gender": false,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "measurementScaleCode": "Leadership",
+              "measurementName": "Lãnh đạo",
+              "content": null,
+              "duration": null,
+              "location": null,
+              "description": null,
+              "equipment": null,
+              "measurementScale": null,
+              "sortOrder": 8,
+              "subScales": [],
+              "scoreCriteria": [
+                {
+                  "scoreCriteriaId": 31,
+                  "criteriaName": "Lãnh đạo (Nam)",
+                  "unit": "điểm",
+                  "gender": true,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                },
+                {
+                  "scoreCriteriaId": 32,
+                  "criteriaName": "Lãnh đạo (Nữ)",
+                  "unit": "điểm",
+                  "gender": false,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "measurementScaleCode": "Skills",
+              "measurementName": "Kỹ năng (KN)",
+              "content": null,
+              "duration": null,
+              "location": null,
+              "description": null,
+              "equipment": null,
+              "measurementScale": null,
+              "sortOrder": 9,
+              "subScales": [],
+              "scoreCriteria": [
+                {
+                  "scoreCriteriaId": 33,
+                  "criteriaName": "Kỹ năng (Nam)",
+                  "unit": "điểm",
+                  "gender": true,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                },
+                {
+                  "scoreCriteriaId": 34,
+                  "criteriaName": "Kỹ năng (Nữ)",
+                  "unit": "điểm",
+                  "gender": false,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "measurementScaleCode": "ScrimmagePhysicalFitness",
+              "measurementName": "Thể lực (TL)",
+              "content": null,
+              "duration": null,
+              "location": null,
+              "description": null,
+              "equipment": null,
+              "measurementScale": null,
+              "sortOrder": 10,
+              "subScales": [],
+              "scoreCriteria": [
+                {
+                  "scoreCriteriaId": 35,
+                  "criteriaName": "Thể lực thi đấu (Nam)",
+                  "unit": "điểm",
+                  "gender": true,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                },
+                {
+                  "scoreCriteriaId": 36,
+                  "criteriaName": "Thể lực thi đấu (Nữ)",
+                  "unit": "điểm",
+                  "gender": false,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "measurementScaleCode": "BasketballIQ",
+              "measurementName": "Tư duy (IQ)",
+              "content": null,
+              "duration": null,
+              "location": null,
+              "description": null,
+              "equipment": null,
+              "measurementScale": null,
+              "sortOrder": 11,
+              "subScales": [],
+              "scoreCriteria": [
+                {
+                  "scoreCriteriaId": 37,
+                  "criteriaName": "Tư duy (Nam)",
+                  "unit": "điểm",
+                  "gender": true,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                },
+                {
+                  "scoreCriteriaId": 38,
+                  "criteriaName": "Tư duy (Nữ)",
+                  "unit": "điểm",
+                  "gender": false,
+                  "scoreLevels": [
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "1"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "2"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "3"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "4"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": null,
+                      "scoreLevel": "5"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "scoreCriteria": null
+        }
+      ],
+      "scoreCriteria": null
+    },
+    {
+      "measurementScaleCode": "PhysicalFitness",
+      "measurementName": "Thể lực",
+      "content": null,
+      "duration": null,
+      "location": null,
+      "description": null,
+      "equipment": null,
+      "measurementScale": null,
+      "sortOrder": 12,
+      "subScales": [
+        {
+          "measurementScaleCode": "HexagonTest",
+          "measurementName": "Hexagon Test",
+          "content": "<p>Bật nhảy 2 ch&acirc;n Hexagon Test Thực hiện: 01 lần.</p>",
+          "duration": null,
+          "location": "<p>sân 3-3</p>",
+          "description": "<p>Test khả năng phối hợp của thân dưới</p>",
+          "equipment": "<p>Băng dính xanh, thước dây</p>",
+          "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+          "sortOrder": 13,
+          "subScales": [],
+          "scoreCriteria": [
+            {
+              "scoreCriteriaId": 1,
+              "criteriaName": "Bật nhảy 2 chân (Nam)",
+              "unit": "giây",
+              "gender": true,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": 11.1,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 11.2,
+                  "maxValue": 13.3,
+                  "scoreLevel": "AboveAverage"
+                },
+                {
+                  "minValue": 13.4,
+                  "maxValue": 15.5,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 15.6,
+                  "maxValue": 17.8,
+                  "scoreLevel": "BellowAverage"
+                },
+                {
+                  "minValue": 17.9,
+                  "maxValue": null,
+                  "scoreLevel": "Poor"
+                }
+              ]
+            },
+            {
+              "scoreCriteriaId": 2,
+              "criteriaName": "Bật nhảy 2 chân (Nữ)",
+              "unit": "giây",
+              "gender": false,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": 12.1,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 12.2,
+                  "maxValue": 15.3,
+                  "scoreLevel": "AboveAverage"
+                },
+                {
+                  "minValue": 15.4,
+                  "maxValue": 18.5,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 18.6,
+                  "maxValue": 21.8,
+                  "scoreLevel": "BellowAverage"
+                },
+                {
+                  "minValue": 21.9,
+                  "maxValue": null,
+                  "scoreLevel": "Poor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "measurementScaleCode": "StandingBroadJump",
+          "measurementName": "Bật xa tại chỗ",
+          "content": "<p>Thực hiện: 01 lần.</p>",
+          "duration": null,
+          "location": "<p>sân 3-3</p>",
+          "description": "<p>Sức mạnh bộc phát</p>",
+          "equipment": "<p>Thước dây</p>",
+          "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+          "sortOrder": 14,
+          "subScales": [],
+          "scoreCriteria": [
+            {
+              "scoreCriteriaId": 3,
+              "criteriaName": "Bật xa tại chỗ (Nam)",
+              "unit": "cm",
+              "gender": true,
+              "scoreLevels": [
+                {
+                  "minValue": 251,
+                  "maxValue": null,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 241,
+                  "maxValue": 250,
+                  "scoreLevel": "VeryGood"
+                },
+                {
+                  "minValue": 231,
+                  "maxValue": 240,
+                  "scoreLevel": "AboveAverage"
+                },
+                {
+                  "minValue": 221,
+                  "maxValue": 230,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 211,
+                  "maxValue": 220,
+                  "scoreLevel": "BellowAverage"
+                },
+                {
+                  "minValue": 191,
+                  "maxValue": 210,
+                  "scoreLevel": "Poor"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": 190,
+                  "scoreLevel": "VeryPoor"
+                }
+              ]
+            },
+            {
+              "scoreCriteriaId": 4,
+              "criteriaName": "Bật xa tại chỗ (Nữ)",
+              "unit": "cm",
+              "gender": false,
+              "scoreLevels": [
+                {
+                  "minValue": 201,
+                  "maxValue": null,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 191,
+                  "maxValue": 200,
+                  "scoreLevel": "VeryGood"
+                },
+                {
+                  "minValue": 181,
+                  "maxValue": 190,
+                  "scoreLevel": "AboveAverage"
+                },
+                {
+                  "minValue": 171,
+                  "maxValue": 180,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 161,
+                  "maxValue": 170,
+                  "scoreLevel": "BellowAverage"
+                },
+                {
+                  "minValue": 141,
+                  "maxValue": 160,
+                  "scoreLevel": "Poor"
+                },
+                {
+                  "minValue": 140,
+                  "maxValue": null,
+                  "scoreLevel": "VeryPoor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "measurementScaleCode": "VerticalJump",
+          "measurementName": "Bật cao",
+          "content": "<p>Bật nhảy với cao</p>\n<ul>\n  <li>Kh&ocirc;ng đ&agrave;</li>\n  <li>C&oacute; đ&agrave;</li>\n</ul>\n<p>Thực&nbsp;hiện: 02 lần lấy th&agrave;nh t&iacute;ch cao nhất.</p>",
+          "duration": null,
+          "location": "<p>Góc tường cạnh nhà thể chất cầu lông</p>",
+          "description": "<p>Sức mạnh bộc phát</p>",
+          "equipment": "<p>Thang, Băng dính xanh, Thước dây</p>",
+          "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+          "sortOrder": 15,
+          "subScales": [
+            {
+              "measurementScaleCode": "StandingVerticalJump",
+              "measurementName": "Không đà",
+              "content": null,
+              "duration": null,
+              "location": null,
+              "description": null,
+              "equipment": null,
+              "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+              "sortOrder": 16,
+              "subScales": [],
+              "scoreCriteria": [
+                {
+                  "scoreCriteriaId": 5,
+                  "criteriaName": "Bật nhảy với cao không đà (Nam)",
+                  "unit": "cm",
+                  "gender": true,
+                  "scoreLevels": [
+                    {
+                      "minValue": 81,
+                      "maxValue": null,
+                      "scoreLevel": "Excellent"
+                    },
+                    {
+                      "minValue": 66,
+                      "maxValue": 80,
+                      "scoreLevel": "AboveAverage"
+                    },
+                    {
+                      "minValue": 56,
+                      "maxValue": 65,
+                      "scoreLevel": "Average"
+                    },
+                    {
+                      "minValue": 46,
+                      "maxValue": 55,
+                      "scoreLevel": "BellowAverage"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": 45,
+                      "scoreLevel": "Poor"
+                    }
+                  ]
+                },
+                {
+                  "scoreCriteriaId": 6,
+                  "criteriaName": "Bật nhảy với cao không đà (Nữ)",
+                  "unit": "cm",
+                  "gender": false,
+                  "scoreLevels": [
+                    {
+                      "minValue": 71,
+                      "maxValue": null,
+                      "scoreLevel": "Excellent"
+                    },
+                    {
+                      "minValue": 56,
+                      "maxValue": 70,
+                      "scoreLevel": "AboveAverage"
+                    },
+                    {
+                      "minValue": 46,
+                      "maxValue": 55,
+                      "scoreLevel": "Average"
+                    },
+                    {
+                      "minValue": 36,
+                      "maxValue": 45,
+                      "scoreLevel": "BellowAverage"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": 35,
+                      "scoreLevel": "Poor"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "measurementScaleCode": "RunningVerticalJump",
+              "measurementName": "Có đà",
+              "content": null,
+              "duration": null,
+              "location": null,
+              "description": null,
+              "equipment": null,
+              "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+              "sortOrder": 17,
+              "subScales": [],
+              "scoreCriteria": [
+                {
+                  "scoreCriteriaId": 7,
+                  "criteriaName": "Bật nhảy với cao có đà (Nam)",
+                  "unit": "cm",
+                  "gender": true,
+                  "scoreLevels": [
+                    {
+                      "minValue": 81,
+                      "maxValue": null,
+                      "scoreLevel": "Excellent"
+                    },
+                    {
+                      "minValue": 66,
+                      "maxValue": 80,
+                      "scoreLevel": "AboveAverage"
+                    },
+                    {
+                      "minValue": 56,
+                      "maxValue": 65,
+                      "scoreLevel": "Average"
+                    },
+                    {
+                      "minValue": 46,
+                      "maxValue": 55,
+                      "scoreLevel": "BellowAverage"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": 45,
+                      "scoreLevel": "Poor"
+                    }
+                  ]
+                },
+                {
+                  "scoreCriteriaId": 8,
+                  "criteriaName": "Bật nhảy với cao có đà (Nữ)",
+                  "unit": "cm",
+                  "gender": false,
+                  "scoreLevels": [
+                    {
+                      "minValue": 71,
+                      "maxValue": null,
+                      "scoreLevel": "Excellent"
+                    },
+                    {
+                      "minValue": 56,
+                      "maxValue": 70,
+                      "scoreLevel": "AboveAverage"
+                    },
+                    {
+                      "minValue": 46,
+                      "maxValue": 55,
+                      "scoreLevel": "Average"
+                    },
+                    {
+                      "minValue": 36,
+                      "maxValue": 45,
+                      "scoreLevel": "BellowAverage"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": 35,
+                      "scoreLevel": "Poor"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "scoreCriteria": null
+        },
+        {
+          "measurementScaleCode": "AgilityTest",
+          "measurementName": "Nhanh nhẹn",
+          "content": "<p>Agility Test 5-10-5 ( t&iacute;nh Gi&acirc;y)</p>\n<p>Thực hiện: 01 lần.</p>",
+          "duration": null,
+          "location": "<p>sân 3-3</p>",
+          "description": "<p>Khả năng di chuyển</p>",
+          "equipment": "<p>Đồng hồ, 3 nấm cọc</p>",
+          "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+          "sortOrder": 18,
+          "subScales": [],
+          "scoreCriteria": [
+            {
+              "scoreCriteriaId": 9,
+              "criteriaName": "Nhanh nhẹn (Nam)",
+              "unit": "giây",
+              "gender": true,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": 9.5,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 9.51,
+                  "maxValue": 10.5,
+                  "scoreLevel": "Good"
+                },
+                {
+                  "minValue": 10.51,
+                  "maxValue": 11.5,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 11.49,
+                  "maxValue": null,
+                  "scoreLevel": "Poor"
+                }
+              ]
+            },
+            {
+              "scoreCriteriaId": 10,
+              "criteriaName": "Nhanh nhẹn (Nữ)",
+              "unit": "giây",
+              "gender": false,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": 10.5,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 10.51,
+                  "maxValue": 11.5,
+                  "scoreLevel": "Good"
+                },
+                {
+                  "minValue": 11.51,
+                  "maxValue": 12.5,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 12.5,
+                  "maxValue": null,
+                  "scoreLevel": "Poor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "measurementScaleCode": "Sprint",
+          "measurementName": "Chạy nước rút",
+          "content": "<p>Chạy 3/4 s&acirc;n</p>\n<p>Thực&nbsp;hiện: 01 lần.</p>",
+          "duration": null,
+          "location": "<p>Biên dọc sân 5-5</p>",
+          "description": "<p>Tốc độ</p>",
+          "equipment": "<p>4 nấm cọc, đồng hồ</p>",
+          "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+          "sortOrder": 19,
+          "subScales": [],
+          "scoreCriteria": [
+            {
+              "scoreCriteriaId": 11,
+              "criteriaName": "Chạy nước rút 20m (Nam)",
+              "unit": "giây",
+              "gender": true,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": 4.1,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 4.11,
+                  "maxValue": 4.2,
+                  "scoreLevel": "AboveAverage"
+                },
+                {
+                  "minValue": 4.3,
+                  "maxValue": 4.4,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 4.5,
+                  "maxValue": 4.6,
+                  "scoreLevel": "BellowAverage"
+                },
+                {
+                  "minValue": 4.7,
+                  "maxValue": null,
+                  "scoreLevel": "Poor"
+                }
+              ]
+            },
+            {
+              "scoreCriteriaId": 12,
+              "criteriaName": "Chạy nước rút 20m (Nữ)",
+              "unit": "giây",
+              "gender": false,
+              "scoreLevels": [
+                {
+                  "minValue": null,
+                  "maxValue": 4.4,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 4.5,
+                  "maxValue": 4.6,
+                  "scoreLevel": "AboveAverage"
+                },
+                {
+                  "minValue": 4.7,
+                  "maxValue": 4.8,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 4.9,
+                  "maxValue": 5,
+                  "scoreLevel": "BellowAverage"
+                },
+                {
+                  "minValue": 5.1,
+                  "maxValue": null,
+                  "scoreLevel": "Poor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "measurementScaleCode": "PushUp",
+          "measurementName": "Chống đẩy",
+          "content": "<p>Push up (tính số lần)</p>",
+          "duration": null,
+          "location": "<p>Sân 3-3</p>",
+          "description": "<p>Sức mạnh</p>",
+          "equipment": "<p>Đồng hồ, thảm yoga (3-5 chiếc)</p>",
+          "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+          "sortOrder": 20,
+          "subScales": [],
+          "scoreCriteria": [
+            {
+              "scoreCriteriaId": 13,
+              "criteriaName": "Chống đẩy (Nam)",
+              "unit": "cái",
+              "gender": true,
+              "scoreLevels": [
+                {
+                  "minValue": 40,
+                  "maxValue": null,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 30,
+                  "maxValue": 39,
+                  "scoreLevel": "Good"
+                },
+                {
+                  "minValue": 25,
+                  "maxValue": 29,
+                  "scoreLevel": "AboveAverage"
+                },
+                {
+                  "minValue": 15,
+                  "maxValue": 24,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 10,
+                  "maxValue": 14,
+                  "scoreLevel": "BellowAverage"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": 9,
+                  "scoreLevel": "Poor"
+                }
+              ]
+            },
+            {
+              "scoreCriteriaId": 14,
+              "criteriaName": "Chống đẩy (Nữ)",
+              "unit": "cái",
+              "gender": false,
+              "scoreLevels": [
+                {
+                  "minValue": 25,
+                  "maxValue": null,
+                  "scoreLevel": "Excellent"
+                },
+                {
+                  "minValue": 20,
+                  "maxValue": 24,
+                  "scoreLevel": "Good"
+                },
+                {
+                  "minValue": 15,
+                  "maxValue": 19,
+                  "scoreLevel": "AboveAverage"
+                },
+                {
+                  "minValue": 10,
+                  "maxValue": 14,
+                  "scoreLevel": "Average"
+                },
+                {
+                  "minValue": 5,
+                  "maxValue": 9,
+                  "scoreLevel": "BellowAverage"
+                },
+                {
+                  "minValue": null,
+                  "maxValue": 4,
+                  "scoreLevel": "Poor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "measurementScaleCode": "PlankTest",
+          "measurementName": "Plank",
+          "content": "<p>Push up (tính số lần)</p>",
+          "duration": null,
+          "location": "<p>Sân 3-3</p>",
+          "description": "<p>Sức mạnh</p>",
+          "equipment": "<p>Đồng hồ, thảm yoga (3-5 chiếc)</p>",
+          "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+          "sortOrder": 21,
+          "subScales": [
+            {
+              "measurementScaleCode": "StandardPlank",
+              "measurementName": "Plank Thường",
+              "content": null,
+              "duration": null,
+              "location": null,
+              "description": null,
+              "equipment": null,
+              "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+              "sortOrder": 21,
+              "subScales": [],
+              "scoreCriteria": [
+                {
+                  "scoreCriteriaId": 15,
+                  "criteriaName": "Plank ngửa cơ bản (Nam)",
+                  "unit": "giây",
+                  "gender": true,
+                  "scoreLevels": [
+                    {
+                      "minValue": 101,
+                      "maxValue": null,
+                      "scoreLevel": "Excellent"
+                    },
+                    {
+                      "minValue": 80,
+                      "maxValue": 100,
+                      "scoreLevel": "Good"
+                    },
+                    {
+                      "minValue": 60,
+                      "maxValue": 80,
+                      "scoreLevel": "AboveAverage"
+                    },
+                    {
+                      "minValue": 40,
+                      "maxValue": 60,
+                      "scoreLevel": "Average"
+                    },
+                    {
+                      "minValue": 20,
+                      "maxValue": 40,
+                      "scoreLevel": "BellowAverage"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": 19,
+                      "scoreLevel": "Poor"
+                    }
+                  ]
+                },
+                {
+                  "scoreCriteriaId": 16,
+                  "criteriaName": "Plank ngửa cơ bản (Nữ)",
+                  "unit": "giây",
+                  "gender": false,
+                  "scoreLevels": [
+                    {
+                      "minValue": 101,
+                      "maxValue": null,
+                      "scoreLevel": "Excellent"
+                    },
+                    {
+                      "minValue": 80,
+                      "maxValue": 100,
+                      "scoreLevel": "Good"
+                    },
+                    {
+                      "minValue": 60,
+                      "maxValue": 80,
+                      "scoreLevel": "AboveAverage"
+                    },
+                    {
+                      "minValue": 40,
+                      "maxValue": 60,
+                      "scoreLevel": "Average"
+                    },
+                    {
+                      "minValue": 20,
+                      "maxValue": 40,
+                      "scoreLevel": "BellowAverage"
+                    },
+                    {
+                      "minValue": null,
+                      "maxValue": 19,
+                      "scoreLevel": "Poor"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "measurementScaleCode": "SidePlank",
+              "measurementName": "Plank một phía",
+              "content": null,
+              "duration": null,
+              "location": null,
+              "description": null,
+              "equipment": null,
+              "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+              "sortOrder": 22,
+              "subScales": [
+                {
+                  "measurementScaleCode": "RightSidePlank",
+                  "measurementName": "Phải",
+                  "content": null,
+                  "duration": null,
+                  "location": null,
+                  "description": null,
+                  "equipment": null,
+                  "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+                  "sortOrder": 23,
+                  "subScales": [],
+                  "scoreCriteria": [
+                    {
+                      "scoreCriteriaId": 17,
+                      "criteriaName": "Plank bên phải (Nam)",
+                      "unit": "giây",
+                      "gender": true,
+                      "scoreLevels": [
+                        {
+                          "minValue": 101,
+                          "maxValue": null,
+                          "scoreLevel": "Excellent"
+                        },
+                        {
+                          "minValue": 80,
+                          "maxValue": 100,
+                          "scoreLevel": "Good"
+                        },
+                        {
+                          "minValue": 60,
+                          "maxValue": 80,
+                          "scoreLevel": "AboveAverage"
+                        },
+                        {
+                          "minValue": 40,
+                          "maxValue": 60,
+                          "scoreLevel": "Average"
+                        },
+                        {
+                          "minValue": 20,
+                          "maxValue": 40,
+                          "scoreLevel": "BellowAverage"
+                        },
+                        {
+                          "minValue": null,
+                          "maxValue": 19,
+                          "scoreLevel": "Poor"
+                        }
+                      ]
+                    },
+                    {
+                      "scoreCriteriaId": 18,
+                      "criteriaName": "Plank bên phải (Nữ)",
+                      "unit": "giây",
+                      "gender": false,
+                      "scoreLevels": [
+                        {
+                          "minValue": 101,
+                          "maxValue": null,
+                          "scoreLevel": "Excellent"
+                        },
+                        {
+                          "minValue": 80,
+                          "maxValue": 100,
+                          "scoreLevel": "Good"
+                        },
+                        {
+                          "minValue": 60,
+                          "maxValue": 80,
+                          "scoreLevel": "AboveAverage"
+                        },
+                        {
+                          "minValue": 40,
+                          "maxValue": 60,
+                          "scoreLevel": "Average"
+                        },
+                        {
+                          "minValue": 20,
+                          "maxValue": 40,
+                          "scoreLevel": "BellowAverage"
+                        },
+                        {
+                          "minValue": null,
+                          "maxValue": 19,
+                          "scoreLevel": "Poor"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "measurementScaleCode": "LeftSidePlank",
+                  "measurementName": "Trái",
+                  "content": null,
+                  "duration": null,
+                  "location": null,
+                  "description": null,
+                  "equipment": null,
+                  "measurementScale": "<p>Tham khảo bảng tiêu chí</p>",
+                  "sortOrder": 24,
+                  "subScales": [],
+                  "scoreCriteria": [
+                    {
+                      "scoreCriteriaId": 19,
+                      "criteriaName": "Plank bên trái (Nam)",
+                      "unit": "giây",
+                      "gender": true,
+                      "scoreLevels": [
+                        {
+                          "minValue": 101,
+                          "maxValue": null,
+                          "scoreLevel": "Excellent"
+                        },
+                        {
+                          "minValue": 80,
+                          "maxValue": 100,
+                          "scoreLevel": "Good"
+                        },
+                        {
+                          "minValue": 60,
+                          "maxValue": 80,
+                          "scoreLevel": "AboveAverage"
+                        },
+                        {
+                          "minValue": 40,
+                          "maxValue": 60,
+                          "scoreLevel": "Average"
+                        },
+                        {
+                          "minValue": 20,
+                          "maxValue": 40,
+                          "scoreLevel": "BellowAverage"
+                        },
+                        {
+                          "minValue": null,
+                          "maxValue": 19,
+                          "scoreLevel": "Poor"
+                        }
+                      ]
+                    },
+                    {
+                      "scoreCriteriaId": 20,
+                      "criteriaName": "Plank bên trái (Nữ)",
+                      "unit": "giây",
+                      "gender": false,
+                      "scoreLevels": [
+                        {
+                          "minValue": 101,
+                          "maxValue": null,
+                          "scoreLevel": "Excellent"
+                        },
+                        {
+                          "minValue": 80,
+                          "maxValue": 100,
+                          "scoreLevel": "Good"
+                        },
+                        {
+                          "minValue": 60,
+                          "maxValue": 80,
+                          "scoreLevel": "AboveAverage"
+                        },
+                        {
+                          "minValue": 40,
+                          "maxValue": 60,
+                          "scoreLevel": "Average"
+                        },
+                        {
+                          "minValue": 20,
+                          "maxValue": 40,
+                          "scoreLevel": "BellowAverage"
+                        },
+                        {
+                          "minValue": null,
+                          "maxValue": 19,
+                          "scoreLevel": "Poor"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "scoreCriteria": null
+            }
+          ],
+          "scoreCriteria": null
+        }
+      ],
+      "scoreCriteria": null
+    }
+  ],
+  "errors": null
+}

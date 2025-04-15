@@ -38,8 +38,10 @@ export default function CoachManagement() {
             }
 
             // Call the API using your service
-            //const response = await coachApi.getCoaches(filters)
-            //setData(response)
+            const response = await coachApi.getCoachs(filters)
+            console.log(response.data.data);
+            
+            setData(response.data.data)
         } catch (err) {
             console.error("Error fetching data:", err)
             setError(err instanceof Error ? err.message : "An unknown error occurred")
@@ -84,9 +86,9 @@ export default function CoachManagement() {
     }
 
     // Extract unique team IDs for the filter dropdown
-    const uniqueTeamIds = data?.data.items
-        ? Array.from(new Set(data.data.items.map((item) => item.teamId).filter(Boolean)))
-        : []
+    // const uniqueTeamIds = data?.data.items
+    //     ? Array.from(new Set(data.data.items.map((item) => item.teamId).filter(Boolean)))
+    //     : []
 
     return (
         <div className="container mx-auto py-8">
@@ -108,7 +110,7 @@ export default function CoachManagement() {
                     <CoachFilter
                         searchUserId={searchUserId}
                         teamIdFilter={teamIdFilter}
-                        uniqueTeamIds={uniqueTeamIds}
+                        //uniqueTeamIds={uniqueTeamIds}
                         onSearchChange={handleSearchChange}
                         onFilterChange={handleFilterChange}
                     />
@@ -135,15 +137,15 @@ export default function CoachManagement() {
                     ) : (
                         <>
                             {/* Table Component */}
-                            <CoachList coaches={data?.data.items || []} />
+                            <CoachList coaches={data?.items || []} />
 
                             {/* Pagination Component */}
                             {data && (
                                 <CoachPagination
-                                    currentPage={data.data.currentPage}
-                                    totalPages={data.data.totalPages}
+                                    currentPage={data.currentPage}
+                                    totalPages={data.totalPages}
                                     pageSize={pageSize}
-                                    totalRecords={data.data.totalRecords}
+                                    totalRecords={data.totalRecords}
                                     onPageChange={setCurrentPage}
                                     onPageSizeChange={handlePageSizeChange}
                                 />

@@ -1,12 +1,12 @@
 import api from "./axios";
 
 const coachApi = {
-    getManagers: (filters = {}) => {
+    getCoachs: (filters = {}) => {
         const validFilters = Object.fromEntries(
             Object.entries(filters).filter(([_, value]) => value !== undefined && value !== null)
         );
 
-        return api.get('/manager/list-manager-filter-and-paging', { params: validFilters });
+        return api.get('/coach/list', { params: validFilters });
     },
     getManagerById: (userId) => {
         return api.get(`/manager/manager-detail/${userId}`);
@@ -19,6 +19,9 @@ const coachApi = {
     },
     updateManager: (data) => {
         return api.put('/manager/update-manager', data);
+    },
+    listCoaches: (data) => {
+        return api.get('/coach/list', {params: data});
     },
 };
 

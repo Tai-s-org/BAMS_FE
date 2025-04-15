@@ -7,7 +7,7 @@ export default function RegistrationSessionDetailPage() {
     const { id } = useParams();
     return (
         <div>
-            <RegistrationSessionDetail params={id} />
+            <RegistrationSessionDetail id={id} />
         </div>
     );
 }
