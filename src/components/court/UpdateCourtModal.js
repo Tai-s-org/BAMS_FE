@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/Label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import ImageUpload from "@/components/ImageUpload"
 import courtApi from "@/api/court"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court }) {
   const router = useRouter()
@@ -29,8 +30,9 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
     rentPricePerHour: 0,
     kind: "5x5",
   })
+  const { addToast } = useToasts();
   const [imageWarning, setImageWarning] = useState(null);
-
+  const [priceWarning, setPriceWarning] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Update form data when court changes
@@ -46,8 +48,31 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
   }
 
   const handleNumberChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: Number.parseInt(value) || 0 }))
+    const { name, value } = e.target;
+
+    // Xử lý trường hợp input rỗng
+    if (value === '') {
+      setFormData(prev => ({ ...prev, [name]: 0 }));
+      setPriceWarning('');
+      return;
+    }
+
+    const numValue = parseInt(value, 10);
+
+    // Kiểm tra nếu không phải là số hợp lệ
+    if (isNaN(numValue)) {
+      setPriceWarning("Vui lòng nhập số hợp lệ");
+      return;
+    }
+
+    if (numValue < 0 || numValue > 500) {
+      setPriceWarning("Giá phải trong khoảng 0 - 500");
+      return;
+    }
+
+    // Clear warning nếu giá trị hợp lệ
+    setPriceWarning('');
+    setFormData(prev => ({ ...prev, [name]: numValue }));
   }
 
   const handleSelectChange = (name, value) => {
@@ -78,13 +103,14 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
     try {
       // In a real app, you would make an API call here
       const response = await courtApi.updateCourt(formData);
-      
+
       onUpdateCourt(response?.data.data);
-      
+      addToast({ message: response?.data.message, type: response?.data.status });
       onClose()
       router.refresh()
     } catch (error) {
       console.error("Error updating court:", error)
+      addToast({ message: error?.response?.data.message, type: "error" });
     } finally {
       setIsSubmitting(false)
     }
@@ -106,30 +132,30 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
           {/* Image Upload Component */}
           <ImageUpload initialImage={process.env.NEXT_PUBLIC_IMAGE_API_URL + formData.imageUrl} onImageChange={handleImageChange} />
 
-            <div className="space-y-2">
-              <Label htmlFor="name" className="required">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="required">
               Tên Sân
-              </Label>
-              <Input
-                id="name"
-                name="courtName"
-                value={formData.courtName}
-                onChange={handleChange}
-                placeholder="Main Arena Court"
-                required
-              />
-            </div>
+            </Label>
+            <Input
+              id="name"
+              name="courtName"
+              value={formData.courtName}
+              onChange={handleChange}
+              placeholder="Main Arena Court"
+              required
+            />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="type">Loại Sân</Label>
               <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectItem value="Indoor">Trong nhà</SelectItem>
-                <SelectItem value="Outdoor">Ngoài trời</SelectItem>
+                  <SelectItem value="Indoor">Trong nhà</SelectItem>
+                  <SelectItem value="Outdoor">Ngoài trời</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -178,8 +204,18 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
 
           <div className="space-y-2">
             <Label htmlFor="price">Giá Thuê (nghìn đồng/giờ)</Label>
-            <Input id="price" name="price" type="number" min="0" value={formData.rentPricePerHour} onChange={handleNumberChange} />
+            <Input
+              id="price"
+              name="rentPricePerHour"
+              type="number"
+              value={formData.rentPricePerHour}
+              onChange={handleNumberChange}
+              min="0"
+              max="500"
+            />
           </div>
+          {priceWarning && <div className="text-red-500 text-sm">{priceWarning}</div>}
+
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

@@ -26,15 +26,13 @@ export default function CoachList({ coaches }) {
                       <AvatarImage src="/placeholder.svg?height=40&width=40" alt={coach.coachName} />
                       <AvatarFallback>
                         {coach.coachName
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
+                          .charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <span>{coach.coachName}</span>
                   </div>
                 </TableCell>
-                <TableCell>{coach.bio}</TableCell>
+                <TableCell>{coach.bio ? coach.bio : "-"}</TableCell>
                 <TableCell>
                   {new Date(coach.contractStartDate).toLocaleDateString()} -{" "}
                   {new Date(coach.contractEndDate).toLocaleDateString()}

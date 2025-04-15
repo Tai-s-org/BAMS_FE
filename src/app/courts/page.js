@@ -14,9 +14,11 @@ import { Label } from "@/components/ui/Label";
 import courtApi from "@/api/court";
 import { useAuth } from "@/hooks/context/AuthContext";
 import { redirect } from "next/navigation";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function CourtManagement() {
   const { user } = useAuth();
+  const {addToast} = useToasts();
 
   if (user.roleCode !== "Manager") {
     alert("Không có quyền truy cập");
@@ -59,7 +61,7 @@ export default function CourtManagement() {
       setTotalPage(currentCourts?.data.totalPages);
       setTotalRecords(currentCourts?.data.totalRecords);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -73,17 +75,17 @@ export default function CourtManagement() {
   const handleCreateCourt = async (newCourt) => {
     try {
       const response = await courtApi.createCourt(newCourt);
+      addToast({ message: response?.data.message, type: response?.data.status });
       setIsCreateModalOpen(false);
       setIsModified(!isModified);
     } catch (err) {
       console.error(err);
+      addToast({ message: err?.response?.data.message, type: "error" });
     }
   };
 
   const handleUpdateCourt = (updatedCourt) => {
     try {
-      console.log("Updated court 1", updatedCourt);
-
       setIsCreateModalOpen(false);
       setIsModified(!isModified);
     } catch (err) {
@@ -93,11 +95,13 @@ export default function CourtManagement() {
 
   const handleDeleteCourt = async (id) => {
     try {
-      await courtApi.deleteCourt(id);
+      const response = await courtApi.deleteCourt(id);
+      addToast({ message: response?.data.message, type: response?.data.status });
       setIsModified(!isModified);
       await fetchCourts();
     } catch (err) {
       console.error(err);
+      addToast({ message: err?.response?.data.message, type: "error" });
     }
   };
 
