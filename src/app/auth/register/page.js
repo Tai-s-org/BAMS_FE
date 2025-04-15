@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -12,8 +12,13 @@ export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
     const router = useRouter()
-    const memberRegistrationSessionId = localStorage.getItem("memberRegistrationSessionId");
+    const [memberRegistrationSessionId, setMemberRegistrationSessionId] = useState("")
     const { addToast } = useToasts();
+
+    useEffect(() => {
+        const sessionId = localStorage.getItem("memberRegistrationSessionId")
+        if (sessionId) setMemberRegistrationSessionId(sessionId)
+    }, [])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
