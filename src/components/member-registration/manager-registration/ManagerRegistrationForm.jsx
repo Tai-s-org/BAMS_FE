@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
@@ -13,7 +13,16 @@ import { Dialog } from "@/components/ui/Dialog"
 export default function ManagerRegistrationForm({ isOpen, onClose }) {
     const { addToast } = useToasts();
     const router = useRouter();
-    const storedEmail = localStorage.getItem("userEmail");
+    const [storedEmail, setStoredEmail] = useState("");
+    const [registrationSessionId, setRegistrationSessionId] = useState("");
+
+    useEffect(() => {
+        const email = localStorage.getItem("userEmail");
+        const sessionId = localStorage.getItem("registrationSessionId");
+        setFormData(prev => ({ ...prev, email: email || "" }));
+        setRegistrationSessionId(sessionId);
+    }, []);
+
     const [formData, setFormData] = useState({
         fullName: "",
         generationAndSchoolName: "",
@@ -27,7 +36,7 @@ export default function ManagerRegistrationForm({ isOpen, onClose }) {
         strength: "",
         weaknessAndItSolution: ""
     })
-    const registrationSessionId = localStorage.getItem("registrationSessionId");
+    //const registrationSessionId = localStorage.getItem("registrationSessionId");
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -41,7 +50,7 @@ export default function ManagerRegistrationForm({ isOpen, onClose }) {
         if (registrationSessionId) {
             e.preventDefault()
             console.log(formData, " memberRegistrationSessionId:", registrationSessionId,);
-            
+
             try {
                 const response = await registerApi.managerRegister({
                     ...formData,

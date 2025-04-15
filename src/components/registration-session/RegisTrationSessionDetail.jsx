@@ -41,7 +41,6 @@ export default function RegistrationSessionDetail({ id }) {
                 };
 
                 setSession(response.data)
-                addToast({ message: response.data.message, type: "success" });
             } catch (error) {
                 addToast({ message: error.response.data.message, type: "error" });
             }

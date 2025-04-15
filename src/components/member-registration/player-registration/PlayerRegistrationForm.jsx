@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
@@ -8,10 +8,44 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/Radio-group"
 import { Textarea } from "@/components/ui/Textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { DatePicker } from "@/components/ui/DatePicker"
+import registerApi from "@/api/register"
+import { useRouter } from "next/navigation"
 
 export default function PlayerRegistrationForm() {
     const [date, setDate] = useState(null)
-    const storedEmail = localStorage.getItem("userEmail");
+    const router = useRouter();
+    const [storedEmail, setStoredEmail] = useState("");
+        const [registrationSessionId, setRegistrationSessionId] = useState("");
+    
+        useEffect(() => {
+            const email = localStorage.getItem("userEmail");
+            const sessionId = localStorage.getItem("registrationSessionId");
+            setFormData(prev => ({ ...prev, email: email || "" }));
+            setRegistrationSessionId(sessionId);
+        }, []);
+
+    const [formData, setFormData] = useState({
+        fullName: "",
+        generationAndSchoolName: "",
+        phoneNumber: "",
+        email: storedEmail,
+        gender: true,
+        dateOfBirth: date,
+        height: "",
+        weight: "",
+        facebookProfileURL: "",
+        knowledgeAboutAcademy: "",
+        reasonToChooseUs: "",
+        position: "",
+        experience: "",
+        achievement: "",
+        parentName: "",
+        parentPhoneNumber: "",
+        parentEmail: "",
+        relationshipWithParent: "",
+        parentCitizenId: "",
+    })
+    //const registrationSessionId = localStorage.getItem("registrationSessionId");
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -21,17 +55,28 @@ export default function PlayerRegistrationForm() {
         }))
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        // Handle player form submission
-        console.log("Player form submitted")
+    const handleSubmit = async (e) => {
+        if (registrationSessionId) {
+            e.preventDefault()
+            console.log(formData, " memberRegistrationSessionId:", registrationSessionId,);
+
+            try {
+                const response = await registerApi.rejectPlayer({
+                    ...formData,
+                    "memberRegistrationSessionId": registrationSessionId,
+
+                })
+                console.log(response.data);
+                addToast({ message: response.data.message, type: "success" });
+            } catch (error) {
+                //addToast({ message: response.data.message, type: "error" });
+            }
+            router.push("/");
+        }
     }
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
-            <h2 className="text-2xl font-semibold mb-6" style={{ color: "#bd2427" }}>
-                Đăng Ký Cầu Thủ
-            </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
@@ -42,19 +87,19 @@ export default function PlayerRegistrationForm() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="fullName">Họ và Tên</Label>
-                            <Input id="fullName" name="fullName" required />
+                            <Input id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} required />
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="generationAndSchoolName">Khóa và Tên Trường</Label>
-                            <Input id="generationAndSchoolName" name="generationAndSchoolName" required />
+                            <Input id="generationAndSchoolName" name="generationAndSchoolName" value={formData.generationAndSchoolName} onChange={handleChange} required />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="phoneNumber">Số Điện Thoại</Label>
-                            <Input id="phoneNumber" name="phoneNumber" required />
+                            <Input id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
                         </div>
 
                         <div className="space-y-2">
@@ -66,22 +111,23 @@ export default function PlayerRegistrationForm() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Giới Tính</Label>
-                            <RadioGroup defaultValue="male" className="flex space-x-4">
+                            <RadioGroup defaultValue={true} className="flex space-x-4" onChange={handleChange}>
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="male" id="male" />
+                                    <RadioGroupItem value={true} id="male" />
                                     <Label htmlFor="male">Nam</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="female" id="female" />
+                                    <RadioGroupItem value={false} id="female" />
                                     <Label htmlFor="female">Nữ</Label>
                                 </div>
                             </RadioGroup>
                         </div>
                         <div className="space-y-2">
+                            <Label>Ngày sinh</Label>
                             <DatePicker
                                 value={date}
                                 onChange={setDate}
-                                placeholder="Ngày Sinh"
+                                placeholder="Chọn ngày"
                             />
                         </div>
                     </div>
@@ -89,18 +135,18 @@ export default function PlayerRegistrationForm() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="height">Chiều Cao (cm)</Label>
-                            <Input id="height" name="height" type="number" required />
+                            <Input id="height" name="height" type="number" value={formData.height} onChange={handleChange} required />
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="weight">Cân Nặng (kg)</Label>
-                            <Input id="weight" name="weight" type="number" required />
+                            <Input id="weight" name="weight" type="number" value={formData.weight} onChange={handleChange} required />
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="facebookProfileURL">URL Facebook</Label>
-                        <Input id="facebookProfileURL" name="facebookProfileURL" />
+                        <Input id="facebookProfileURL" name="facebookProfileURL" value={formData.facebookProfileURL} onChange={handleChange} required />
                     </div>
                 </div>
 
@@ -112,44 +158,45 @@ export default function PlayerRegistrationForm() {
 
                     <div className="space-y-2">
                         <Label htmlFor="knowledgeAboutAcademy">Bạn biết về học viện của chúng tôi như thế nào?</Label>
-                        <Textarea id="knowledgeAboutAcademy" name="knowledgeAboutAcademy" required />
+                        <Textarea id="knowledgeAboutAcademy" name="knowledgeAboutAcademy" value={formData.knowledgeAboutAcademy} onChange={handleChange} required />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="reasonToChooseUs">Tại sao bạn chọn chúng tôi?</Label>
-                        <Textarea id="reasonToChooseUs" name="reasonToChooseUs" required />
+                        <Textarea id="reasonToChooseUs" name="reasonToChooseUs" value={formData.reasonToChooseUs} onChange={handleChange} required />
                     </div>
                 </div>
 
                 {/* Football Information */}
                 <div className="space-y-4">
                     <h3 className="text-lg font-medium border-b pb-2" style={{ color: "#bd2427" }}>
-                        Thông Tin Bóng Đá
+                        Thông Tin Bóng Rổ
                     </h3>
 
                     <div className="space-y-2">
                         <Label htmlFor="position">Vị Trí</Label>
-                        <Select>
+                        <Select onValueChange={(value) => setFormData({ ...formData, position: value })}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Chọn vị trí" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="goalkeeper">Thủ môn</SelectItem>
-                                <SelectItem value="defender">Hậu vệ</SelectItem>
-                                <SelectItem value="midfielder">Tiền vệ</SelectItem>
-                                <SelectItem value="forward">Tiền đạo</SelectItem>
+                                <SelectItem value="PG">Hậu vệ dẫn bóng (PG)</SelectItem>
+                                <SelectItem value="SG">hậu vệ ghi điểm (SG)</SelectItem>
+                                <SelectItem value="SF">tiền phong phụ (SF)</SelectItem>
+                                <SelectItem value="PF">tiền phong chính (PF)</SelectItem>
+                                <SelectItem value="C">trung phong (C)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="experience">Kinh Nghiệm</Label>
-                        <Textarea id="experience" name="experience" required />
+                        <Textarea id="experience" name="experience" value={formData.experience} onChange={handleChange} required />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="achievement">Thành Tích</Label>
-                        <Textarea id="achievement" name="achievement" />
+                        <Textarea id="achievement" name="achievement" value={formData.achievement} onChange={handleChange} />
                     </div>
                 </div>
 
@@ -162,12 +209,27 @@ export default function PlayerRegistrationForm() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="parentName">Tên Phụ Huynh</Label>
-                            <Input id="parentName" name="parentName" required />
+                            <Input id="parentName" name="parentName" value={formData.parentName} onChange={handleChange} required />
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="parentPhoneNumber">Số Điện Thoại Phụ Huynh</Label>
-                            <Input id="parentPhoneNumber" name="parentPhoneNumber" required />
+                            <Input id="parentPhoneNumber" name="parentPhoneNumber" value={formData.parentPhoneNumber} onChange={handleChange} required />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="parentEmail">Email Phụ Huynh</Label>
+                            <Input id="parentEmail" name="parentEmail" value={formData.parentEmail} onChange={handleChange} required />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="parentCitizenId">Căn cước công dân Phụ Huynh</Label>
+                            <Input id="parentCitizenId" name="parentCitizenId" value={formData.parentCitizenId} onChange={handleChange} required />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="relationshipWithParent">Mối quan hệ với Phụ Huynh</Label>
+                            <Input id="relationshipWithParent" name="relationshipWithParent" value={formData.relationshipWithParent} onChange={handleChange} required />
                         </div>
                     </div>
                 </div>

@@ -34,7 +34,7 @@ export function DatePicker({ value, onChange, placeholder, label, minDate }) {
 
     // Generate years for selection (10 years before and after current year)
     const currentYear = getYear(new Date())
-    const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i)
+    const years = Array.from({ length: 100 }, (_, i) => currentYear - 40 + i)
 
     // Month names in Vietnamese
     const months = [
