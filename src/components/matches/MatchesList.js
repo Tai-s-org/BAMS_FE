@@ -117,13 +117,10 @@ export default function MatchesList() {
   const fetchMatches = async () => {
     // Fetch matches from the API or database
     try {
-      console.log(filters);
-      
       const response = await matchApi.getMatch({
         startDate: filters.startDate,
         endDate: filters.endDate,
       })
-      console.log(response?.data);
       setMatches(response?.data.data || [])
       setFilteredMatches(response?.data.data || [])
     }
@@ -197,7 +194,7 @@ export default function MatchesList() {
         </Card>
       )}
       <Tabs defaultValue="cards" className="w-full">
-        <TabsList className="mb-4">
+        <TabsList classCustomName="mb-4">
           <TabsTrigger value="cards">Thẻ</TabsTrigger>
           <TabsTrigger value="table">Bảng</TabsTrigger>
         </TabsList>
@@ -216,8 +213,8 @@ export default function MatchesList() {
                   <div className="flex justify-between items-center">
                     <CardTitle className="text-xl font-bold">{match.matchName}</CardTitle>
                     <Badge
-                      variant={match.status === "Sắp diễn ra" ? "outline" : "default"}
-                      className="bg-[#BD2427] text-white"
+                      variant={match.status === "Sắp diễn ra" ? "warning" : "destructive"}
+                      className="text-white"
                     >
                       {match.status}
                     </Badge>

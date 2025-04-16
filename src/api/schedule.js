@@ -34,7 +34,16 @@ const scheduleApi = {
     },
     checkSessionConflict: (data) => {
         return api.get(`/training-session/check-conflict`, {params: data});
-    }
+    },
+    getPendingTrainingSession: () => {
+        return api.get('/training-session/pending');
+    },
+    approvePendingTrainingSession: (id) => {
+        return api.post(`/training-session/${id}/approve`);
+    },
+    rejectPendingTrainingSession: (data) => {
+        return api.post(`/training-session/reject`, data);
+    },
 };
 
 export default scheduleApi;

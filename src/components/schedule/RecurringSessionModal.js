@@ -5,6 +5,7 @@ import { format, addDays } from "date-fns"
 import { X, Calendar, Clock, MapPin, Check } from "lucide-react"
 import { FailedSessionsModal } from "./FailedSessionsModal"
 import scheduleApi from "@/api/schedule"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 const daysOfWeek = [
   { id: 0, name: "Thứ Hai" },
@@ -37,6 +38,7 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
   )
   const [showFailedSessionsModal, setShowFailedSessionsModal] = useState(false)
   const [failedSessions, setFailedSessions] = useState([])
+  const {addToast} = useToasts();
 
   const toggleDaySelection = (dayId) => {
     setDaySelections((prev) => ({
@@ -106,10 +108,15 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
         setShowFailedSessionsModal(true)
       } else {
         // Nếu không có buổi tập thất bại, đóng modal
+        addToast({
+          type: "success",
+          message: "Thêm lịch tập vào danh sách chờ thành công",
+        })
         onClose()
       }
     } catch (error) {
       console.error("Error creating training session:", error)
+      addToast({ message: "Thêm lịch tập thất bại", type: "error" })
     }
   }
 
@@ -134,9 +141,11 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
     try {
       const response = await scheduleApi.createTrainingSessionBulk(data);
       console.log("Response from bulk:", response)
+      addToast({ message: "Đã thêm các lịch tập được kiểm tra", type: response?.data.status });
       onClose()
     } catch (error) {
       console.error("Error creating training session:", error)
+      addToast({ message: "Thêm lịch tập thất bại", type: "error" });
     }
   }
 

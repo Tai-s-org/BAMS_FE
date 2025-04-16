@@ -62,7 +62,6 @@ export default function CreateMatchPage() {
       const response = await matchApi.getAvailableCourts({
         matchDate: formData.scheduledDate,
       });
-      console.log("Courts:", response?.data.data);
       setAvailableCourt(response?.data.data)
     } catch (error) {
       console.error("Error fetching courts:", error)
@@ -72,7 +71,6 @@ export default function CreateMatchPage() {
   const fetchTeams = async () => {
     try {
       const response = await teamApi.listTeams({ status: 1, pageSize: 100 });
-      console.log("Teams:", response?.data.data.items);
       setAllTeams(response?.data.data.items)
 
       let filteredTeams = response?.data.data.items.filter((team) => {
@@ -188,10 +186,8 @@ export default function CreateMatchPage() {
       courtId: formData.courtId,
     }
     // In a real app, you would save the match data to your backend here
-    console.log("Match data to save:", data)
     try {
       const response = await matchApi.createMatch(data);
-      console.log(response);
       addToast({ message: response.data.message, type: response.data.status });
     } catch (error) {
       console.error("Error creating match:", error);

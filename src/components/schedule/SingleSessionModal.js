@@ -4,12 +4,14 @@ import { useState } from "react"
 import { format } from "date-fns"
 import { X, Calendar, Clock, MapPin, Check } from "lucide-react"
 import scheduleApi from "@/api/schedule"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified }) {
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"))
   const [startTime, setStartTime] = useState("16:00")
   const [endTime, setEndTime] = useState("17:30")
   const [court, setCourt] = useState(courts[0]?.courtId)
+  const {addToast} = useToasts();
 
   const handleSubmit = async () => {
     // Xử lý tạo buổi tập đơn lẻ
@@ -22,10 +24,14 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified
         endTime: endTime + ":00",
       }
 
+      console.log("Data", data);
+      
       const response = await scheduleApi.createTrainingSession(data);
+      addToast({ message: response?.data.message, type: response?.data.status });
       isModified();
     } catch (error) {
       console.error("Lỗi khi tạo buổi tập đơn lẻ:", error.response.data.errors)
+      addToast({ message: error.response.data.errors, type: "error" });
     }
 
     // Đóng modal sau khi xử lý
