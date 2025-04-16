@@ -90,56 +90,6 @@ export default function PlayerSidebar() {
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-xs font-semibold text-gray-400">General</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {generalItems.map((item) => {
-                                const isActive = pathname === item.url;
-                                return (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton
-                                            asChild
-                                            className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : item.highlight ? "text-[#bd2427]" : "text-white"
-                                                }`}
-                                        >
-                                            <a href={item.url} className="flex items-center gap-2">
-                                                <item.icon className={`h-5 w-5 ${isActive ? "text-white" : item.highlight ? "text-[#bd2427]" : "text-white"}`} />
-                                                <span>{item.title}</span>
-                                            </a>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                );
-                            })}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-xs font-semibold text-gray-400">Updates</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {updatesItems.map((item) => {
-                                const isActive = pathname === item.url;
-                                return (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton
-                                            asChild
-                                            className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
-                                                }`}
-                                        >
-                                            <a href={item.url} className="flex items-center gap-2">
-                                                <item.icon className="h-5 w-5" />
-                                                <span>{item.title}</span>
-                                            </a>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                );
-                            })}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
             </SidebarContent>
             <SidebarRail />
         </Sidebar>

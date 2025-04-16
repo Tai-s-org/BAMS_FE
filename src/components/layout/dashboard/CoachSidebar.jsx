@@ -1,7 +1,8 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { BarChart3, CreditCard, FileText, Grid, Home, LayoutDashboard, Package, Settings, Users, Code, Database, History } from "lucide-react";
-
+import { BarChart3, CreditCard, FileText, Grid, Home, LayoutDashboard, Users } from "lucide-react";
+import { FaCalendarAlt } from "react-icons/fa";
+import { TbPlayBasketball } from "react-icons/tb";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
 
@@ -17,11 +18,9 @@ export default function CoachSidebar() {
     ];
 
     const menuItems = [
-        { title: "Accounts", icon: LayoutDashboard, url: "/accounts" },
-        { title: "Payments", icon: CreditCard, url: "/payments" },
-        { title: "Balances", icon: BarChart3, url: "/balances" },
-        { title: "Customers", icon: Users, url: "/customers" },
-        { title: "Products", icon: Package, url: "/products" },
+        { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
+        { title: "Trận đấu", icon: TbPlayBasketball, url: "/matches" },
+        { title: "Thời khóa biểu", icon: FaCalendarAlt, url: "/schedules" },
         { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
     ];
 
@@ -64,56 +63,6 @@ export default function CoachSidebar() {
                         <SidebarMenu>
                             {menuItems.map((item) => {
                                 const isActive = pathname === item.url;
-                                return (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton
-                                            asChild
-                                            className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
-                                                }`}
-                                        >
-                                            <a href={item.url} className="flex items-center gap-2">
-                                                <item.icon className="h-5 w-5" />
-                                                <span>{item.title}</span>
-                                            </a>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                );
-                            })}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-xs font-semibold text-gray-400">General</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {generalItems.map((item) => {
-                                const isActive = pathname === item.url;
-                                return (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton
-                                            asChild
-                                            className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : item.highlight ? "text-[#bd2427]" : "text-white"
-                                                }`}
-                                        >
-                                            <a href={item.url} className="flex items-center gap-2">
-                                                <item.icon className={`h-5 w-5 ${isActive ? "text-white" : item.highlight ? "text-[#bd2427]" : "text-white"}`} />
-                                                <span>{item.title}</span>
-                                            </a>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                );
-                            })}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-
-                <SidebarGroup>
-                    <SidebarGroupLabel className="text-xs font-semibold text-gray-400">Updates</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {updatesItems.map((item) => {
-                                const isActive = pathname.includes(item.url);
                                 return (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton

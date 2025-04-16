@@ -20,7 +20,7 @@ function LoadingHandler() {
     const router = useRouter();
 
     useEffect(() => {
-        // Interceptor Axios
+        //Interceptor Axios
         const requestInterceptor = axiosInstance.interceptors.request.use(
             (config) => {
                 setLoading(true);
