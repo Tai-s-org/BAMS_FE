@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
 
         if (storedUser) {
             setUser(JSON.parse(storedUser));
+            fetchUserInfo();
         }
     }, []);
 
@@ -30,7 +31,6 @@ export const AuthProvider = ({ children }) => {
     // Hàm login (lưu user & token sau khi đăng nhập)
     const login = (userData, userToken) => {
         setUser(userData);
-        fetchUserInfo();
         localStorage.setItem("user", JSON.stringify(userData));
     };
 

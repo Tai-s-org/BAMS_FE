@@ -32,12 +32,16 @@ export default function ScheduleItem({ schedule, onApprove, onReject }) {
               <div className="flex justify-between sm:block">
                 <span className="font-medium text-muted-foreground">Thời gian:</span>
                 <span className="sm:ml-2">
-                  {schedule.startTime} - {schedule.endTime}
+                  {schedule.scheduledStartTime} - {schedule.scheduledEndTime}
                 </span>
               </div>
               <div className="flex justify-between sm:block">
-                <span className="font-medium text-muted-foreground">Mã buổi tập:</span>
-                <span className="sm:ml-2">{schedule.traingSessionId}</span>
+                <span className="font-medium text-muted-foreground">Địa chỉ:</span>
+                <span className="sm:ml-2">{schedule.courtAddress}</span>
+              </div>
+              <div className="flex justify-between sm:block">
+                <span className="font-medium text-muted-foreground">Liên hệ sân:</span>
+                <span className="sm:ml-2">{schedule.courtContact}</span>
               </div>
             </div>
           </div>
@@ -46,12 +50,12 @@ export default function ScheduleItem({ schedule, onApprove, onReject }) {
             <Button
               variant="outline"
               className="border-[#BD2427] text-[#BD2427] hover:bg-[#BD2427]/10 hover:text-[#BD2427]"
-              onClick={() => onReject(schedule.id)}
+              onClick={() => onReject(schedule.trainingSessionId)}
             >
               <XCircle className="mr-2 h-4 w-4" />
               Từ chối
             </Button>
-            <Button className="bg-[#BD2427] hover:bg-[#BD2427]/90 text-white" onClick={() => onApprove(schedule.id)}>
+            <Button className="bg-[#BD2427] hover:bg-[#BD2427]/90 text-white" onClick={() => onApprove(schedule.trainingSessionId)}>
               <CheckCircle className="mr-2 h-4 w-4" />
               Phê duyệt
             </Button>

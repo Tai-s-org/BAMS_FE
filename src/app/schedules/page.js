@@ -15,7 +15,6 @@ import teamApi from "@/api/team";
 
 export default function SchedulePage() {
   const { user, userInfo } = useAuth();
-
   const [currentDate, setCurrentDate] = useState(new Date());
   const [teamFilter, setTeamFilter] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -35,12 +34,14 @@ export default function SchedulePage() {
 
   useEffect(() => {
     setTeamFilter(userInfo?.roleInformation.teamId);
+    console.log("Team ID:", userInfo?.roleInformation.teamId);
+    
     if (user?.roleCode === "Coach") {
       fetchTeams();
     }
     fetchCourts();
   }, [userInfo?.roleInformation.teamId]);
-
+  
   const fetchCourts = async () => {
     try {
       const data = {
@@ -401,15 +402,15 @@ export default function SchedulePage() {
       </div>
 
       {/* Modal */}
-      <AttendanceModal
+      { user?.roleCode === "Manager" && <AttendanceModal
         isOpen={attendanceModalOpen}
         onClose={() => setAttendanceModalOpen(false)}
         session={selectedSession}
-      />
+      />}
 
       <RecurringSessionModal isOpen={recurringSessionModalOpen} onClose={() => setRecurringSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts} />
 
-      <SingleSessionModal isOpen={singleSessionModalOpen} onClose={() => setSingleSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts} isModified={() => setIsModified(!isModified)} />
+      {userInfo && <SingleSessionModal isOpen={singleSessionModalOpen} onClose={() => setSingleSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts} isModified={() => setIsModified(!isModified)} />}
     </div>
   );
 }

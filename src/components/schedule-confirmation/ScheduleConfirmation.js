@@ -1,66 +1,31 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Calendar } from "@/components/ui/Calendar"
 import { Card, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs"
 import { CalendarIcon } from "lucide-react"
-import { format, isWithinInterval, parseISO } from "date-fns"
+import { format, isWithinInterval, parseISO, set } from "date-fns"
 import { cn } from "@/lib/utils"
 import ScheduleItem from "./ScheduleItem"
 import RejectionModal from "./RejectionModal"
+import scheduleApi from "@/api/schedule"
+import { useToasts } from "@/hooks/providers/ToastProvider"
+import { useAuth } from "@/hooks/context/AuthContext"
+import teamApi from "@/api/team"
 
 // Dữ liệu mẫu riêng biệt cho từng tab
-const mockCreateSchedules = [
-  {
-    id: "1",
-    teamId: "team-01",
-    courtId: "court-a",
-    scheduledDate: "2025-04-14",
-    startTime: "14:00",
-    endTime: "16:00",
-    traingSessionId: "ts-001",
-    status: "create",
-    teamName: "Lakers",
-    courtName: "Sân Chính",
-  },
-  {
-    id: "4",
-    teamId: "team-01",
-    courtId: "court-c",
-    scheduledDate: "2025-04-20",
-    startTime: "09:00",
-    endTime: "11:00",
-    traingSessionId: "ts-004",
-    status: "create",
-    teamName: "Lakers",
-    courtName: "Sân Phụ",
-  },
-  {
-    id: "7",
-    teamId: "team-01",
-    courtId: "court-b",
-    scheduledDate: "2025-04-17",
-    startTime: "16:00",
-    endTime: "18:00",
-    traingSessionId: "ts-007",
-    status: "create",
-    teamName: "Lakers",
-    courtName: "Sân Tập",
-  },
-]
-
 const mockUpdateSchedules = [
   {
     id: "2",
     teamId: "team-01",
     courtId: "court-b",
     scheduledDate: "2025-04-15",
-    startTime: "10:00",
-    endTime: "12:00",
-    traingSessionId: "ts-002",
+    scheduledStartTime: "10:00",
+    scheduledEndTime: "12:00",
+    trainingSessionId: "ts-002",
     status: "update",
     teamName: "Lakers",
     courtName: "Sân Tập",
@@ -70,9 +35,9 @@ const mockUpdateSchedules = [
     teamId: "team-01",
     courtId: "court-b",
     scheduledDate: "2025-04-18",
-    startTime: "15:00",
-    endTime: "17:00",
-    traingSessionId: "ts-005",
+    scheduledStartTime: "15:00",
+    scheduledEndTime: "17:00",
+    trainingSessionId: "ts-005",
     status: "update",
     teamName: "Lakers",
     courtName: "Sân Tập",
@@ -85,9 +50,9 @@ const mockCancelSchedules = [
     teamId: "team-01",
     courtId: "court-a",
     scheduledDate: "2025-04-16",
-    startTime: "18:00",
-    endTime: "20:00",
-    traingSessionId: "ts-003",
+    scheduledStartTime: "18:00",
+    scheduledEndTime: "20:00",
+    trainingSessionId: "ts-003",
     status: "cancel",
     teamName: "Lakers",
     courtName: "Sân Chính",
@@ -97,9 +62,9 @@ const mockCancelSchedules = [
     teamId: "team-01",
     courtId: "court-a",
     scheduledDate: "2025-04-19",
-    startTime: "13:00",
-    endTime: "15:00",
-    traingSessionId: "ts-006",
+    scheduledStartTime: "13:00",
+    scheduledEndTime: "15:00",
+    trainingSessionId: "ts-006",
     status: "cancel",
     teamName: "Lakers",
     courtName: "Sân Chính",
@@ -108,9 +73,10 @@ const mockCancelSchedules = [
 
 export default function ScheduleConfirmation() {
   // Sử dụng state riêng cho từng loại lịch
-  const [createSchedules, setCreateSchedules] = useState(mockCreateSchedules)
+  const [createSchedules, setCreateSchedules] = useState([])
   const [updateSchedules, setUpdateSchedules] = useState(mockUpdateSchedules)
   const [cancelSchedules, setCancelSchedules] = useState(mockCancelSchedules)
+  const [filteredCreateSchedules, setFilteredCreateSchedules] = useState([])
 
   const [dateRange, setDateRange] = useState({
     from: new Date("2025-04-14"),
@@ -119,27 +85,62 @@ export default function ScheduleConfirmation() {
   const [activeTab, setActiveTab] = useState("create")
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false)
   const [selectedScheduleId, setSelectedScheduleId] = useState(null)
+  const [team, setTeam] = useState({})
+  const {userInfo} = useAuth();
+  const {addToast} = useToasts();
+
+  useEffect(() => {
+    fetchCreateSchedules()
+    fetchTeamDetail()
+  }, [])
+
+  const fetchTeamDetail = async () => {
+    try {
+      const response = await teamApi.teamDetail(userInfo?.roleInformation.teamId);
+      console.log("Team", response?.data.data);
+      
+      // setTeam(response?.data.data);
+    } catch (error) {
+      console.log("Error fetching team detail:", error);
+    }
+  }
+
+  const fetchCreateSchedules = async () => {
+    try {
+      const response = await scheduleApi.getPendingTrainingSession();
+      setCreateSchedules(response?.data.data);
+      setFilteredCreateSchedules(response?.data.data);
+    } catch (error) {
+      console.log("Error fetching create schedules:", error);
+
+    }
+  }
 
   // Lọc dữ liệu theo khoảng ngày cho từng danh sách
-  const filteredCreateSchedules = createSchedules.filter((schedule) => isDateInRange(schedule.scheduledDate))
+  // const filteredCreateSchedules = createSchedules.filter((schedule) => isDateInRange(schedule.scheduledDate))
   const filteredUpdateSchedules = updateSchedules.filter((schedule) => isDateInRange(schedule.scheduledDate))
   const filteredCancelSchedules = cancelSchedules.filter((schedule) => isDateInRange(schedule.scheduledDate))
 
   // Xử lý phê duyệt lịch tập
-  const handleApprove = (scheduleId) => {
-    // Trong ứng dụng thực tế, đây sẽ là một API call
-    console.log(`Đang phê duyệt lịch ${scheduleId}`)
-
+  const handleApprove = async (scheduleId) => {
     // Cập nhật state tương ứng với tab đang active
     switch (activeTab) {
       case "create":
-        setCreateSchedules(createSchedules.filter((s) => s.id !== scheduleId))
+        try {
+          const response = await scheduleApi.approvePendingTrainingSession(scheduleId);
+          addToast({ message: response?.data.message, type: response?.data.status });
+        } catch (error) {
+          console.error("Error approve:", error);
+          addToast({ message: error?.response?.data.message, type: "error" });
+        } finally {
+          setCreateSchedules(createSchedules.filter((s) => s.trainingSessionId !== scheduleId))
+        }
         break
       case "update":
-        setUpdateSchedules(updateSchedules.filter((s) => s.id !== scheduleId))
+        setUpdateSchedules(updateSchedules.filter((s) => s.trainingSessionId !== scheduleId))
         break
       case "cancel":
-        setCancelSchedules(cancelSchedules.filter((s) => s.id !== scheduleId))
+        setCancelSchedules(cancelSchedules.filter((s) => s.trainingSessionId !== scheduleId))
         break
     }
   }
@@ -151,21 +152,31 @@ export default function ScheduleConfirmation() {
   }
 
   // Xác nhận từ chối lịch tập
-  const confirmRejection = (reason) => {
+  const confirmRejection = async (reason) => {
     if (selectedScheduleId) {
       // Trong ứng dụng thực tế, đây sẽ là một API call
-      console.log(`Từ chối lịch ${selectedScheduleId} với lý do: ${reason}`)
+      const data = {
+        trainingSessionId: selectedScheduleId,
+        reason: reason
+      }
 
       // Cập nhật state tương ứng với tab đang active
       switch (activeTab) {
         case "create":
-          setCreateSchedules(createSchedules.filter((s) => s.id !== selectedScheduleId))
+          try {
+            const response = await scheduleApi.rejectPendingTrainingSession(data);
+            addToast({ message: response?.data.message, type: response?.data.status });
+          } catch (error) {
+            console.error("Error approve:", error);
+            addToast({ message: error?.response?.data.message, type: "error" });
+          }
+          setCreateSchedules(createSchedules.filter((s) => s.trainingSessionId !== selectedScheduleId))
           break
         case "update":
-          setUpdateSchedules(updateSchedules.filter((s) => s.id !== selectedScheduleId))
+          setUpdateSchedules(updateSchedules.filter((s) => s.trainingSessionId !== selectedScheduleId))
           break
         case "cancel":
-          setCancelSchedules(cancelSchedules.filter((s) => s.id !== selectedScheduleId))
+          setCancelSchedules(cancelSchedules.filter((s) => s.trainingSessionId !== selectedScheduleId))
           break
       }
 
@@ -196,7 +207,7 @@ export default function ScheduleConfirmation() {
 
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Khoảng thời gian</label>
+              {/* <label className="text-sm font-medium">Khoảng thời gian</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -231,7 +242,7 @@ export default function ScheduleConfirmation() {
                     className="[&_.rdp-day_button:hover]:bg-[#BD2427]/10 [&_.rdp-day_button:focus]:bg-[#BD2427]/20 [&_.rdp-day_button.rdp-day_selected]:bg-[#BD2427]"
                   />
                 </PopoverContent>
-              </Popover>
+              </Popover> */}
             </div>
           </div>
 
@@ -258,7 +269,7 @@ export default function ScheduleConfirmation() {
                   <div className="space-y-4">
                     {filteredCreateSchedules.map((schedule) => (
                       <ScheduleItem
-                        key={schedule.id}
+                        key={schedule.trainingSessionId}
                         schedule={schedule}
                         onApprove={handleApprove}
                         onReject={handleReject}
@@ -279,7 +290,7 @@ export default function ScheduleConfirmation() {
                   <div className="space-y-4">
                     {filteredUpdateSchedules.map((schedule) => (
                       <ScheduleItem
-                        key={schedule.id}
+                        key={schedule.trainingSessionId}
                         schedule={schedule}
                         onApprove={handleApprove}
                         onReject={handleReject}
@@ -300,7 +311,7 @@ export default function ScheduleConfirmation() {
                   <div className="space-y-4">
                     {filteredCancelSchedules.map((schedule) => (
                       <ScheduleItem
-                        key={schedule.id}
+                        key={schedule.trainingSessionId}
                         schedule={schedule}
                         onApprove={handleApprove}
                         onReject={handleReject}
