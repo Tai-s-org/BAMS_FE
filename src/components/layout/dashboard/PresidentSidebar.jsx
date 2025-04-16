@@ -4,6 +4,7 @@ import { BarChart3, CreditCard, FileText, Grid, Home, LayoutDashboard, Package, 
 import { GiWhistle, GiBasketballJersey } from "react-icons/gi"
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
+import Link from "next/link";
 
 export default function PresidentSidebar() {
     const pathname = usePathname(); // Lấy đường dẫn hiện tại
@@ -81,10 +82,10 @@ export default function PresidentSidebar() {
                                             className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
                                                 }`}
                                         >
-                                            <a href={item.url} className="flex items-center gap-2">
+                                            <Link href={item.url} className="flex items-center gap-2">
                                                 <item.icon className="h-5 w-5" />
                                                 <span>{item.title}</span>
-                                            </a>
+                                            </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 );
