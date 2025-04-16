@@ -55,10 +55,12 @@ export default function MatchDetailPage() {
   const fetchListPlayers = async () => {
     try {
       const response = await matchApi.getAvailablePlayers(params.id);
-      console.log("Players:", response?.data.data);
       setAvailablePlayers(response?.data.data);
     } catch (error) {
       console.error("Error fetching players:", error)
+      if(error.status == 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
@@ -131,9 +133,9 @@ export default function MatchDetailPage() {
             <h2 className="text-2xl font-bold">{match?.matchName}</h2>
           </div>
           <Link href={`/matches/${match?.matchId}/edit`}>
-            <Button variant="outline">
+            <Button variant="outline" disabled={match?.status === "Đang diễn ra" || match?.status === "Đã hủy"}>
               <Edit className="mr-2 h-4 w-4" />
-              Sửa trận đấu
+              Cập nhật trận đấu
             </Button>
           </Link>
         </div>

@@ -12,6 +12,7 @@ import scheduleApi from "@/api/schedule";
 import courtApi from "@/api/court";
 import coachApi from "@/api/coach";
 import { AttendanceReviewModal } from "@/components/attendance/AttendanceReviewModal";
+import { add } from "date-fns";
 
 export default function TrainingSessionDetail() {
     const { user, userInfo } = useAuth();
@@ -83,10 +84,19 @@ export default function TrainingSessionDetail() {
 
     const handleCancel = async () => {
         try {
-            const response = await scheduleApi.cancelTrainingSession(params.id);
+            const data = {
+                trainingSessionId: params.id,
+                reason: ""
+            }
+            const response = await scheduleApi.cancelTrainingSession(data);
+            addToast({ message: response?.data.message, type: "success" });
             router.push("/schedules");
         } catch (error) {
             console.error("Lỗi:", error);
+            addToast({ message: error?.response?.data?.message, type: "error" });
+            if(error?.response?.status === 401) {
+                addToast({ message: error?.response?.data.Message, type: "error" });
+            }
         }
     };
 

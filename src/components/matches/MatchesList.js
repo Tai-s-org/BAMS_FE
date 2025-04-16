@@ -194,7 +194,7 @@ export default function MatchesList() {
         </Card>
       )}
       <Tabs defaultValue="cards" className="w-full">
-        <TabsList classCustomName="mb-4">
+        <TabsList classcustomname="mb-4">
           <TabsTrigger value="cards">Thẻ</TabsTrigger>
           <TabsTrigger value="table">Bảng</TabsTrigger>
         </TabsList>

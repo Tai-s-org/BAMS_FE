@@ -1,10 +1,12 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { BarChart3, CreditCard, FileText, Grid, Home, LayoutDashboard, Users } from "lucide-react";
+import { FileText, Grid, Home, LayoutDashboard } from "lucide-react";
 import { FaCalendarAlt } from "react-icons/fa";
+import { AiFillSchedule } from "react-icons/ai";
 import { TbPlayBasketball } from "react-icons/tb";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
+import Link from "next/link";
 
 export default function CoachSidebar() {
     const pathname = usePathname(); // Lấy đường dẫn hiện tại
@@ -21,6 +23,8 @@ export default function CoachSidebar() {
         { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
         { title: "Trận đấu", icon: TbPlayBasketball, url: "/matches" },
         { title: "Thời khóa biểu", icon: FaCalendarAlt, url: "/schedules" },
+        { title: "Danh sách lịch chờ", icon: AiFillSchedule, url: "/confirm-schedule" },
+
         { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
     ];
 
@@ -70,10 +74,10 @@ export default function CoachSidebar() {
                                             className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
                                                 }`}
                                         >
-                                            <a href={item.url} className="flex items-center gap-2">
+                                            <Link href={item.url} className="flex items-center gap-2">
                                                 <item.icon className="h-5 w-5" />
                                                 <span>{item.title}</span>
-                                            </a>
+                                            </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 );

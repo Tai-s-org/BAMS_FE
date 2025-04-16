@@ -11,11 +11,11 @@ const scheduleApi = {
     getTrainingSessionById: (id) => {
         return api.get(`/training-session/${id}`);
     },
-    updateTrainingSession: (id, data) => {
-        return api.put(`/training-session/${id}`, data);
+    updateTrainingSession: (data) => {
+        return api.put(`/training-session/update`, data);
     },
-    cancelTrainingSession: (id) => {
-        return api.post(`/training-session/${id}/cancel`);
+    cancelTrainingSession: (data) => {
+        return api.post(`/training-session/cancel`, data);
     },
     createExercise: (data) => {
         return api.post('/training-session/add-exercise', data);
@@ -44,6 +44,24 @@ const scheduleApi = {
     rejectPendingTrainingSession: (data) => {
         return api.post(`/training-session/reject`, data);
     },
+    getUpdatePendingTrainingSession: () => {
+        return api.get(`/training-session/update-request`);
+    },
+    approveUpdatePendingTrainingSession: (data) => {
+        return api.post(`/training-session/update/approve`, data);
+    },
+    rejectUpdatePendingTrainingSession: (data) => {
+        return api.post(`training-session/update/reject`, data);
+    },
+    getCancelPendingTrainingSession: () => {
+        return api.get(`/training-session/cancel-request`);
+    },
+    approveCancelPendingTrainingSession: (id) => {
+        return api.post(`/training-session/${id}/cancel/approve`);
+    },
+    rejectCancelPendingTrainingSession: (data) => {
+        return api.post(`/training-session/cancel/reject`, data);
+    }
 };
 
 export default scheduleApi;
