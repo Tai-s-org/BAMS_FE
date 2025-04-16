@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaTimesCircle, FaTimes } from "react-icons/fa";
+import {
+    FaInfoCircle,
+    FaCheckCircle,
+    FaExclamationTriangle,
+    FaTimesCircle,
+    FaTimes,
+} from "react-icons/fa";
 import { motion } from "framer-motion";
 
 const ToastItem = ({ toast, onRemove }) => {
@@ -22,13 +28,16 @@ const ToastItem = ({ toast, onRemove }) => {
         };
     }, [toast.duration, onRemove]);
 
+    const type = toast.type?.toLowerCase();
+
     const getIcon = () => {
-        switch (toast.type) {
-            case "success", "Success":
+        switch (type) {
+            case "success":
                 return <FaCheckCircle className="w-5 h-5" />;
             case "warning":
                 return <FaExclamationTriangle className="w-5 h-5" />;
-            case "error", "Failed":
+            case "error":
+            case "failed":
                 return <FaTimesCircle className="w-5 h-5" />;
             default:
                 return <FaInfoCircle className="w-5 h-5" />;
@@ -36,12 +45,13 @@ const ToastItem = ({ toast, onRemove }) => {
     };
 
     const getBgColor = () => {
-        switch (toast.type) {
-            case "success", "Success":
+        switch (type) {
+            case "success":
                 return "bg-green-100 border-green-500 text-green-700";
             case "warning":
                 return "bg-yellow-100 border-yellow-500 text-yellow-700";
-            case "error", "Failed":
+            case "error":
+            case "failed":
                 return "bg-red-100 border-red-500 text-red-700";
             default:
                 return "bg-blue-100 border-blue-500 text-blue-700";
@@ -60,11 +70,20 @@ const ToastItem = ({ toast, onRemove }) => {
                     {getIcon()}
                     <span className="ml-3 font-medium">{toast.message}</span>
                 </div>
-                <button onClick={onRemove} className="text-gray-500 hover:text-gray-700">
+                <button
+                    onClick={onRemove}
+                    className="text-gray-500 hover:text-gray-700"
+                >
                     <FaTimes className="w-5 h-5" />
                 </button>
             </div>
-            <div className="absolute bottom-0 left-0 h-1 bg-current" style={{ width: `${progress}%`, transition: "width 100ms linear" }} />
+            <div
+                className="absolute bottom-0 left-0 h-1 bg-current"
+                style={{
+                    width: `${progress}%`,
+                    transition: "width 100ms linear",
+                }}
+            />
         </motion.div>
     );
 };
