@@ -8,29 +8,8 @@ import { Label } from "@/components/ui/Label"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { ArrowLeft } from "lucide-react"
-
-// Sample match data
-const matchData = {
-  matchId: 1,
-  matchName: "GIAO HỮU THÁNG 4",
-  scheduledDate: "2025-04-15",
-  scheduledStartTime: "17:00:00",
-  scheduledEndTime: "18:00:00",
-  homeTeamId: "T001",
-  homeTeamName: "Team A",
-  scoreHome: 0,
-  awayTeamId: null,
-  awayTeamName: null,
-  scoreAway: 0,
-  status: "Sắp diễn ra",
-  courtId: "3d5e35e1-253f-482c-a3f8-5b8bdeed941c",
-  courtName: "Nhà thi đấu huyện Thanh Trì",
-  courtAddress: "303 Đường Nam Kỳ Khởi Nghĩa, Quận 3, TP.HCMinh",
-  createdByCoachId: "550e8400-e29b-41d4-a716-556655440002",
-  homeTeamPlayers: [],
-  awayTeamPlayers: [],
-  matchArticles: [],
-}
+import matchApi from "@/api/match"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 export default function EditMatchPage() {
   const params = useParams()
@@ -41,49 +20,68 @@ export default function EditMatchPage() {
     scheduledStartTime: "",
     scheduledEndTime: "",
     homeTeamId: "",
+    homeTeamName: "",
     awayTeamId: "",
+    awayTeamName: "",
     courtId: "",
-    status: "",
     scoreHome: 0,
     scoreAway: 0,
   })
-
-  // Sample data for dropdowns
-  const teams = [
-    { id: "T001", name: "Team A" },
-    { id: "T002", name: "Team B" },
-    { id: "T003", name: "Team C" },
-  ]
-
-  const courts = [
-    {
-      id: "3d5e35e1-253f-482c-a3f8-5b8bdeed941c",
-      name: "Nhà thi đấu huyện Thanh Trì",
-      address: "303 Đường Nam Kỳ Khởi Nghĩa, Quận 3, TP.HCMinh",
-    },
-    {
-      id: "4f6g46f2-364g-593d-b4g9-6c9cefff052d",
-      name: "Nhà thi đấu Phú Nhuận",
-      address: "123 Đường Nguyễn Văn Trỗi, Quận Phú Nhuận, TP.HCMinh",
-    },
-  ]
+  const [match, setMatch] = useState({})
+  const [courts, setAvailableCourts] = useState([])
+  const { addToast } = useToasts()
 
   useEffect(() => {
-    // In a real app, you would fetch the match data from your API
-    // For now, we'll use the sample data
-    setFormData({
-      matchName: matchData.matchName,
-      scheduledDate: matchData.scheduledDate,
-      scheduledStartTime: matchData.scheduledStartTime,
-      scheduledEndTime: matchData.scheduledEndTime,
-      homeTeamId: matchData.homeTeamId || "",
-      awayTeamId: matchData.awayTeamId || "",
-      courtId: matchData.courtId,
-      status: matchData.status,
-      scoreHome: matchData.scoreHome,
-      scoreAway: matchData.scoreAway,
-    })
+    fetchMatchDetail()
   }, [params.id])
+
+  useEffect(() => {
+    if (formData.scheduledDate) {
+      fetchAvailableCourts()
+    }
+  }
+  , [formData.scheduledDate])
+
+  const fetchMatchDetail = async () => {
+    try {
+      const response = await matchApi.getMatchById(params.id);
+      setMatch(response?.data.data);
+      setFormData({
+        matchName: response?.data.data.matchName,
+        scheduledDate: response?.data.data.scheduledDate,
+        scheduledStartTime: response?.data.data.scheduledStartTime,
+        scheduledEndTime: response?.data.data.scheduledEndTime,
+        homeTeamId: response?.data.data.homeTeamId || "",
+        homeTeamName: response?.data.data.homeTeamName || "",
+        awayTeamId: response?.data.data.awayTeamId || "",
+        awayTeamName: response?.data.data.awayTeamName || "",
+        courtId: response?.data.data.courtId,
+        scoreHome: response?.data.data.scoreHome,
+        scoreAway: response?.data.data.scoreAway,
+      })
+    } catch (error) {
+      console.error("Error fetching match details:", error.response?.data)
+      if(error.status == 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
+    }
+  }
+
+  const fetchAvailableCourts = async () => {
+    try {
+      const data = {
+        matchDate: formData.scheduledDate,
+      }
+      const response = await matchApi.getAvailableCourts(data);
+      console.log("Available courts:", response?.data.data);
+      setAvailableCourts(response?.data.data);
+    } catch (error) {
+      console.error("Error fetching available courts:", error)
+      if(error.status == 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
+    }
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -94,14 +92,32 @@ export default function EditMatchPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     // In a real app, you would update the match data in your backend here
-    console.log("Match data to update:", formData)
+    const data = {
+      matchName: formData.matchName,
+      matchDate: formData.scheduledDate + "T" + formData.scheduledStartTime,
+      homeTeamId: match.homeTeamId,
+      awayTeamId: match.awayTeamId,
+      opponentTeamName: match.homeTeamId ? match.awayTeamName : match.homeTeamName,
+      courtId: formData.courtId,
+    }
 
-    // Navigate back to the match detail page
-    router.push(`/matches/${params.id}`)
+    console.log("Match data to update:", data);
+    console.log("Match ID:", params.id);
+    
+    try {
+      const response = await matchApi.updateMatch(params.id, data)
+      addToast({ message: response?.data.message, type: "success" })
+      router.push(`/matches/${params.id}`)
+    } catch (error) {
+      console.error("Error updating match:", error);
+      if (error.response && error.response.data && error.response.data.message) {
+        addToast({ message: error.response.data.message, type: "error" });
+      }
+    }
   }
 
   return (
@@ -129,6 +145,7 @@ export default function EditMatchPage() {
                 onChange={handleInputChange}
                 placeholder="Nhập tên trận đấu"
                 required
+                disabled={match.status === "Đã kết thúc"}
               />
             </div>
 
@@ -142,6 +159,7 @@ export default function EditMatchPage() {
                   value={formData.scheduledDate}
                   onChange={handleInputChange}
                   required
+                  disabled={match.status === "Đã kết thúc"}
                 />
               </div>
               <div className="space-y-2">
@@ -153,17 +171,7 @@ export default function EditMatchPage() {
                   value={formData.scheduledStartTime}
                   onChange={handleInputChange}
                   required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="scheduledEndTime">Giờ kết thúc</Label>
-                <Input
-                  id="scheduledEndTime"
-                  name="scheduledEndTime"
-                  type="time"
-                  value={formData.scheduledEndTime}
-                  onChange={handleInputChange}
-                  required
+                  disabled={match.status === "Đã kết thúc"}
                 />
               </div>
             </div>
@@ -171,99 +179,66 @@ export default function EditMatchPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="homeTeamId">Đội nhà</Label>
-                <Select value={formData.homeTeamId} onValueChange={(value) => handleSelectChange("homeTeamId", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn đội nhà" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Không có</SelectItem>
-                    {teams.map((team) => (
-                      <SelectItem key={team.id} value={team.id}>
-                        {team.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div>
+                  {formData.homeTeamName}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="awayTeamId">Đội khách</Label>
-                <Select value={formData.awayTeamId} onValueChange={(value) => handleSelectChange("awayTeamId", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn đội khách" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Không có</SelectItem>
-                    {teams.map((team) => (
-                      <SelectItem key={team.id} value={team.id}>
-                        {team.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div>
+                  {formData.awayTeamName}
+                </div>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="scoreHome">Điểm đội nhà</Label>
-                <Input
-                  id="scoreHome"
-                  name="scoreHome"
-                  type="number"
-                  min="0"
-                  value={formData.scoreHome}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="scoreAway">Điểm đội khách</Label>
-                <Input
-                  id="scoreAway"
-                  name="scoreAway"
-                  type="number"
-                  min="0"
-                  value={formData.scoreAway}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
+            {match.status === "Đã kết thúc" &&
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="scoreHome">Điểm đội nhà</Label>
+                  <Input
+                    id="scoreHome"
+                    name="scoreHome"
+                    type="number"
+                    min="0"
+                    value={formData.scoreHome}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="scoreAway">Điểm đội khách</Label>
+                  <Input
+                    id="scoreAway"
+                    name="scoreAway"
+                    type="number"
+                    min="0"
+                    value={formData.scoreAway}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>}
 
             <div className="space-y-2">
               <Label htmlFor="courtId">Địa điểm</Label>
-              <Select value={formData.courtId} onValueChange={(value) => handleSelectChange("courtId", value)} required>
+              {!(match.status === "Đã kết thúc" || match.status === "Đang diễn ra") ? <Select value={formData.courtId} onValueChange={(value) => handleSelectChange("courtId", value)} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn địa điểm" />
                 </SelectTrigger>
                 <SelectContent>
                   {courts.map((court) => (
-                    <SelectItem key={court.id} value={court.id}>
-                      {court.name}
+                    <SelectItem key={court.courtId} value={court.courtId}>
+                      {court.courtName}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status">Trạng thái</Label>
-              <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn trạng thái" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Sắp diễn ra">Sắp diễn ra</SelectItem>
-                  <SelectItem value="Đang diễn ra">Đang diễn ra</SelectItem>
-                  <SelectItem value="Đã kết thúc">Đã kết thúc</SelectItem>
-                  <SelectItem value="Đã hủy">Đã hủy</SelectItem>
-                </SelectContent>
-              </Select>
+              : <div>{match.courtAddress}</div>}
             </div>
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => router.push(`/matches/${params.id}`)}>
               Hủy
             </Button>
-            <Button type="submit" className="bg-[#BD2427] hover:bg-[#9a1e21]">
+            <Button type="submit" className="bg-[#BD2427] hover:bg-[#9a1e21]" disabled={formData.courtId === ""} >
               Lưu thay đổi
             </Button>
           </CardFooter>

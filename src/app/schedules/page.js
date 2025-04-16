@@ -12,6 +12,8 @@ import { SingleSessionModal } from "@/components/schedule/SingleSessionModal";
 import scheduleApi from "@/api/schedule";
 import courtApi from "@/api/court";
 import teamApi from "@/api/team";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function SchedulePage() {
   const { user, userInfo } = useAuth();
@@ -27,6 +29,7 @@ export default function SchedulePage() {
   const [courts, setCourts] = useState([]);
   const [teams, setTeams] = useState([]);
   const [isModified, setIsModified] = useState(false)
+  const { addToast } = useToasts()
 
   useEffect(() => {
     fetchTrainingSessions();
@@ -34,14 +37,13 @@ export default function SchedulePage() {
 
   useEffect(() => {
     setTeamFilter(userInfo?.roleInformation.teamId);
-    console.log("Team ID:", userInfo?.roleInformation.teamId);
-    
+
     if (user?.roleCode === "Coach") {
       fetchTeams();
     }
     fetchCourts();
   }, [userInfo?.roleInformation.teamId]);
-  
+
   const fetchCourts = async () => {
     try {
       const data = {
@@ -51,6 +53,9 @@ export default function SchedulePage() {
       setCourts(response?.data.items);
     } catch (error) {
       console.error("Error fetching courts:", error);
+      if (error.status == 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
@@ -60,6 +65,9 @@ export default function SchedulePage() {
       setTeams(response?.data.data.items);
     } catch (error) {
       console.error("Error fetching teams:", error);
+      if (error.status == 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
@@ -105,6 +113,9 @@ export default function SchedulePage() {
       }
     } catch (error) {
       console.error("Error fetching training sessions:", error);
+      if (error.status == 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
@@ -236,18 +247,18 @@ export default function SchedulePage() {
                   <label htmlFor="team-filter" className="block text-sm font-medium text-gray-700 mb-1">
                     Đội
                   </label>
-                  <select
-                    id="team-filter"
-                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#BD2427] focus:border-[#BD2427] sm:text-sm rounded-md"
-                    value={teamFilter}
-                    onChange={(e) => setTeamFilter(e.target.value)}
-                  >
-                    {teams?.map((team) => (
-                      <option key={team.teamId} value={team.teamId}>
-                        {team.teamName}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={teamFilter} onValueChange={(value) => setTeamFilter(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn đội" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teams?.map((team) => (
+                        <SelectItem key={team.teamId} value={team.teamId}>
+                          {team.teamName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             )}
@@ -402,7 +413,7 @@ export default function SchedulePage() {
       </div>
 
       {/* Modal */}
-      { user?.roleCode === "Manager" && <AttendanceModal
+      {user?.roleCode === "Manager" && <AttendanceModal
         isOpen={attendanceModalOpen}
         onClose={() => setAttendanceModalOpen(false)}
         session={selectedSession}

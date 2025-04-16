@@ -1,107 +1,53 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Calendar } from "@/components/ui/Calendar"
 import { Card, CardContent } from "@/components/ui/Card"
-import { Button } from "@/components/ui/Button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs"
-import { CalendarIcon } from "lucide-react"
-import { format, isWithinInterval, parseISO, set } from "date-fns"
-import { cn } from "@/lib/utils"
 import ScheduleItem from "./ScheduleItem"
 import RejectionModal from "./RejectionModal"
 import scheduleApi from "@/api/schedule"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 import { useAuth } from "@/hooks/context/AuthContext"
 import teamApi from "@/api/team"
-
-// Dữ liệu mẫu riêng biệt cho từng tab
-const mockUpdateSchedules = [
-  {
-    id: "2",
-    teamId: "team-01",
-    courtId: "court-b",
-    scheduledDate: "2025-04-15",
-    scheduledStartTime: "10:00",
-    scheduledEndTime: "12:00",
-    trainingSessionId: "ts-002",
-    status: "update",
-    teamName: "Lakers",
-    courtName: "Sân Tập",
-  },
-  {
-    id: "5",
-    teamId: "team-01",
-    courtId: "court-b",
-    scheduledDate: "2025-04-18",
-    scheduledStartTime: "15:00",
-    scheduledEndTime: "17:00",
-    trainingSessionId: "ts-005",
-    status: "update",
-    teamName: "Lakers",
-    courtName: "Sân Tập",
-  },
-]
-
-const mockCancelSchedules = [
-  {
-    id: "3",
-    teamId: "team-01",
-    courtId: "court-a",
-    scheduledDate: "2025-04-16",
-    scheduledStartTime: "18:00",
-    scheduledEndTime: "20:00",
-    trainingSessionId: "ts-003",
-    status: "cancel",
-    teamName: "Lakers",
-    courtName: "Sân Chính",
-  },
-  {
-    id: "6",
-    teamId: "team-01",
-    courtId: "court-a",
-    scheduledDate: "2025-04-19",
-    scheduledStartTime: "13:00",
-    scheduledEndTime: "15:00",
-    trainingSessionId: "ts-006",
-    status: "cancel",
-    teamName: "Lakers",
-    courtName: "Sân Chính",
-  },
-]
+import ScheduleUpdateItem from "./ScheduleUpdateItem"
+import ScheduleCancelItem from "./ScheduleCancelItem"
 
 export default function ScheduleConfirmation() {
   // Sử dụng state riêng cho từng loại lịch
   const [createSchedules, setCreateSchedules] = useState([])
-  const [updateSchedules, setUpdateSchedules] = useState(mockUpdateSchedules)
-  const [cancelSchedules, setCancelSchedules] = useState(mockCancelSchedules)
+  const [updateSchedules, setUpdateSchedules] = useState([])
+  const [cancelSchedules, setCancelSchedules] = useState([])
   const [filteredCreateSchedules, setFilteredCreateSchedules] = useState([])
+  const [filteredUpdateSchedules, setFilteredUpdateSchedules] = useState([])
+  const [filteredCancelSchedules, setFilteredCancelSchedules] = useState([])
 
-  const [dateRange, setDateRange] = useState({
-    from: new Date("2025-04-14"),
-    to: new Date("2025-04-20"),
-  })
   const [activeTab, setActiveTab] = useState("create")
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false)
   const [selectedScheduleId, setSelectedScheduleId] = useState(null)
   const [team, setTeam] = useState({})
-  const {userInfo} = useAuth();
-  const {addToast} = useToasts();
+  const { userInfo } = useAuth();
+  const { addToast } = useToasts();
 
   useEffect(() => {
-    fetchCreateSchedules()
     fetchTeamDetail()
   }, [])
+
+  useEffect(() => {
+    if (activeTab === "create") {
+      fetchCreateSchedules()
+    } else if (activeTab === "update") {
+      fetchUpdateSchedules()
+    } else if (activeTab === "cancel") {
+      fetchCancelSchedules()
+    }
+  }, [activeTab])
 
   const fetchTeamDetail = async () => {
     try {
       const response = await teamApi.teamDetail(userInfo?.roleInformation.teamId);
-      console.log("Team", response?.data.data);
-      
-      // setTeam(response?.data.data);
+      setTeam(response?.data.data);
     } catch (error) {
-      console.log("Error fetching team detail:", error);
+      console.error("Error fetching team detail:", error);
     }
   }
 
@@ -111,15 +57,32 @@ export default function ScheduleConfirmation() {
       setCreateSchedules(response?.data.data);
       setFilteredCreateSchedules(response?.data.data);
     } catch (error) {
-      console.log("Error fetching create schedules:", error);
-
+      console.error("Error fetching create schedules:", error);
+      if (error?.response?.status === 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
-  // Lọc dữ liệu theo khoảng ngày cho từng danh sách
-  // const filteredCreateSchedules = createSchedules.filter((schedule) => isDateInRange(schedule.scheduledDate))
-  const filteredUpdateSchedules = updateSchedules.filter((schedule) => isDateInRange(schedule.scheduledDate))
-  const filteredCancelSchedules = cancelSchedules.filter((schedule) => isDateInRange(schedule.scheduledDate))
+  const fetchUpdateSchedules = async () => {
+    try {
+      const response = await scheduleApi.getUpdatePendingTrainingSession();
+      setUpdateSchedules(response?.data.data);
+      setFilteredUpdateSchedules(response?.data.data);
+    } catch (error) {
+      console.error("Error fetching update schedules:", error);
+    }
+  }
+
+  const fetchCancelSchedules = async () => {
+    try {
+      const response = await scheduleApi.getCancelPendingTrainingSession();
+      setCancelSchedules(response?.data.data);
+      setFilteredCancelSchedules(response?.data.data);
+    } catch (error) {
+      console.error("Error fetching cancel schedules:", error);
+    }
+  }
 
   // Xử lý phê duyệt lịch tập
   const handleApprove = async (scheduleId) => {
@@ -185,77 +148,32 @@ export default function ScheduleConfirmation() {
     }
   }
 
-  // Kiểm tra xem ngày có nằm trong khoảng đã chọn không
-  function isDateInRange(dateString) {
-    if (!dateRange?.from || !dateRange?.to) return true
-
-    const date = parseISO(dateString)
-    return isWithinInterval(date, {
-      start: dateRange.from,
-      end: dateRange.to,
-    })
-  }
 
   return (
     <div className="space-y-6">
       <Card className="border-brand-red/20">
         <CardContent className="pt-6">
           <div className="mb-4">
-            <h2 className="text-xl font-semibold text-brand-red mb-2">Đội Lakers</h2>
-            <p className="text-muted-foreground">Quản lý lịch tập cho đội Lakers</p>
+            <h2 className="text-xl font-semibold text-brand-red mb-2">Đội {team?.teamName}</h2>
+            <p className="text-muted-foreground">Quản lý lịch tập cho đội {team?.teamName}</p>
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex flex-col gap-2">
-              {/* <label className="text-sm font-medium">Khoảng thời gian</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-[300px] justify-start text-left font-normal border-brand-red/30 hover:border-brand-red/70",
-                      !dateRange && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
-                        </>
-                      ) : (
-                        format(dateRange.from, "dd/MM/yyyy")
-                      )
-                    ) : (
-                      <span>Chọn khoảng thời gian</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
-                    className="[&_.rdp-day_button:hover]:bg-[#BD2427]/10 [&_.rdp-day_button:focus]:bg-[#BD2427]/20 [&_.rdp-day_button.rdp-day_selected]:bg-[#BD2427]"
-                  />
-                </PopoverContent>
-              </Popover> */}
+              <label className="text-sm font-medium">Khoảng thời gian</label>
             </div>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-3 mb-6">
               <TabsTrigger value="create" >
-                Tạo mới ({filteredCreateSchedules.length})
+                Tạo mới
               </TabsTrigger>
               <TabsTrigger value="update">
-                Chỉnh sửa ({filteredUpdateSchedules.length})
+                Chỉnh sửa
               </TabsTrigger>
               <TabsTrigger value="cancel">
-                Hủy lịch ({filteredCancelSchedules.length})
+                Hủy lịch
               </TabsTrigger>
             </TabsList>
 
@@ -289,7 +207,7 @@ export default function ScheduleConfirmation() {
                 ) : (
                   <div className="space-y-4">
                     {filteredUpdateSchedules.map((schedule) => (
-                      <ScheduleItem
+                      <ScheduleUpdateItem
                         key={schedule.trainingSessionId}
                         schedule={schedule}
                         onApprove={handleApprove}
@@ -310,7 +228,7 @@ export default function ScheduleConfirmation() {
                 ) : (
                   <div className="space-y-4">
                     {filteredCancelSchedules.map((schedule) => (
-                      <ScheduleItem
+                      <ScheduleCancelItem
                         key={schedule.trainingSessionId}
                         schedule={schedule}
                         onApprove={handleApprove}
