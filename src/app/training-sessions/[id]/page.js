@@ -12,7 +12,6 @@ import scheduleApi from "@/api/schedule";
 import courtApi from "@/api/court";
 import coachApi from "@/api/coach";
 import { AttendanceReviewModal } from "@/components/attendance/AttendanceReviewModal";
-import { add } from "date-fns";
 
 export default function TrainingSessionDetail() {
     const { user, userInfo } = useAuth();
@@ -307,7 +306,7 @@ export default function TrainingSessionDetail() {
                                             ))}
                                         </div>
                                     ) : (
-                                        userInfo?.roleInformation.teamId === session.teamId && <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                                        user?.roleCode === "Coach" && userInfo?.roleInformation.teamId === session.teamId && <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
                                             <p className="text-sm text-gray-500">Chưa có bài tập nào được thêm vào.</p>
                                             <button
                                                 onClick={() => setExerciseModalOpen(true)}
