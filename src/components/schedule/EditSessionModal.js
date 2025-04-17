@@ -5,11 +5,16 @@ import { format, parse, set } from "date-fns"
 import { X, Clock, MapPin, Save } from "lucide-react"
 import scheduleApi from "@/api/schedule"
 import { vi } from "date-fns/locale"
+import { Input } from "../ui/Input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, isModified }) {
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
   const [court, setCourt] = useState({})
+  const [updateReason, setUpadateReason] = useState("")
+  const {addToast} = useToasts()
 
   useEffect(() => {
     if (session) {
@@ -27,10 +32,12 @@ export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, 
 
     // Xử lý cập nhật buổi tập
     handleUpdateSession({
+      trainingSessionId: sessionId,
       scheduledDate: date,
-      startTime: startTime + ":00",
-      endTime: endTime + ":00",
+      startTime: correctTimeFormat(startTime),
+      endTime: correctTimeFormat(endTime),
       courtId: court,
+      updateReason: updateReason
     })
     // Đóng modal sau khi xử lý
     onClose()
@@ -38,11 +45,21 @@ export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, 
 
   const handleUpdateSession = async (data) => {
     try {
-      const response = await scheduleApi.updateTrainingSession(sessionId, data);
-      isModified();      
+      console.log("Data to update:", data);
+
+      const response = await scheduleApi.updateTrainingSession(data);
+      addToast({message: response?.data.message, type: "success"})
+      isModified();
     } catch (error) {
       console.error("Lỗi khi chỉnh buổi tập:", error.response.data.errors);
+      addToast({message: error.response.data.errors, type: "error"})
     }
+  }
+
+  const correctTimeFormat = (time) => {
+    const timeSplit = time.split(":")
+    if (timeSplit.length == 2) return time + ":00"
+    return time
   }
 
   if (!isOpen || !session) return null
@@ -87,7 +104,7 @@ export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, 
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Clock className="h-5 w-5 text-gray-400" />
                     </div>
-                    <input
+                    <Input
                       type="time"
                       id="start-time"
                       className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
@@ -104,12 +121,29 @@ export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, 
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Clock className="h-5 w-5 text-gray-400" />
                     </div>
-                    <input
+                    <Input
                       type="time"
                       id="end-time"
                       className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
                       value={endTime}
                       onChange={(e) => setEndTime(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
+                    Lý do thay đổi
+                  </label>
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <Input
+                      type="text"
+                      id="updateReason"
+                      value={updateReason}
+                      className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
+                      onChange={(e) => setUpadateReason(e.target.value)}
                     />
                   </div>
                 </div>
@@ -121,21 +155,18 @@ export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, 
                   Sân tập
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <MapPin className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <select
-                    id="court"
-                    className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                    value={court}
-                    onChange={(e) => setCourt(e.target.value)}
-                  >
-                    {courts.map((c) => (
-                      <option key={c.courtId} value={c.courtId}>
-                        {c.courtName}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={court} onValueChange={(value) => setCourt(value)} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn địa điểm" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {courts.map((court) => (
+                        <SelectItem key={court.courtId} value={court.courtId}>
+                          {court.courtName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>

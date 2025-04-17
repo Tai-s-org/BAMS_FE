@@ -4,44 +4,36 @@ import { Card, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { CheckCircle, XCircle } from "lucide-react"
 
-export default function ScheduleItem({ schedule, onApprove, onReject, userRole }) {
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("vi-VN", {
-      weekday: "short",
-      year: "numeric",
-      month: "numeric",
-      day: "numeric",
-    })
-  }
-
+export default function ScheduleUpdateItem({ schedule, onApprove, onReject, userRole }) {
   return (
     <Card className="overflow-hidden border-[#BD2427]/20 hover:border-[#BD2427]/40 transition-colors">
       <CardContent className="p-0">
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
           <div className="p-4">
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <h3 className="text-lg font-semibold text-[#BD2427]">{schedule.courtName}</h3>
+              <h3 className="text-lg font-semibold text-[#BD2427]">Lý do thay đổi: {schedule.requestReason}</h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
               <div className="flex justify-between sm:block">
                 <span className="font-medium text-muted-foreground">Ngày:</span>
-                <span className="sm:ml-2">{formatDate(schedule.scheduledDate)}</span>
+                {((schedule.newScheduledDate !== schedule.oldScheduledDate)) ? <span className="sm:ml-2 text-red-500">{schedule.newScheduledDate}</span> : <span className="sm:ml-2">{schedule.newScheduledDate}</span>}
               </div>
               <div className="flex justify-between sm:block">
                 <span className="font-medium text-muted-foreground">Thời gian:</span>
-                <span className="sm:ml-2">
-                  {schedule.scheduledStartTime} - {schedule.scheduledEndTime}
-                </span>
+                {((schedule.newStartTime !== schedule.oldStartTime) || (schedule.newEndTime !== schedule.oldEndTime)) ? <span className="sm:ml-2 text-red-500">
+                  {schedule.newStartTime} - {schedule.newEndTime}
+                </span> : <span className="sm:ml-2">
+                  {schedule.newStartTime} - {schedule.newEndTime}
+                </span>}
               </div>
               <div className="flex justify-between sm:block">
                 <span className="font-medium text-muted-foreground">Địa chỉ:</span>
-                <span className="sm:ml-2">{schedule.courtAddress}</span>
+                {((schedule.newCourtAddress !== schedule.oldCourtAddress)) ? <span className="sm:ml-2 text-red-500">{schedule.newCourtAddress}</span> : <span className="sm:ml-2">{schedule.newCourtAddress}</span>}
               </div>
               <div className="flex justify-between sm:block">
                 <span className="font-medium text-muted-foreground">Liên hệ sân:</span>
-                <span className="sm:ml-2">{schedule.courtContact}</span>
+                <span className="sm:ml-2">{schedule.oldCourtContact}</span>
               </div>
             </div>
           </div>
