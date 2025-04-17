@@ -38,8 +38,8 @@ const scheduleApi = {
     getPendingTrainingSession: () => {
         return api.get('/training-session/pending');
     },
-    approvePendingTrainingSession: (id) => {
-        return api.post(`/training-session/${id}/approve`);
+    approvePendingTrainingSession: (data) => {
+        return api.post(`/training-session/approve`, data);
     },
     rejectPendingTrainingSession: (data) => {
         return api.post(`/training-session/reject`, data);
