@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { CheckCircle, XCircle } from "lucide-react"
 
-export default function ScheduleUpdateItem({ schedule, onApprove, onReject }) {
+export default function ScheduleUpdateItem({ schedule, onApprove, onReject, userRole }) {
   return (
     <Card className="overflow-hidden border-[#BD2427]/20 hover:border-[#BD2427]/40 transition-colors">
       <CardContent className="p-0">
@@ -38,7 +38,7 @@ export default function ScheduleUpdateItem({ schedule, onApprove, onReject }) {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 p-4 bg-gray-50">
+          { userRole === "Manager" ? (<div className="flex items-center justify-end gap-2 p-4 bg-gray-50">
             <Button
               variant="outline"
               className="border-[#BD2427] text-[#BD2427] hover:bg-[#BD2427]/10 hover:text-[#BD2427]"
@@ -51,7 +51,8 @@ export default function ScheduleUpdateItem({ schedule, onApprove, onReject }) {
               <CheckCircle className="mr-2 h-4 w-4" />
               Phê duyệt
             </Button>
-          </div>
+          </div>)
+          : (<div className="flex items-center justify-end gap-2 p-4 bg-gray-50">Vui lòng chờ phê duyệt</div>) }
         </div>
       </CardContent>
     </Card>

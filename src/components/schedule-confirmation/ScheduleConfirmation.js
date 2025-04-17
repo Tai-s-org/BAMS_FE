@@ -11,6 +11,8 @@ import { useAuth } from "@/hooks/context/AuthContext"
 import teamApi from "@/api/team"
 import ScheduleUpdateItem from "./ScheduleUpdateItem"
 import ScheduleCancelItem from "./ScheduleCancelItem"
+import PriceConfirmationModal from "./PriceConfirmationModal"
+import PriceUpdateConfirmationModal from "./PriceUpdateConfirmationModal"
 
 export default function ScheduleConfirmation() {
   // Sử dụng state riêng cho từng loại lịch
@@ -20,12 +22,15 @@ export default function ScheduleConfirmation() {
   const [filteredCreateSchedules, setFilteredCreateSchedules] = useState([])
   const [filteredUpdateSchedules, setFilteredUpdateSchedules] = useState([])
   const [filteredCancelSchedules, setFilteredCancelSchedules] = useState([])
-
   const [activeTab, setActiveTab] = useState("create")
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false)
   const [selectedScheduleId, setSelectedScheduleId] = useState(null)
+  const [refresh, setRefresh] = useState(false)
   const [team, setTeam] = useState({})
-  const { userInfo } = useAuth();
+  const [isPriceModalOpen, setIsPriceModalOpen] = useState(false)
+  const [selectedScheduleForPrice, setSelectedScheduleForPrice] = useState(null)
+  const [isUpdatePriceModalOpen, setIsUpdatePriceModalOpen] = useState(false)
+  const { user, userInfo } = useAuth();
   const { addToast } = useToasts();
 
   useEffect(() => {
@@ -40,7 +45,7 @@ export default function ScheduleConfirmation() {
     } else if (activeTab === "cancel") {
       fetchCancelSchedules()
     }
-  }, [activeTab])
+  }, [activeTab, refresh])
 
   const fetchTeamDetail = async () => {
     try {
@@ -84,27 +89,74 @@ export default function ScheduleConfirmation() {
     }
   }
 
-  // Xử lý phê duyệt lịch tập
-  const handleApprove = async (scheduleId) => {
-    // Cập nhật state tương ứng với tab đang active
+  const handleOpenPriceModal = (scheduleId) => {
+    let schedule
+
     switch (activeTab) {
       case "create":
-        try {
-          const response = await scheduleApi.approvePendingTrainingSession(scheduleId);
-          addToast({ message: response?.data.message, type: response?.data.status });
-        } catch (error) {
-          console.error("Error approve:", error);
-          addToast({ message: error?.response?.data.message, type: "error" });
-        } finally {
-          setCreateSchedules(createSchedules.filter((s) => s.trainingSessionId !== scheduleId))
+        schedule = createSchedules.find((s) => s.trainingSessionId === scheduleId)
+        if (schedule) {
+          setSelectedScheduleForPrice(schedule)
+          setIsPriceModalOpen(true)
         }
         break
       case "update":
-        setUpdateSchedules(updateSchedules.filter((s) => s.trainingSessionId !== scheduleId))
+        schedule = updateSchedules.find((s) => s.trainingSessionId === scheduleId)
+        if (schedule) {
+          setSelectedScheduleForPrice(schedule)
+          setIsUpdatePriceModalOpen(true)
+        }
         break
-      case "cancel":
-        setCancelSchedules(cancelSchedules.filter((s) => s.trainingSessionId !== scheduleId))
-        break
+    }
+  }
+
+  const handleApproveCancel = async (scheduleId) => {
+    try {
+        const response = await scheduleApi.approveCancelPendingTrainingSession(scheduleId);
+        addToast({ message: response?.data.message, type: response?.data.status });
+        setRefresh(!refresh)
+    } catch (error) {
+      console.error("Error approving cancel:", error)
+      addToast({ message: error?.response?.data.message, type: "error" });
+    }
+  }
+
+  const handleConfirmPrice = async (price) => {
+    if (selectedScheduleForPrice) {
+      // Trong ứng dụng thực tế, đây sẽ là một API call
+      const approvalData = {
+        trainingSessionId: selectedScheduleForPrice.trainingSessionId,
+        courtPrice: price,
+      }
+      // Cập nhật state tương ứng với tab đang active
+      switch (activeTab) {
+        case "create":
+          try {
+            const response = await scheduleApi.approvePendingTrainingSession(approvalData);
+            addToast({ message: response?.data.message, type: response?.data.status });
+            setRefresh(!refresh)
+          } catch (error) {
+            console.error("Error approve:", error);
+            addToast({ message: error?.response?.data.message, type: "error" });
+          } finally {
+            setIsPriceModalOpen(false)
+            setSelectedScheduleForPrice(null)
+          }
+          break
+        case "update":
+          try {
+            const response = await scheduleApi.approveUpdatePendingTrainingSession(approvalData);
+            addToast({ message: response?.data.message, type: response?.data.status });
+            setRefresh(!refresh)
+          } catch (error) {
+            console.error("Error approve:", error);
+            addToast({ message: error?.response?.data.message, type: "error" });
+          } finally {
+            setIsUpdatePriceModalOpen(false)
+            setSelectedScheduleForPrice(null)
+          }
+          break
+      }
     }
   }
 
@@ -189,8 +241,9 @@ export default function ScheduleConfirmation() {
                       <ScheduleItem
                         key={schedule.trainingSessionId}
                         schedule={schedule}
-                        onApprove={handleApprove}
+                        onApprove={handleOpenPriceModal}
                         onReject={handleReject}
+                        userRole={user?.roleCode}
                       />
                     ))}
                   </div>
@@ -210,8 +263,9 @@ export default function ScheduleConfirmation() {
                       <ScheduleUpdateItem
                         key={schedule.trainingSessionId}
                         schedule={schedule}
-                        onApprove={handleApprove}
+                        onApprove={handleOpenPriceModal}
                         onReject={handleReject}
+                        userRole={user?.roleCode}
                       />
                     ))}
                   </div>
@@ -231,8 +285,9 @@ export default function ScheduleConfirmation() {
                       <ScheduleCancelItem
                         key={schedule.trainingSessionId}
                         schedule={schedule}
-                        onApprove={handleApprove}
+                        onApprove={handleApproveCancel}
                         onReject={handleReject}
+                        userRole={user?.roleCode}
                       />
                     ))}
                   </div>
@@ -248,6 +303,37 @@ export default function ScheduleConfirmation() {
         onClose={() => setIsRejectionModalOpen(false)}
         onConfirm={confirmRejection}
       />
+
+      {/* Modal xác nhận giá */}
+      {selectedScheduleForPrice && activeTab === "create" && (
+        <PriceConfirmationModal
+          isOpen={isPriceModalOpen}
+          onClose={() => {
+            setIsPriceModalOpen(false)
+            setSelectedScheduleForPrice(null)
+          }}
+          onConfirm={handleConfirmPrice}
+          trainingSessionId={selectedScheduleForPrice.trainingSessionId}
+          currentPrice={selectedScheduleForPrice.courtPrice}
+          courtName={selectedScheduleForPrice.courtName}
+          scheduledDate={selectedScheduleForPrice.scheduledDate}
+        />
+      )}
+
+      {selectedScheduleForPrice && activeTab === "update" && (
+        <PriceUpdateConfirmationModal
+          isOpen={isUpdatePriceModalOpen}
+          onClose={() => {
+            setIsUpdatePriceModalOpen(false)
+            setSelectedScheduleForPrice(null)
+          }}
+          onConfirm={handleConfirmPrice}
+          trainingSessionId={selectedScheduleForPrice.trainingSessionId}
+          currentPrice={selectedScheduleForPrice.oldCourtPrice}
+          courtName={selectedScheduleForPrice.newCourtName}
+          scheduledDate={selectedScheduleForPrice.newScheduledDate}
+        />
+      )}
     </div>
   )
 }

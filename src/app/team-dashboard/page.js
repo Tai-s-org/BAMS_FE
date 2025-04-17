@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
-// Import additional icons
-import { CalendarDays, Plus, Trash2, User, Users, BellIcon as Whistle, Clock, MapPin, Trophy } from "lucide-react"
+import { CalendarDays, Plus, Trash2, Users, BellIcon as Whistle, Clock, MapPin, Trophy } from "lucide-react"
 
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
@@ -27,87 +26,22 @@ import matchApi from "@/api/match"
 import { GiBasketballJersey, GiWhistle } from "react-icons/gi"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 
-// Mock data for the team
-const teamData = {
-  teamId: "T001",
-  teamName: "Đội A",
-  status: 1,
-  createAt: "2025-03-19T01:43:19.333",
-  coaches: [
-    {
-      userId: "550e8400-e29b-41d4-a716-446655440002",
-      teamId: "T001",
-      coachName: "Alex Nguyễn",
-      createdByPresidentId: "1",
-      bio: null,
-      contractStartDate: "2025-02-28",
-      contractEndDate: "2026-03-30",
-    },
-    {
-      userId: "550e8400-e29b-41d4-a716-556655440002",
-      teamId: "T001",
-      coachName: "Trần Văn Hiệp",
-      createdByPresidentId: "550e8400-e29b-41d4-a716-556655440003",
-      bio: null,
-      contractStartDate: "2025-02-28",
-      contractEndDate: "2026-03-30",
-    },
-  ],
-  managers: [
-    {
-      userId: "550e8400-e29b-41d4-a716-446655440000",
-      teamId: "T001",
-      managerName: "Trần Văn Hiệp 123",
-      bankName: null,
-      bankAccountNumber: null,
-    },
-  ],
-  players: [
-    {
-      userId: "1f615e210741446a8060a144c2a980c6",
-      fullname: "An Hoàng Tuấn",
-      email: null,
-      phone: null,
-      teamId: "T001",
-      teamName: null,
-      profileImage: null,
-      address: null,
-      dateOfBirth: null,
-      weight: 0,
-      height: 0,
-      position: "PG",
-      shirtNumber: null,
-      relationshipWithParent: "Con trai",
-      clubJoinDate: "2025-03-05",
-    },
-    {
-      userId: "550e8400-e29b-41d4-a716-556655440001",
-      fullname: "Trần Văn Hiệp 2",
-      email: null,
-      phone: null,
-      teamId: "T001",
-      teamName: null,
-      profileImage: null,
-      address: null,
-      dateOfBirth: null,
-      weight: 78,
-      height: 180,
-      position: "SF",
-      shirtNumber: 10,
-      relationshipWithParent: "Con trai",
-      clubJoinDate: "2025-03-01",
-    },
-  ],
-}
-
 export default function TeamDashboard() {
-  const [team, setTeam] = useState(teamData)
+  const [team, setTeam] = useState({
+    teamId: "",
+    teamName: "",
+    status: 1,
+    createAt: "",
+    coaches: [],
+    managers: [],
+    players: []
+  })
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false)
   const [selectedPlayers, setSelectedPlayers] = useState([])
   const [trainingSessionsData, setTrainingSessionsData] = useState([])
   const [matchesData, setMatchesData] = useState([])
   const [nonTeamPlayers, setNonTeamPlayers] = useState([])
-  const { userInfo } = useAuth();
+  const { user, userInfo } = useAuth();
   const {addToast} = useToasts();
 
   useEffect(() => {
@@ -121,7 +55,7 @@ export default function TeamDashboard() {
   const fetchTeam = async () => {
     try {
       const response = await teamApi.teamDetail(userInfo?.roleInformation.teamId);
-      console.log("Team details:", response?.data);
+      setTeam(response?.data.data);
     } catch (error) {
       console.error("Error fetching team:", error)
     }
@@ -370,15 +304,15 @@ export default function TeamDashboard() {
             <TabsList className="grid grid-cols-3 mb-6">
               <TabsTrigger value="coaches" >
                 <GiWhistle className="h-4 w-4" />
-                HLV ({team.coaches.length})
+                HLV
               </TabsTrigger>
               <TabsTrigger value="managers">
                 <Users className="h-4 w-4" />
-                Quản lý ({team.managers.length})
+                Quản lý
               </TabsTrigger>
               <TabsTrigger value="players">
                 <GiBasketballJersey className="h-4 w-4" />
-                Cầu thủ ({team.players.length})
+                Cầu thủ 
               </TabsTrigger>
             </TabsList>
 
@@ -394,7 +328,7 @@ export default function TeamDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {team.coaches.map((coach) => (
+                  {team?.coaches.map((coach) => (
                     <TableRow key={coach.userId}>
                       <TableCell className="font-medium">{coach.coachName}</TableCell>
                       <TableCell>{formatDate(coach.contractStartDate)}</TableCell>
@@ -430,7 +364,7 @@ export default function TeamDashboard() {
 
             {/* Players Tab */}
             <TabsContent value="players">
-              <div className="flex justify-end mb-4">
+              { user?.roleCode === "Manager" &&<div className="flex justify-end mb-4">
                 <Button
                   onClick={() => setIsAddPlayerModalOpen(true)}
                   className="bg-[#BD2427] hover:bg-[#9a1e20] text-white"
@@ -438,7 +372,7 @@ export default function TeamDashboard() {
                   <Plus className="h-4 w-4 mr-2" />
                   Thêm cầu thủ
                 </Button>
-              </div>
+              </div>}
               <Table>
                 <TableHeader>
                   <TableRow>
