@@ -12,6 +12,8 @@ import scheduleApi from "@/api/schedule";
 import courtApi from "@/api/court";
 import coachApi from "@/api/coach";
 import { AttendanceReviewModal } from "@/components/attendance/AttendanceReviewModal";
+import CancelModal from "@/components/schedule/CancelModal";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function TrainingSessionDetail() {
     const { user, userInfo } = useAuth();
@@ -26,7 +28,8 @@ export default function TrainingSessionDetail() {
     const [coaches, setCoaches] = useState([])
     const [isModified, setIsModified] = useState(false)
     const [attendanceRvOpen, setAttendanceRvOpen] = useState(false)
-
+    const [cancelModalOpen, setCancelModalOpen] = useState(false)
+    const {addToast} = useToasts();
 
     const fetchCoaches = async () => {
         try {
@@ -81,21 +84,27 @@ export default function TrainingSessionDetail() {
         }
     };
 
-    const handleCancel = async () => {
+    const handleCancel = async (reason) => {
         try {
             const data = {
                 trainingSessionId: params.id,
-                reason: ""
+                reason: reason
             }
             const response = await scheduleApi.cancelTrainingSession(data);
             addToast({ message: response?.data.message, type: "success" });
             router.push("/schedules");
         } catch (error) {
-            console.error("Lỗi:", error);
-            addToast({ message: error?.response?.data?.message, type: "error" });
+            console.error("Lỗi:", error?.response);
+            if (error?.response?.data?.errors) {
+                error.response.data.errors?.map(element => {
+                    addToast({ message: element, type: "error" });
+                });
+            }
             if(error?.response?.status === 401) {
                 addToast({ message: error?.response?.data.Message, type: "error" });
             }
+        } finally {
+            setCancelModalOpen(false)
         }
     };
 
@@ -346,7 +355,7 @@ export default function TrainingSessionDetail() {
                                         Quản Lý Chi Tiết
                                     </button>
                                     <button className="w-full inline-flex justify-center items-center px-4 py-2 border border-[#BD2427] text-sm font-medium rounded-md shadow-sm text-[#BD2427] bg-white hover:bg-[#BD2427]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
-                                        onClick={() => handleCancel()}
+                                        onClick={() => setCancelModalOpen(true)}
                                     >
                                         Hủy Buổi Tập
                                     </button>
@@ -390,6 +399,9 @@ export default function TrainingSessionDetail() {
 
             {/* Modal Xem Kết Quả Điểm Danh */}
             <AttendanceReviewModal isOpen={attendanceRvOpen} onClose={() => setAttendanceRvOpen(false)} session={session} sessionId={params.id}/>
+
+            {/* Modal Hủy Buổi Tập */}
+            <CancelModal isOpen={cancelModalOpen} onClose={() => setCancelModalOpen(false)} onConfirm={handleCancel} />
         </div>
     );
 }

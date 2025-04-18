@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import matchApi from "@/api/match"
+import { DatePicker } from "../ui/DatePicker"
 
 // Sample data based on the provided format
 const initialMatches = [
@@ -177,17 +178,18 @@ export default function MatchesList() {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="startDate">Từ ngày</Label>
-                <Input
-                  id="startDate"
-                  name="startDate"
-                  type="date"
-                  value={filters.startDate}
-                  onChange={handleFilterChange}
+                <DatePicker
+                  value={new Date(filters.startDate)}
+                  onChange={(date) => setFilters({ ...filters, startDate: getFormattedDate(date) })}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="endDate">Đến ngày</Label>
-                <Input id="endDate" name="endDate" type="date" value={filters.endDate} onChange={handleFilterChange} />
+                <DatePicker
+                  value={new Date(filters.endDate)}
+                  onChange={(date) => setFilters({ ...filters, endDate: getFormattedDate(date) })}
+                  minDate={new Date(filters.startDate)}
+                />
               </div>
             </div>
           </CardContent>
@@ -235,7 +237,7 @@ export default function MatchesList() {
                       </div>
                       <div className="flex items-center text-sm">
                         <MapPin className="mr-2 h-4 w-4 text-[#BD2427]" />
-                        <span>{match.courtName}</span>
+                        <span>{match.courtName} - {match.courtAddress}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-center bg-gray-50 rounded-lg p-4">
@@ -327,11 +329,11 @@ export default function MatchesList() {
                       <td className="py-3 px-4">
                         {match.homeTeamName || "Chưa xác định"} vs {match.awayTeamName || "Chưa xác định"}
                       </td>
-                      <td className="py-3 px-4">{match.courtName}</td>
+                      <td className="py-3 px-4">{match.courtName} - {match.courtAddress}</td>
                       <td className="py-3 px-4">
                         <Badge
-                          variant={match.status === "Sắp diễn ra" ? "outline" : "default"}
-                          className="bg-[#BD2427] text-white"
+                          variant={match.status === "Sắp diễn ra" ? "warning" : "destructive"}
+                          className="text-white"
                         >
                           {match.status}
                         </Badge>
