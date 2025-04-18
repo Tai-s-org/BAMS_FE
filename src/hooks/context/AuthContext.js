@@ -8,21 +8,32 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-            fetchUserInfo();
+        if (typeof window !== 'undefined') {
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                const parsedUser = JSON.parse(storedUser);
+                setUser(parsedUser);
+            }
+            setIsInitialized(true);
         }
     }, []);
+
+    useEffect(() => {
+        if (user && isInitialized) {
+            fetchUserInfo();
+        }
+    }, [user, isInitialized]);
 
     // Hàm lấy thông tin user từ API
     const fetchUserInfo = async () => {
         try {
             const response = await authApi.information();
             setUserInfo(response.data);
+            console.log("User info:", response.data);
+            
         } catch (error) {
             console.error("Error fetching user info:", error);
         }
