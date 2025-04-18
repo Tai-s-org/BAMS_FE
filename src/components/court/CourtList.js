@@ -13,7 +13,7 @@ const translateType = (type) => {
 export default function CourtList({ courts, onEdit, onDelete }) {  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {courts.length == 0 ? <h1 className="text-3xl font-bold tracking-tight text-gray-900">Start filter to show courts</h1> : courts?.map((court) => (
+      {courts.length == 0 ? <h1 className="text-3xl font-bold tracking-tight text-gray-900">Bắt đầu lọc để tìm kiếm</h1> : courts?.map((court) => (
         <Card
           key={court.courtId}
           className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border bg-white"
