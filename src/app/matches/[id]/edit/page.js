@@ -10,6 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft } from "lucide-react"
 import matchApi from "@/api/match"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import { DatePicker } from "@/components/ui/DatePicker"
+import { format } from "date-fns"
+import { TimePicker } from "@/components/ui/TimePicker"
 
 export default function EditMatchPage() {
   const params = useParams()
@@ -73,7 +76,6 @@ export default function EditMatchPage() {
         matchDate: formData.scheduledDate,
       }
       const response = await matchApi.getAvailableCourts(data);
-      console.log("Available courts:", response?.data.data);
       setAvailableCourts(response?.data.data);
     } catch (error) {
       console.error("Error fetching available courts:", error)
@@ -92,21 +94,23 @@ export default function EditMatchPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const formatDate = (date) => {
+      const dateObj = new Date(date)
+      return format(dateObj, "yyyy-MM-dd")
+    }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     // In a real app, you would update the match data in your backend here
     const data = {
       matchName: formData.matchName,
-      matchDate: formData.scheduledDate + "T" + formData.scheduledStartTime,
+      matchDate: formatDate(formData.scheduledDate) + "T" + formData.scheduledStartTime,
       homeTeamId: match.homeTeamId,
       awayTeamId: match.awayTeamId,
       opponentTeamName: match.homeTeamId ? match.awayTeamName : match.homeTeamName,
       courtId: formData.courtId,
     }
-
-    console.log("Match data to update:", data);
-    console.log("Match ID:", params.id);
     
     try {
       const response = await matchApi.updateMatch(params.id, data)
@@ -152,26 +156,23 @@ export default function EditMatchPage() {
             <div className="grid md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="scheduledDate">Ngày</Label>
-                <Input
-                  id="scheduledDate"
-                  name="scheduledDate"
-                  type="date"
-                  value={formData.scheduledDate}
-                  onChange={handleInputChange}
-                  required
+                <DatePicker
+                  value={formData.scheduledDate ? new Date(formData.scheduledDate) : null}
+                  onChange={(date) => {handleSelectChange("scheduledDate", date)}}
                   disabled={match.status === "Đã kết thúc"}
+                  minDate={new Date()}
+                  placeholderText="Chọn ngày"
+                  required
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="scheduledStartTime">Giờ bắt đầu</Label>
-                <Input
-                  id="scheduledStartTime"
-                  name="scheduledStartTime"
-                  type="time"
+                <TimePicker
                   value={formData.scheduledStartTime}
-                  onChange={handleInputChange}
-                  required
+                  onChange={(time) => {handleSelectChange("scheduledStartTime", time)}}
                   disabled={match.status === "Đã kết thúc"}
+                  placeholderText="Chọn giờ bắt đầu"
+                  required
                 />
               </div>
             </div>
@@ -226,7 +227,7 @@ export default function EditMatchPage() {
                 <SelectContent>
                   {courts.map((court) => (
                     <SelectItem key={court.courtId} value={court.courtId}>
-                      {court.courtName}
+                      {court.courtName} - {court.address}
                     </SelectItem>
                   ))}
                 </SelectContent>

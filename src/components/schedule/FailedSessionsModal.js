@@ -1,16 +1,22 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Calendar, Clock, MapPin, Save, AlertTriangle, ClipboardCheck } from "lucide-react"
+import { X, MapPin, Save, AlertTriangle, ClipboardCheck } from "lucide-react"
 import courtApi from "@/api/court"
 import scheduleApi from "@/api/schedule"
+import { TbAlertTriangleFilled } from "react-icons/tb"
+import { DatePicker } from "../ui/DatePicker"
+import { format } from "date-fns"
+import { TimePicker } from "../ui/TimePicker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
+
 
 export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, teamId, allCourts }) {
   const [sessions, setSessions] = useState([])
-  const [selectedSession, setSelectedSession] = useState(null)
   const [availableCourts, setAvailableCourts] = useState([])
   const [sessionsStatus, setSessionsStatus] = useState([])
   const [allCourtsList, setAllCourtsList] = useState([])
+  const [checkFailed, setCheckFailed] = useState({ index: -1, message: "" })
 
   useEffect(() => {
     setSessions(failedSessions)
@@ -27,16 +33,14 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
   const fetchAvailableCourts = async (session) => {
     try {
       const filter = {
-        StartDate: session.scheduledDate,
-        EndDate: session.scheduledDate,
-        StartTime: session.startTime,
-        EndTime: session.endTime,
+        StartDate: formatDate(session.scheduledDate),
+        EndDate: formatDate(session.scheduledDate),
+        StartTime: formatTime(session.startTime),
+        EndTime: formatTime(session.endTime),
         DayOfWeek: session.dayOfWeek,
       }
-      console.log("filter", filter);
 
       const response = await courtApi.getAvailableCourt(filter);
-      console.log("Available courts:", response.data.data);
       setAvailableCourts(response?.data.data);
     } catch (error) {
       console.error("Error fetching available courts:", error)
@@ -87,29 +91,39 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
   }
 
   // Format time from "HH:MM:SS" to "HH:MM"
+  const formatDate = (date) => {
+    const formattedDate = format(new Date(date), "yyyy-MM-dd")
+    return formattedDate;
+  }
+
   const formatTime = (time) => {
-    return time.substring(0, 5)
+    if (!time) return ""
+    const timeSplit = time.split(":")
+    if (timeSplit.length === 2) return time + ":00"
+    return time
   }
 
   if (!isOpen) return null
 
   const handleCheck = async (session, index) => {
-    // console.log("Checking session:", session);
     try {
       const filter = {
         TeamId: teamId,
-        ScheduledDate: session.scheduledDate,
-        StartTime: session.startTime,
-        EndTime: session.endTime,
+        ScheduledDate: formatDate(session.scheduledDate),
+        StartTime: formatTime(session.startTime),
+        EndTime: formatTime(session.endTime),
       }
       const response = await scheduleApi.checkSessionConflict(filter);
-      console.log("Check session response:", response.data);
+
       if (response?.data.data === null) {
         setSessionsStatus((prev) => {
           const updated = [...prev]
           updated[index] = { ...updated[index], status: true }
           return updated
         })
+        setCheckFailed({ index: -1, message: "" })
+      } else {
+        setCheckFailed({ index: index, message: response?.data.message })
       }
     } catch (error) {
       console.error("Error checking session:", error)
@@ -124,10 +138,6 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
     } else {
       return true;
     }
-  }
-
-  const isAllSessionsChecked = () => {
-    return sessionsStatus.every((session) => session.status === true)
   }
 
   const takeCourtName = (courtId) => {
@@ -176,7 +186,7 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
             {/* List of failed sessions */}
             <div className="space-y-6 max-h-[60vh] overflow-y-auto">
               {sessions.map((session, index) => (
-                <div key={index} className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                <div key={index} className={checkSessionStatus(session, index) ? "bg-green-50 rounded-lg p-4 border border-green-200" : "bg-amber-50 rounded-lg p-4 border border-amber-200"}>
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-base font-medium text-gray-900">
                       Buổi tập {index + 1} - {getDayName(session.dayOfWeek)}
@@ -186,7 +196,7 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
                   {/* Check button for available sessions */}
                   {checkSessionStatus(session, index) ?
                     (
-                      <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                      <div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Ngày</label>
@@ -207,13 +217,13 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Giờ bắt đầu</label>
                             <div className="relative rounded-md shadow-sm">
-                            {session.startTime}
+                              {session.startTime}
                             </div>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Giờ kết thúc</label>
                             <div className="relative rounded-md shadow-sm">
-                            {session.endTime}
+                              {session.endTime}
                             </div>
                           </div>
                         </div>
@@ -223,17 +233,11 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Ngày</label>
-                            <div className="relative rounded-md shadow-sm">
-                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Calendar className="h-5 w-5 text-gray-400" />
-                              </div>
-                              <input
-                                type="date"
-                                className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                                value={session.scheduledDate}
-                                onChange={(e) => handleDateChange(index, e.target.value)}
-                              />
-                            </div>
+                            <DatePicker
+                              value={new Date(session.scheduledDate)}
+                              onChange={(date) => handleDateChange(index, date)}
+                              minDate={new Date()}
+                            />
                           </div>
 
                           <div>
@@ -242,18 +246,18 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
                               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <MapPin className="h-5 w-5 text-gray-400" />
                               </div>
-                              <select
-                                className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                                value={session.selectedCourtId}
-                                onChange={(e) => handleCourtChange(index, e.target.value)}
-                                onClick={() => fetchAvailableCourts(session)}
-                              >
-                                {availableCourts?.map((court) => (
-                                  <option key={court.courtId} value={court.courtId}>
-                                    {court.courtName}
-                                  </option>
-                                ))}
-                              </select>
+                              <Select value={session.selectedCourtId} onValueChange={(value) => handleCourtChange(index, value)} required className="w-full" onOpenChange={() => fetchAvailableCourts(session)}> 
+                                <SelectTrigger className="pl-10" >
+                                  <SelectValue placeholder="Chọn sân" />
+                                </SelectTrigger>
+                                <SelectContent >
+                                  {availableCourts?.map((court) => (
+                                    <SelectItem key={court.courtId} value={court.courtId}>
+                                      {court.courtName} - {court.address}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                             </div>
                           </div>
                         </div>
@@ -261,31 +265,17 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Giờ bắt đầu</label>
-                            <div className="relative rounded-md shadow-sm">
-                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Clock className="h-5 w-5 text-gray-400" />
-                              </div>
-                              <input
-                                type="time"
-                                className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                                value={formatTime(session.startTime)}
-                                onChange={(e) => handleStartTimeChange(index, e.target.value + ":00")}
-                              />
-                            </div>
+                            <TimePicker
+                              value={session.startTime}
+                              onChange={(time) => handleStartTimeChange(index, time)}
+                            />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Giờ kết thúc</label>
-                            <div className="relative rounded-md shadow-sm">
-                              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Clock className="h-5 w-5 text-gray-400" />
-                              </div>
-                              <input
-                                type="time"
-                                className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                                value={formatTime(session.endTime)}
-                                onChange={(e) => handleEndTimeChange(index, e.target.value + ":00")}
-                              />
-                            </div>
+                            <TimePicker
+                              value={session.endTime}
+                              onChange={(time) => handleEndTimeChange(index, time)}
+                            />
                           </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -301,9 +291,10 @@ export function FailedSessionsModal({ isOpen, onClose, failedSessions, onSave, t
                               </button>
                             </div>
                           </div>
-                        </div>
-                        <div className="mt-3 text-xs text-amber-600">
-                          <p>Lý do: Sân hoặc lịch tập đã được sử dụng trong thời gian này</p>
+                          {checkFailed.index === index && <div className="flex items-center text-sm text-red-500 mt-3">
+                            <TbAlertTriangleFilled className="h-4 w-4 mr-1" />
+                            {checkFailed.message}
+                          </div>}
                         </div>
                       </>
                     )

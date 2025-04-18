@@ -45,7 +45,6 @@ export default function MatchDetailPage() {
   const fetchMatchDetails = async () => {
     try {
       const response = await matchApi.getMatchById(params.id);
-      console.log("Match details:", response?.data.data);
       setMatch(response?.data.data)
     } catch (error) {
       console.error("Error fetching match details:", error)

@@ -2,10 +2,14 @@
 
 import { useState } from "react"
 import { format, addDays } from "date-fns"
-import { X, Calendar, Clock, MapPin, Check } from "lucide-react"
+import { X, MapPin, Check } from "lucide-react"
 import { FailedSessionsModal } from "./FailedSessionsModal"
 import scheduleApi from "@/api/schedule"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import { DatePicker } from "../ui/DatePicker"
+import { TimePicker } from "../ui/TimePicker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
+
 
 const daysOfWeek = [
   { id: 0, name: "Thứ Hai" },
@@ -22,8 +26,8 @@ const plus = (id) => {
 }
 
 export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
-  const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"))
-  const [endDate, setEndDate] = useState(format(addDays(new Date(), 30), "yyyy-MM-dd"))
+  const [startDate, setStartDate] = useState(new Date())
+  const [endDate, setEndDate] = useState(addDays(new Date(), 1))
   const [daySelections, setDaySelections] = useState(
     daysOfWeek.reduce(
       (acc, day) => ({
@@ -38,7 +42,7 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
   )
   const [showFailedSessionsModal, setShowFailedSessionsModal] = useState(false)
   const [failedSessions, setFailedSessions] = useState([])
-  const {addToast} = useToasts();
+  const { addToast } = useToasts();
 
   const toggleDaySelection = (dayId) => {
     setDaySelections((prev) => ({
@@ -63,6 +67,20 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
     }))
   }
 
+  const formatDate = (date) => {
+    if (!date) return ""
+    return format(date, "yyyy-MM-dd")
+  }
+
+  const formatTime = (time) => {
+    if (!time) return ""
+    const timeSplit = time.split(":")
+    if (timeSplit.length === 2) {
+      return `${timeSplit[0]}:${timeSplit[1]}:00`
+    }
+    return time
+  }
+
   const handleSubmit = async () => {
     const selectedDays = Object.entries(daySelections)
       .filter(([_, value]) => value.selected)
@@ -71,28 +89,15 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
         timeSlots: value.timeSlots,
       }))
 
-    console.log("data generate", {
-      teamId: teamId,
-      startDate: startDate,
-      endDate: endDate,
-      trainingSessionInADayOfWeekDetails:
-        selectedDays.map((day) => ({
-          dayOfWeek: plus(day.dayId),
-          startTime: day.timeSlots.startTime + ":00",
-          endTime: day.timeSlots.endTime + ":00",
-          courtId: day.timeSlots.court,
-        })),
-    });
-
     const data = {
       teamId: teamId,
-      startDate: startDate,
-      endDate: endDate,
+      startDate: formatDate(startDate),
+      endDate: formatDate(endDate),
       trainingSessionInADayOfWeekDetails:
         selectedDays.map((day) => ({
           dayOfWeek: plus(day.dayId),
-          startTime: day.timeSlots.startTime + ":00",
-          endTime: day.timeSlots.endTime + ":00",
+          startTime: formatTime(day.timeSlots.startTime),
+          endTime: formatTime(day.timeSlots.endTime),
           courtId: day.timeSlots.court,
         })),
     }
@@ -121,39 +126,21 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
   }
 
   const handleSaveFailedSessions = async (updatedSessions) => {
-    console.log("Đã lưu các buổi tập đã chỉnh sửa:", updatedSessions)
-    console.log("Đã lưu các buổi tập đã chỉnh sửa:", updatedSessions?.map((session) => ({
-      teamId: teamId,
-      courtId: session.selectedCourtId,
-      scheduledDate: session.scheduledDate,
-      startTime: checkTimeFormat(session.startTime),
-      endTime: checkTimeFormat(session.endTime),
-    })));
-
     const data = updatedSessions?.map((session) => ({
       teamId: teamId,
       courtId: session.selectedCourtId,
-      scheduledDate: session.scheduledDate,
-      startTime: checkTimeFormat(session.startTime),
-      endTime: checkTimeFormat(session.endTime),
+      scheduledDate: formatDate(session.scheduledDate),
+      startTime: formatTime(session.startTime),
+      endTime: formatTime(session.endTime),
     }))
 
     try {
       const response = await scheduleApi.createTrainingSessionBulk(data);
-      console.log("Response from bulk:", response)
       addToast({ message: "Đã thêm các lịch tập được kiểm tra", type: response?.data.status });
       onClose()
     } catch (error) {
       console.error("Error creating training session:", error)
       addToast({ message: "Thêm lịch tập thất bại", type: "error" });
-    }
-  }
-
-  const checkTimeFormat = (time) => {
-    const splitTime = time.split(":")
-    if (splitTime.length == 2) return time + ":00";
-    else {
-      return time;
     }
   }
 
@@ -192,35 +179,23 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
                     <label htmlFor="start-date" className="block text-sm font-medium text-gray-700">
                       Ngày bắt đầu
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Calendar className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="date"
-                        id="start-date"
-                        className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                      />
-                    </div>
+                    <DatePicker
+                      value={startDate}
+                      onChange={(date) => setStartDate(date)}
+                      className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                      minDate={new Date()}
+                    />
                   </div>
                   <div>
                     <label htmlFor="end-date" className="block text-sm font-medium text-gray-700">
                       Ngày kết thúc
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Calendar className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="date"
-                        id="end-date"
-                        className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                      />
-                    </div>
+                    <DatePicker
+                      value={endDate}
+                      onChange={(date) => setEndDate(date)}
+                      className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                      minDate={startDate}
+                    />
                   </div>
                 </div>
 
@@ -260,52 +235,41 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                             <div>
                               <label className="block text-xs font-medium text-gray-500 mb-1">Giờ bắt đầu</label>
-                              <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                  <Clock className="h-4 w-4 text-gray-400" />
-                                </div>
-                                <input
-                                  type="time"
-                                  className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                                  value={daySelections[day.id].timeSlots.startTime}
-                                  onChange={(e) => updateTimeSlot(day.id, "startTime", e.target.value)}
-                                />
-                              </div>
+                              <TimePicker
+                                value={daySelections[day.id].timeSlots.startTime}
+                                onChange={(time) => updateTimeSlot(day.id, "startTime", time)}
+                                className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
+                              />
                             </div>
                             <div>
                               <label className="block text-xs font-medium text-gray-500 mb-1">Giờ kết thúc</label>
-                              <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                  <Clock className="h-4 w-4 text-gray-400" />
-                                </div>
-                                <input
-                                  type="time"
-                                  className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                                  value={daySelections[day.id].endTime}
-                                  onChange={(e) => updateTimeSlot(day.id, "endTime", e.target.value)}
-                                />
-                              </div>
+                              <TimePicker
+                                value={daySelections[day.id].timeSlots.endTime}
+                                onChange={(time) => updateTimeSlot(day.id, "endTime", time)}
+                                className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
+                              />
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                             <div>
                               <label className="block text-xs font-medium text-gray-500 mb-1">Sân tập</label>
                               <div className="relative rounded-md shadow-sm">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                   <MapPin className="h-4 w-4 text-gray-400" />
                                 </div>
-                                <select
-                                  className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md p-1"
-                                  value={daySelections[day.id].court}
-                                  onChange={(e) => updateTimeSlot(day.id, "court", e.target.value)}
-                                >
-                                  {courts?.map((court) => (
-                                    <option key={court.courtId} value={court.courtId}>
-                                      {court.courtName}
-                                    </option>
-                                  ))}
-                                </select>
+                                <Select  value={daySelections[day.id].court} onValueChange={(court) => updateTimeSlot(day.id, "court", court)} required>
+                                  <SelectTrigger className="pl-10">
+                                    <SelectValue placeholder="Chọn sân" />
+                                  </SelectTrigger>
+                                  <SelectContent >
+                                    {courts?.map((court) => (
+                                      <SelectItem key={court.courtId} value={court.courtId}>
+                                        {court.courtName} - {court.address}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
                             </div>
 
