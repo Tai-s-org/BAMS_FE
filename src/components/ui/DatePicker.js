@@ -7,7 +7,7 @@ import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 
-export function DatePicker({ value, onChange, placeholder, label, minDate }) {
+export function DatePicker({ value, onChange, placeholder, label, minDate, disabled }) {
     const [isOpen, setIsOpen] = useState(false)
     const [currentMonth, setCurrentMonth] = useState(new Date())
     const [yearSelectOpen, setYearSelectOpen] = useState(false)
@@ -156,6 +156,7 @@ export function DatePicker({ value, onChange, placeholder, label, minDate }) {
                     <Button
                         variant="outline"
                         className="w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50"
+                        disabled={disabled ? true : false}
                     >
                         <Calendar className="mr-2 h-4 w-4" />
                         {value ? formatDate(value) : placeholder}

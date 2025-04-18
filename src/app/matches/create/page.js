@@ -13,6 +13,9 @@ import { useAuth } from "@/hooks/context/AuthContext"
 import teamApi from "@/api/team"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 import matchApi from "@/api/match"
+import { DatePicker } from "@/components/ui/DatePicker"
+import { format } from "date-fns"
+import { TimePicker } from "@/components/ui/TimePicker"
 
 export default function CreateMatchPage() {
   const router = useRouter()
@@ -72,7 +75,6 @@ export default function CreateMatchPage() {
     try {
       const response = await teamApi.listTeams({ status: 1, pageSize: 100 });
       setAllTeams(response?.data.data.items)
-
       let filteredTeams = response?.data.data.items.filter((team) => {
         return team.teamId !== userInfo?.roleInformation.teamId
       })
@@ -174,17 +176,23 @@ export default function CreateMatchPage() {
     }
   }
 
+  const formatDate = (date) => {
+    const dateObj = new Date(date)
+    return format(dateObj, "yyyy-MM-dd")
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     const data = {
       matchName: formData.matchName,
-      matchDate: formData.scheduledDate + "T" + formatTime(formData.scheduledStartTime),
+      matchDate: formatDate(formData.scheduledDate) + "T" + formatTime(formData.scheduledStartTime),
       homeTeamId: formData.homeTeamId === "" ? null : formData.homeTeamId,
       awayTeamId: formData.awayTeamId === "" ? null : formData.awayTeamId,
       opponentTeamName: formData.awayTeamName === "" ? formData.homeTeamName : formData.awayTeamName,
       courtId: formData.courtId,
     }
+    
     // In a real app, you would save the match data to your backend here
     try {
       const response = await matchApi.createMatch(data);
@@ -328,23 +336,26 @@ export default function CreateMatchPage() {
             <div className="grid md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="scheduledDate">Ngày</Label>
-                <Input
-                  id="scheduledDate"
-                  name="scheduledDate"
-                  type="date"
+                <DatePicker
                   value={formData.scheduledDate}
-                  onChange={handleInputChange}
+                  onChange={(date) => {
+                    setFormData((prev) => ({ ...prev, scheduledDate: date }))
+                  }}
+                  placeholder="Chọn ngày"
+                  minDate={new Date()}
+                  className="w-full"
                   required
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="scheduledStartTime">Giờ bắt đầu</Label>
-                <Input
-                  id="scheduledStartTime"
-                  name="scheduledStartTime"
-                  type="time"
+                <TimePicker
                   value={formData.scheduledStartTime}
-                  onChange={handleInputChange}
+                  onChange={(time) => {
+                    setFormData((prev) => ({ ...prev, scheduledStartTime: time }))
+                  }}
+                  placeholder="Chọn giờ bắt đầu"
+                  className="w-full"
                   required
                 />
               </div>
@@ -359,7 +370,7 @@ export default function CreateMatchPage() {
                 <SelectContent>
                   {courts.map((court) => (
                     <SelectItem key={court.courtId} value={court.courtId}>
-                      {court.courtName}
+                      {court.courtName} - {court.address}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -2,16 +2,19 @@
 
 import { useState } from "react"
 import { format } from "date-fns"
-import { X, Calendar, Clock, MapPin, Check } from "lucide-react"
+import { X, MapPin, Check } from "lucide-react"
 import scheduleApi from "@/api/schedule"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import { DatePicker } from "../ui/DatePicker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
+import { TimePicker } from "../ui/TimePicker"
 
 export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified }) {
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"))
   const [startTime, setStartTime] = useState("16:00")
   const [endTime, setEndTime] = useState("17:30")
   const [court, setCourt] = useState(courts[0]?.courtId)
-  const {addToast} = useToasts();
+  const { addToast } = useToasts();
 
   const handleSubmit = async () => {
     // Xử lý tạo buổi tập đơn lẻ
@@ -19,23 +22,36 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified
       const data = {
         teamId: teamId,
         courtId: court,
-        scheduledDate: date,
-        startTime: startTime + ":00",
-        endTime: endTime + ":00",
+        scheduledDate: formatDate(date),
+        startTime: formatTime(startTime),
+        endTime: formatTime(endTime),
       }
 
-      console.log("Data", data);
-      
       const response = await scheduleApi.createTrainingSession(data);
       addToast({ message: response?.data.message, type: response?.data.status });
       isModified();
     } catch (error) {
       console.error("Lỗi khi tạo buổi tập đơn lẻ:", error.response.data.errors)
-      addToast({ message: error.response.data.errors, type: "error" });
+      if (error.response.status === 401) {
+        addToast({ message: error.response.data.Message, type: "error" });
+      }
+      addToast({ message: error.response.data.errors.TeamId, type: "error" });
     }
 
     // Đóng modal sau khi xử lý
     onClose()
+  }
+
+  const formatDate = (date) => {
+    if (!date) return ""
+    return format(new Date(date), "yyyy-MM-dd")
+  }
+
+  const formatTime = (time) => {
+    if (!time) return ""
+    const timeSplit = time.split(":")
+    if (timeSplit.length === 2) return time + ":00"
+    return time
   }
 
   if (!isOpen) return null
@@ -75,18 +91,11 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified
                 <label htmlFor="date" className="block text-sm font-medium text-gray-700">
                   Ngày tập
                 </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Calendar className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="date"
-                    id="date"
-                    className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                </div>
+                <DatePicker
+                  value={new Date(date)}
+                  onChange={(date) => setDate(date)}
+                  minDate={new Date()}
+                />
               </div>
 
               {/* Giờ bắt đầu và kết thúc */}
@@ -95,40 +104,24 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified
                   <label htmlFor="start-time" className="block text-sm font-medium text-gray-700">
                     Giờ bắt đầu
                   </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Clock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="time"
-                      id="start-time"
-                      className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                    />
-                  </div>
+                  <TimePicker
+                    value={startTime}
+                    onChange={(time) => setStartTime(time)}
+                  />
                 </div>
                 <div>
                   <label htmlFor="end-time" className="block text-sm font-medium text-gray-700">
                     Giờ kết thúc
                   </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Clock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="time"
-                      id="end-time"
-                      className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                    />
-                  </div>
+                  <TimePicker
+                    value={endTime}
+                    onChange={(time) => setEndTime(time)}
+                  />
                 </div>
               </div>
 
               {/* Sân và đội */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label htmlFor="court" className="block text-sm font-medium text-gray-700">
                     Sân tập
@@ -137,18 +130,18 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <MapPin className="h-5 w-5 text-gray-400" />
                     </div>
-                    <select
-                      id="court"
-                      className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                      value={court}
-                      onChange={(e) => setCourt(e.target.value)}
-                    >
-                      {courts.map((c) => (
-                        <option key={c.courtId} value={c.courtId}>
-                          {c.courtName}
-                        </option>
-                      ))}
-                    </select>
+                    <Select value={court} onValueChange={(value) => setCourt(value)} required>
+                      <SelectTrigger className="pl-10">
+                        <SelectValue placeholder="Chọn sân" />
+                      </SelectTrigger>
+                      <SelectContent >
+                        {courts?.map((court) => (
+                          <SelectItem key={court.courtId} value={court.courtId}>
+                            {court.courtName} - {court.address}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>

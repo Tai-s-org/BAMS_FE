@@ -1,20 +1,20 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { format, parse, set } from "date-fns"
-import { X, Clock, MapPin, Save } from "lucide-react"
+import { format, parse } from "date-fns"
+import { X, Save } from "lucide-react"
 import scheduleApi from "@/api/schedule"
-import { vi } from "date-fns/locale"
 import { Input } from "../ui/Input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import { TimePicker } from "../ui/TimePicker"
 
 export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, isModified }) {
-  const [startTime, setStartTime] = useState("")
-  const [endTime, setEndTime] = useState("")
+  const [startTime, setStartTime] = useState("04:00:00")
+  const [endTime, setEndTime] = useState("06:00:00")
   const [court, setCourt] = useState({})
   const [updateReason, setUpadateReason] = useState("")
-  const {addToast} = useToasts()
+  const { addToast } = useToasts()
 
   useEffect(() => {
     if (session) {
@@ -27,15 +27,13 @@ export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, 
 
   const handleSubmit = () => {
     if (!session) return
-    let parsedDate = parse(session.scheduledDate, "EEEE, dd/MM/yyyy", new Date(), { locale: vi });
-    let date = format(parsedDate, "yyyy-MM-dd");
 
     // Xử lý cập nhật buổi tập
     handleUpdateSession({
       trainingSessionId: sessionId,
-      scheduledDate: date,
-      startTime: correctTimeFormat(startTime),
-      endTime: correctTimeFormat(endTime),
+      scheduledDate: formatDate(session.scheduledDate),
+      startTime: formatTime(startTime),
+      endTime: formatTime(endTime),
       courtId: court,
       updateReason: updateReason
     })
@@ -45,21 +43,37 @@ export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, 
 
   const handleUpdateSession = async (data) => {
     try {
-      console.log("Data to update:", data);
-
       const response = await scheduleApi.updateTrainingSession(data);
-      addToast({message: response?.data.message, type: "success"})
+      addToast({ message: response?.data.message, type: "success" })
       isModified();
     } catch (error) {
-      console.error("Lỗi khi chỉnh buổi tập:", error.response.data.errors);
-      addToast({message: error.response.data.errors, type: "error"})
+      if (error?.response.data.errors) {
+        console.error("Lỗi khi chỉnh buổi tập:", error?.response.data);
+        addToast({ message: error?.response.data.errors.EndTime || error?.response.data.errors.TeamId, type: "error" })
+      } else {
+        console.error("Lỗi khi chỉnh buổi tập:", error?.response);
+        addToast({ message: error?.response.data.message, type: "error" })
+      }
     }
   }
 
-  const correctTimeFormat = (time) => {
+  const formatTime = (time) => {
     const timeSplit = time.split(":")
     if (timeSplit.length == 2) return time + ":00"
     return time
+  }
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return ""
+
+    // Loại bỏ phần thứ nếu có
+    const cleanDate = dateStr.split(", ")[1] || dateStr
+
+    const parsedDate = parse(cleanDate, "dd/MM/yyyy", new Date())
+
+    if (isNaN(parsedDate)) return ""
+
+    return format(parsedDate, "yyyy-MM-dd")
   }
 
   if (!isOpen || !session) return null
@@ -100,35 +114,19 @@ export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, 
                   <label htmlFor="start-time" className="block text-sm font-medium text-gray-700">
                     Giờ bắt đầu
                   </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Clock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <Input
-                      type="time"
-                      id="start-time"
-                      className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                    />
-                  </div>
+                  <TimePicker
+                    value={startTime}
+                    onChange={(time) => setStartTime(time)}
+                  />
                 </div>
                 <div>
                   <label htmlFor="end-time" className="block text-sm font-medium text-gray-700">
                     Giờ kết thúc
                   </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Clock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <Input
-                      type="time"
-                      id="end-time"
-                      className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                    />
-                  </div>
+                  <TimePicker
+                    value={endTime}
+                    onChange={(time) => setEndTime(time)}
+                  />
                 </div>
               </div>
 
@@ -162,7 +160,7 @@ export function EditSessionModal({ isOpen, onClose, session, courts, sessionId, 
                     <SelectContent>
                       {courts.map((court) => (
                         <SelectItem key={court.courtId} value={court.courtId}>
-                          {court.courtName}
+                          {court.courtName} - {court.address}
                         </SelectItem>
                       ))}
                     </SelectContent>

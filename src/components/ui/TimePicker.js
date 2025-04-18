@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover
 import { Label } from "@/components/ui/Label"
 import { cn } from "@/lib/utils"
 
-export function TimePicker({ value, onChange, label, className }) {
+export function TimePicker({ value, onChange, label, className, disabled }) {
     const [isOpen, setIsOpen] = useState(false)
     const [hours, setHours] = useState("01")
     const [minutes, setMinutes] = useState("00")
@@ -96,6 +96,7 @@ export function TimePicker({ value, onChange, label, className }) {
                     <Button
                         variant="outline"
                         className="w-full justify-start text-left font-normal border-gray-200 hover:bg-gray-50"
+                        disabled={disabled ? true : false}
                     >
                         <Clock className="mr-2 h-4 w-4" />
                         {value ? formatTime() : "Chọn giờ"}
