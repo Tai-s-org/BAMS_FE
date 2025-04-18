@@ -10,7 +10,7 @@ const courtApi = {
         return api.get(`/court/${id}`);
     },
     createCourt: (data) => {
-        return api.post('court/add-new-court', data);
+        return api.post('/court/add-new-court', data);
     },
     updateCourt: (data) => {
         return api.put(`/court/update`, data);

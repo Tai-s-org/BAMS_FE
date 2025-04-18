@@ -10,19 +10,19 @@ export function PendingPaymentsList() {
         {
             id: "p101",
             team: "Team Alpha",
-            title: "March 2025 Expenses",
-            amount: 400,
+            title: "Đóng quỹ Tháng 3 2025",
+            amount: 400000,
             dueDate: "April 25, 2025",
-            status: "pending",
+            status: "Chưa thanh toán",
             isOverdue: false,
         },
         {
             id: "p102",
             team: "Team Alpha",
-            title: "Equipment Upgrade",
-            amount: 350,
+            title: "Phí phạt",
+            amount: 350000,
             dueDate: "April 10, 2025",
-            status: "pending",
+            status: "Chưa thanh toán",
             isOverdue: true,
         },
     ]
@@ -44,19 +44,19 @@ export function PendingPaymentsList() {
                                 {payment.team} - {payment.title}
                             </div>
                             <div className={`text-sm ${payment.isOverdue ? "text-red-500" : "text-muted-foreground"}`}>
-                                {payment.isOverdue ? "Overdue since " : "Due by "}
+                                {payment.isOverdue ? "Hết hạn từ " : "Hạn đóng "}
                                 {payment.dueDate}
                             </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <div className="font-medium">${payment.amount}</div>
+                            <div className="font-medium">{payment.amount} VND</div>
                             <Badge variant="outline" className={payment.isOverdue ? "bg-red-50 text-red-700" : "bg-yellow-50"}>
-                                {payment.isOverdue ? "Overdue" : "Pending"}
+                                {payment.isOverdue ? "Hết hạn" : "Chưa thanh toán"}
                             </Badge>
                         </div>
-                        <Link href={`/player/payment/${payment.id}`}>
+                        <Link href={`/dashboard/payment/${payment.id}`}>
                             <Button variant="ghost" size="icon">
                                 <ArrowRight className="h-4 w-4" />
                             </Button>
