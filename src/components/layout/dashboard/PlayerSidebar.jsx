@@ -26,14 +26,6 @@ export default function PlayerSidebar() {
         { title: "Reports", icon: FileText, url: "/reports" },
     ];
 
-    const generalItems = [
-        { title: "Developers", icon: Code, url: "/developers" },
-        { title: "View Test Data", icon: Database, url: "/test-data" },
-        { title: "Settings", icon: Settings, url: "/settings", highlight: true },
-    ];
-
-    const updatesItems = [{ title: "Changelog", icon: History, url: "/changelog" }];
-
     return (
         <Sidebar className="border-r border-sidebar-border bg-[#1F2937]">
             <SidebarHeader className="border-b border-sidebar-border pb-4">

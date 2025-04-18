@@ -20,17 +20,17 @@ export default function ManagerPayment() {
                     </Link>
                     <h1 className="text-2xl font-bold ml-4">Manager Dashboard</h1>
                 </div>
-                <Link href="/manager/create-report">
+                {/* <Link href="/dashboard/payment/create-team-fund">
                     <Button className="gap-1">
                         <Plus className="h-4 w-4" /> Create New Report
                     </Button>
-                </Link>
+                </Link> */}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Team Members</CardTitle>
+                        <CardTitle className="text-sm font-medium">Số thành viên hiện tại</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">4</div>
@@ -39,7 +39,7 @@ export default function ManagerPayment() {
 
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Pending Reports</CardTitle>
+                        <CardTitle className="text-sm font-medium">Báo cáo quỹ đội đang chờ</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">1</div>
@@ -48,7 +48,7 @@ export default function ManagerPayment() {
 
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Payment Rate</CardTitle>
+                        <CardTitle className="text-sm font-medium">Tỷ lệ thanh toán thành công</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">75%</div>
@@ -61,8 +61,8 @@ export default function ManagerPayment() {
                     <Tabs defaultValue="reports">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                             <TabsList>
-                                <TabsTrigger value="reports">Expense Reports</TabsTrigger>
-                                <TabsTrigger value="payments">Payment Status</TabsTrigger>
+                                <TabsTrigger value="reports">Báo cáo thu chi</TabsTrigger>
+                                <TabsTrigger value="payments">Trạng thái thanh toán</TabsTrigger>
                             </TabsList>
 
                             <div className="flex gap-2 items-center">
@@ -85,7 +85,7 @@ export default function ManagerPayment() {
                         <TabsContent value="reports">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Expense Reports</CardTitle>
+                                    <CardTitle>Báo cáo thu chi</CardTitle>
                                     <CardDescription>View and manage your team's expense reports</CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -97,7 +97,7 @@ export default function ManagerPayment() {
                         <TabsContent value="payments">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Payment Status</CardTitle>
+                                    <CardTitle>Trạng thái thanh toán</CardTitle>
                                     <CardDescription>Track your team members' payment status</CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -108,7 +108,7 @@ export default function ManagerPayment() {
                     </Tabs>
                 </div>
 
-                <div>
+                {/* <div>
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div>
@@ -120,7 +120,7 @@ export default function ManagerPayment() {
                             <TeamMembersList />
                         </CardContent>
                     </Card>
-                </div>
+                </div> */}
             </div>
         </div>
     )

@@ -2,7 +2,7 @@ import api from "./axios";
 
 const paymentApi = {
     getPaymentHistoryByTeam: (teamId, data) => {
-        return api.get(`/payment/team-history?teamId=${teamId}`, {params: data});
+        return api.get(`/payment-management/team?teamId=${teamId}`, {params: data});
     },
     getPaymentHistoryByUser: (userId, data) => {
         return api.get(`/payment/user-history?userId=${userId}`, {params: data});

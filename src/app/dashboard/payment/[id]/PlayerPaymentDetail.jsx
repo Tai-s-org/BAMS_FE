@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/Dialog"
@@ -8,17 +8,76 @@ import { Separator } from "@/components/ui/Seperator"
 import { Badge } from "@/components/ui/Badge"
 import Link from "next/link"
 import { ArrowLeft, FileText, DollarSign, QrCode, CheckCircle, Upload, AlertTriangle } from "lucide-react"
+import paymentApi from "@/api/payment"
+import teamFundApi from "@/api/teamFund"
+import { set } from "date-fns"
 
 export default function PlayerPaymentDetail({ id }) {
     const [isPaid, setIsPaid] = useState(false)
     const [showQR, setShowQR] = useState(false)
+    const [QRcode, setQRcode] = useState(null)
     const [showUpload, setShowUpload] = useState(false)
     const [receiptImage, setReceiptImage] = useState(null)
+    const [payment, setPayment] = useState(null)
 
     // For demo purposes, determine if payment is overdue based on ID
     const isOverdue = id === "p102"
 
+    // Payment items list with name, amount, and note
+    const paymentItems = [
+        {
+            id: 1,
+            name: "Dụng cụ tập",
+            amount: isOverdue ? 200 : 150000,
+            note: "New team equipment purchase",
+        },
+        {
+            id: 2,
+            name: "Lưới rổ",
+            amount: isOverdue ? 0 : 87000,
+            note: "Monthly training sessions",
+        },
+        {
+            id: 3,
+            name: "Bóng mới",
+            amount: isOverdue ? 100 : 75000,
+            note: "Practice facility rental",
+        },
+        {
+            id: 4,
+            name: "Đăng ký giải đấu",
+            amount: isOverdue ? 50 : 87000,
+            note: "Upcoming tournament registration fee",
+        },
+    ]
+
+    useEffect(() => {
+        // Simulate fetching payment data based on ID
+        const fetchPaymentData = async () => {
+            try {
+                const paymentData = await paymentApi.getPaymentDetail("YHB5122");
+                console.log(paymentData.data);
+
+                setPayment(paymentData.data)
+            } catch (error) {
+                console.error("Error fetching payment data:", error)
+            }
+
+        }
+
+        fetchPaymentData()
+    }, [id])
+
     const handlePay = () => {
+        if (payment.paymentId) {
+            try {
+                const response = teamFundApi.generateQR(payment.paymentId)
+                console.log("QR Code generated:", response.data)
+                setQRcode(response.data)
+            } catch (error) {
+                console.error("Error generating QR code:", error)
+            }
+        }
         setIsPaid(true)
         setShowQR(false)
     }
@@ -32,14 +91,14 @@ export default function PlayerPaymentDetail({ id }) {
     return (
         <div className="container mx-auto py-6">
             <div className="flex items-center mb-6">
-                <Link href="/player/dashboard">
+                <Link href="/dashboard/payment">
                     <Button variant="ghost" size="sm" className="gap-1">
                         <ArrowLeft className="h-4 w-4" /> Back to Dashboard
                     </Button>
                 </Link>
-                <h1 className="text-2xl font-bold ml-4">Payment #{id}</h1>
+                <h1 className="text-2xl font-bold ml-4">{payment?.paymentId}</h1>
                 {isPaid && <Badge className="ml-4 bg-green-500">Paid</Badge>}
-                {!isPaid && !isOverdue && <Badge className="ml-4 bg-yellow-500">Pending</Badge>}
+                {!isPaid && !isOverdue && <Badge className="ml-4 bg-yellow-500">Chưa thanh toán</Badge>}
                 {isOverdue && <Badge className="ml-4 bg-red-500">Overdue</Badge>}
             </div>
 
@@ -56,7 +115,7 @@ export default function PlayerPaymentDetail({ id }) {
                         <CardContent>
                             <div className="space-y-6">
                                 <div>
-                                    <h3 className="font-medium mb-2">Description</h3>
+                                    <h3 className="font-medium mb-2">Ghi chú</h3>
                                     <p className="text-sm text-muted-foreground">
                                         {isOverdue
                                             ? "This payment represents your share of the team equipment upgrade costs."
@@ -67,57 +126,35 @@ export default function PlayerPaymentDetail({ id }) {
                                 <Separator />
 
                                 <div>
-                                    <h3 className="font-medium mb-2">Payment Details</h3>
-                                    <div className="space-y-2">
-                                        <div className="grid grid-cols-2 text-sm">
-                                            <div className="text-muted-foreground">Total Team Expenses:</div>
-                                            <div>${isOverdue ? "1,400" : "1,600"}</div>
+                                    <h3 className="font-medium mb-2">Danh mục thanh toán</h3>
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-12 text-sm font-medium">
+                                            <div className="col-span-4">Danh mục</div>
+                                            <div className="col-span-2 text-right">Số tiền</div>
+                                            <div className="col-span-1"></div>
+                                            <div className="col-span-5">Ghi chú</div>
                                         </div>
-                                        <div className="grid grid-cols-2 text-sm">
-                                            <div className="text-muted-foreground">Team Members:</div>
-                                            <div>4</div>
-                                        </div>
-                                        <div className="grid grid-cols-2 text-sm">
-                                            <div className="text-muted-foreground">Your Share:</div>
-                                            <div className="font-medium">${isOverdue ? "350" : "400"}</div>
-                                        </div>
-                                        <div className="grid grid-cols-2 text-sm">
-                                            <div className="text-muted-foreground">Due Date:</div>
-                                            <div className={isOverdue ? "text-red-500 font-medium" : ""}>
-                                                {isOverdue ? "April 10, 2025 (Overdue)" : "April 25, 2025"}
+
+                                        <Separator />
+
+                                        {paymentItems.map((item) => (
+                                            <div key={item.id} className="grid grid-cols-12 text-sm">
+                                                <div className="col-span-4">{item.name}</div>
+                                                <div className="col-span-2 text-right">{item.amount} VND</div>
+                                                <div className="col-span-1"></div>
+                                                <div className="col-span-5 text-muted-foreground">{item.note}</div>
                                             </div>
+                                        ))}
+
+                                        <Separator />
+
+                                        <div className="grid grid-cols-12 text-sm font-medium">
+                                            <div className="col-span-5">Total</div>
+                                            <div className="col-span-2 text-right">
+                                                {paymentItems.reduce((sum, item) => sum + item.amount, 0)} VND
+                                            </div>
+                                            <div className="col-span-5"></div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                <div>
-                                    <h3 className="font-medium mb-2">Expense Breakdown</h3>
-                                    <div className="space-y-2">
-                                        {isOverdue ? (
-                                            <>
-                                                <div className="grid grid-cols-2 text-sm">
-                                                    <div className="text-muted-foreground">New Equipment:</div>
-                                                    <div>$350 (your share)</div>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div className="grid grid-cols-2 text-sm">
-                                                    <div className="text-muted-foreground">Equipment:</div>
-                                                    <div>$200 (your share)</div>
-                                                </div>
-                                                <div className="grid grid-cols-2 text-sm">
-                                                    <div className="text-muted-foreground">Training:</div>
-                                                    <div>$87.50 (your share)</div>
-                                                </div>
-                                                <div className="grid grid-cols-2 text-sm">
-                                                    <div className="text-muted-foreground">Travel:</div>
-                                                    <div>$112.50 (your share)</div>
-                                                </div>
-                                            </>
-                                        )}
                                     </div>
                                 </div>
 
@@ -138,10 +175,10 @@ export default function PlayerPaymentDetail({ id }) {
                             {!isPaid && !isOverdue && (
                                 <>
                                     <Button onClick={() => setShowUpload(true)} variant="outline" className="gap-1">
-                                        <Upload className="h-4 w-4" /> Upload Receipt
+                                        <Upload className="h-4 w-4" /> Tải lên hóa đơn
                                     </Button>
                                     <Button onClick={() => setShowQR(true)} className="gap-1">
-                                        <QrCode className="h-4 w-4" /> Pay Now
+                                        <QrCode className="h-4 w-4" /> Thanh toán
                                     </Button>
                                 </>
                             )}
@@ -169,29 +206,31 @@ export default function PlayerPaymentDetail({ id }) {
                 <div>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Payment Status</CardTitle>
+                            <CardTitle>Trạng thái thanh toán</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="flex items-center gap-2">
-                                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">Amount Due: ${isOverdue ? "350" : "400"}</span>
+                                    {/* <DollarSign className="h-4 w-4 text-muted-foreground" /> */}
+                                    <span className="text-sm">
+                                        Tổng số tiền: {paymentItems.reduce((sum, item) => sum + item.amount, 0)} VND
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {isPaid ? (
                                         <>
                                             <CheckCircle className="h-4 w-4 text-green-500" />
-                                            <span className="text-sm">Status: Paid</span>
+                                            <span className="text-sm">Trạng thái: Đã thanh toán</span>
                                         </>
                                     ) : isOverdue ? (
                                         <>
                                             <AlertTriangle className="h-4 w-4 text-red-500" />
-                                            <span className="text-sm">Status: Overdue</span>
+                                            <span className="text-sm">Trạng thái: Quá hạn</span>
                                         </>
                                     ) : (
                                         <>
                                             <FileText className="h-4 w-4 text-yellow-500" />
-                                            <span className="text-sm">Status: Pending</span>
+                                            <span className="text-sm">Trạng thái: Chưa thanh toán</span>
                                         </>
                                     )}
                                 </div>
@@ -239,16 +278,22 @@ export default function PlayerPaymentDetail({ id }) {
             <Dialog open={showQR} onOpenChange={setShowQR}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Payment QR Code</DialogTitle>
-                        <DialogDescription>Scan this QR code with your payment app to complete the payment.</DialogDescription>
+                        <DialogTitle>Thanh toán bằng mã QR</DialogTitle>
+                        <DialogDescription>Quét mã QR này bằng ứng dụng thanh toán của bạn để hoàn tất thanh toán.</DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col items-center justify-center py-4">
                         <div className="border border-gray-200 p-4 rounded-lg mb-4">
                             <div className="w-64 h-64 bg-gray-100 flex items-center justify-center">
-                                <QrCode className="w-40 h-40 text-gray-800" />
+                                ({QRcode ? (
+                                    <img src={QRcode} alt="QR Code" className="w-full h-full object-cover" />)
+                                    : (<QrCode className="w-40 h-40 text-gray-800" />)
+                                })
+
                             </div>
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">Amount: ${isOverdue ? "350" : "400"}</p>
+                        <p className="text-sm text-muted-foreground mb-2">
+                            Số tiền: {paymentItems.reduce((sum, item) => sum + item.amount, 0)} VND
+                        </p>
                         <p className="text-sm text-muted-foreground">Reference: TEAM-ALPHA-{isOverdue ? "EQUIP" : "MAR"}-2025</p>
                     </div>
                     <DialogFooter>

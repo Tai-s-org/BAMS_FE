@@ -10,32 +10,32 @@ export function PaymentHistoryList() {
         {
             id: "p001",
             team: "Team Alpha",
-            title: "February 2025 Expenses",
-            amount: 362.5,
+            title: "Đóng quỹ Tháng 2 2025",
+            amount: 362000,
             date: "March 15, 2025",
             status: "paid",
         },
         {
             id: "p002",
             team: "Team Alpha",
-            title: "January 2025 Expenses",
-            amount: 337.5,
+            title: "Đóng quý tháng 1 2025",
+            amount: 337000,
             date: "February 12, 2025",
             status: "paid",
         },
         {
             id: "p003",
             team: "Team Alpha",
-            title: "December 2024 Expenses",
-            amount: 325,
+            title: "Đóng quý Tháng 12 2025",
+            amount: 325000,
             date: "January 10, 2025",
             status: "paid",
         },
         {
             id: "p004",
             team: "Team Alpha",
-            title: "November 2024 Expenses",
-            amount: 300,
+            title: "Đóng quý Tháng 11 2024",
+            amount: 300000,
             date: "December 8, 2024",
             status: "paid",
         },
@@ -53,17 +53,17 @@ export function PaymentHistoryList() {
                             <div className="font-medium">
                                 {payment.team} - {payment.title}
                             </div>
-                            <div className="text-sm text-muted-foreground">Paid on {payment.date}</div>
+                            <div className="text-sm text-muted-foreground">Đã thanh toán ngày {payment.date}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <div className="font-medium">${payment.amount}</div>
+                            <div className="font-medium">{payment.amount} VND</div>
                             <Badge variant="outline" className="bg-green-50 text-green-700">
-                                Paid
+                                Đã thanh toán
                             </Badge>
                         </div>
-                        <Link href={`/player/payment/${payment.id}`}>
+                        <Link href={`/dashboard/payment/${payment.id}`}>
                             <Button variant="ghost" size="icon">
                                 <ArrowRight className="h-4 w-4" />
                             </Button>

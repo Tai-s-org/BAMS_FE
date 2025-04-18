@@ -9,29 +9,29 @@ export function PaymentStatusList() {
         {
             id: "report1",
             title: "March 2025 Expenses",
-            amount: 1600,
-            perMember: 400,
+            amount: 1600000,
+            perMember: 400000,
             paidMembers: 2,
             totalMembers: 4,
             members: [
-                { name: "Alex Player", status: "paid" },
-                { name: "Sam Player", status: "paid" },
-                { name: "Taylor Player", status: "pending" },
-                { name: "Jordan Player", status: "pending" },
+                { name: "Hoàng Trung Hiếu", status: "paid" },
+                { name: "Tuấn Anh", status: "paid" },
+                { name: "Stephen Curly", status: "pending" },
+                { name: "Man United", status: "pending" },
             ],
         },
         {
             id: "report2",
             title: "February 2025 Expenses",
-            amount: 1450,
-            perMember: 362.5,
+            amount: 1450000,
+            perMember: 362000,
             paidMembers: 4,
             totalMembers: 4,
             members: [
-                { name: "Alex Player", status: "paid" },
-                { name: "Sam Player", status: "paid" },
-                { name: "Taylor Player", status: "paid" },
-                { name: "Jordan Player", status: "paid" },
+                { name: "Hoàng Trung Hiếu", status: "paid" },
+                { name: "Tuấn Anh", status: "paid" },
+                { name: "Stephen Curly", status: "paid" },
+                { name: "Man United", status: "paid" },
             ],
         },
     ]
@@ -43,13 +43,13 @@ export function PaymentStatusList() {
                     <div>
                         <h3 className="font-medium">{report.title}</h3>
                         <div className="flex items-center justify-between text-sm text-muted-foreground mt-1">
-                            <span>Total: ${report.amount}</span>
-                            <span>Per Member: ${report.perMember}</span>
+                            <span>Tổng: {report.amount} VND</span>
+                            <span>Môi thành viên: {report.perMember} VND</span>
                         </div>
                         <div className="flex items-center justify-between text-sm mt-2">
-                            <span>Payment Progress</span>
+                            <span>Tiến trình thanh toán</span>
                             <span>
-                                {report.paidMembers}/{report.totalMembers} members paid
+                                {report.paidMembers}/{report.totalMembers} thành viên đã thanh toán
                             </span>
                         </div>
                         <Progress value={(report.paidMembers / report.totalMembers) * 100} className="h-2 mt-1" />
@@ -74,7 +74,7 @@ export function PaymentStatusList() {
                                     variant="outline"
                                     className={member.status === "paid" ? "bg-green-50 text-green-700" : "bg-yellow-50"}
                                 >
-                                    {member.status === "paid" ? "Paid" : "Pending"}
+                                    {member.status === "paid" ? "Đã thanh toán" : "Chưa thanh toán"}
                                 </Badge>
                             </div>
                         ))}

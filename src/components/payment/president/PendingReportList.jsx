@@ -55,7 +55,7 @@ export function PendingReportsList() {
                                 Pending
                             </Badge>
                         </div>
-                        <Link href={`/president/report/${report.id}`}>
+                        <Link href={`/dashboard/payment/${report.id}`}>
                             <Button variant="ghost" size="icon">
                                 <ArrowRight className="h-4 w-4" />
                             </Button>

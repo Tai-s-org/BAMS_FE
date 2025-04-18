@@ -3,27 +3,28 @@
 import { Badge } from "@/components/ui/Badge"
 import { Button } from "@/components/ui/Button"
 import { FileText, ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 export function ReportsList() {
     const reports = [
         {
             id: "123",
             title: "March 2025 Expenses",
-            amount: 1600,
+            amount: 1600000,
             date: "April 10, 2025",
             status: "pending",
         },
         {
             id: "120",
             title: "February 2025 Expenses",
-            amount: 1450,
+            amount: 1450000,
             date: "March 5, 2025",
             status: "approved",
         },
         {
             id: "117",
             title: "January 2025 Expenses",
-            amount: 1350,
+            amount: 1350000,
             date: "February 8, 2025",
             status: "approved",
         },
@@ -44,17 +45,19 @@ export function ReportsList() {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <div className="font-medium">${report.amount}</div>
+                            <div className="font-medium">{report.amount} VND</div>
                             <Badge
                                 variant="outline"
                                 className={report.status === "approved" ? "bg-green-50 text-green-700" : "bg-yellow-50"}
                             >
-                                {report.status === "approved" ? "Approved" : "Pending"}
+                                {report.status === "approved" ? "Đã duyệt" : "Chưa duyệt"}
                             </Badge>
                         </div>
-                        <Button variant="ghost" size="icon">
-                            <ArrowRight className="h-4 w-4" />
-                        </Button>
+                        <Link href={`/dashboard/payment/${report.id}`} className="text-blue-500 hover:underline">
+                            <Button variant="ghost" size="icon">
+                                <ArrowRight className="h-4 w-4" />
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             ))}
