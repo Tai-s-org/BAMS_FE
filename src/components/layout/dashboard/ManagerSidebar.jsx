@@ -5,6 +5,7 @@ import { PiCourtBasketballFill } from "react-icons/pi";
 import { AiFillSchedule } from "react-icons/ai";
 import { FaCalendarAlt } from "react-icons/fa";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
+import { LuScanFace } from "react-icons/lu";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
 import Link from "next/link";
 
@@ -26,6 +27,7 @@ export default function ManagerSidebar() {
         { title: "Sân bóng", icon: PiCourtBasketballFill, url: "/courts" },
         { title: "Thời khóa biểu", icon: FaCalendarAlt, url: "/schedules" },
         { title: "Danh sách lịch chờ", icon: AiFillSchedule, url: "/confirm-schedule" },
+        { title: "Quản lí khuôn mặt", icon: LuScanFace, url: "/confirm-schedule" },
         { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
     ];
 
