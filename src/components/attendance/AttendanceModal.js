@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { Check, X, UserCheck, UserX, Save, CircleX } from "lucide-react";
 import attendanceApi from "@/api/attendance";
+import CameraCapture from "./Capture";
+import { Button } from "../ui/Button";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export function AttendanceModal({ isOpen, onClose, session }) {
   const [coachAttendance, setCoachAttendance] = useState([]);
@@ -11,13 +14,18 @@ export function AttendanceModal({ isOpen, onClose, session }) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
+  const [isAttend, setIsAttend] = useState(false);
+  const {addToast} = useToasts()
 
   // Initialize attendance data
   useEffect(() => {
-    console.log("Session data:", session);
     fetchPlayerAttendance();
     fetchCoachAttendance();
   }, [session]);
+
+  useEffect(() => {
+    addToast({message: "Đã bổ sung điểm danh", type: "success"})
+  }, [isAttend]);
 
   const fetchPlayerAttendance = async () => {
     try {
@@ -26,10 +34,8 @@ export function AttendanceModal({ isOpen, onClose, session }) {
       }
       const response = await attendanceApi.getPlayerAttendance(data);
       setPlayerAttendance(response?.data.data);
-      console.log("Player Attendance:", response?.data.data);
-      
     } catch (error) {
-      console.log("Error fetching player attendance:", error);
+      console.error("Error fetching player attendance:", error);
     }
   }
 
@@ -40,10 +46,10 @@ export function AttendanceModal({ isOpen, onClose, session }) {
       }
       const response = await attendanceApi.getCoachAttendance(data);
       setCoachAttendance(response?.data.data);
-      
+
       // setCoachAttendance(response?.data.data);
     } catch (error) {
-      console.log("Error fetching coach attendance:", error);
+      console.error("Error fetching coach attendance:", error);
     }
   }
 
@@ -83,13 +89,6 @@ export function AttendanceModal({ isOpen, onClose, session }) {
           trainingSessionId: session.trainingSessionId,
         })),
       ]
-      // const response = await attendanceApi.takeAttendance(data)
-      console.log("Attendance Data:", data?.map((record) => ({
-        userId: record.userId,
-        status: record.status,
-        note: record.note,
-        trainingSessionId: record.trainingSessionId,
-      })));
       const response = await attendanceApi.takeAttendance(data?.map((record) => ({
         userId: record.userId,
         status: record.status,
@@ -97,37 +96,62 @@ export function AttendanceModal({ isOpen, onClose, session }) {
         trainingSessionId: record.trainingSessionId,
       })));
 
-      console.log("Attendance saved successfully:", response?.data.message);
       setTimeout(() => {
         setIsSaving(false);
         setSaveSuccess(true);
-  
+
         // Hide success message after 3 seconds
         setTimeout(() => {
           setSaveSuccess(false);
+          addToast({type: "success", message: response?.data.message})
         }, 3000);
       }, 1000);
-      
+
     } catch (error) {
       console.error("Error saving attendance:", error);
       setTimeout(() => {
         setIsSaving(false);
         setSaveFailed(true);
-  
+
         // Hide success message after 3 seconds
         setTimeout(() => {
           setSaveFailed(false);
+          addToast({type: "error", message: error?.response?.data?.message})
         }, 3000);
       }, 1000);
     }
 
-    
+
   };
 
   // Count attendance status
   const getStatusCount = (records, status) => {
     return records.filter((record) => record.status === status).length;
   };
+
+  // Handle camera capture returned list userId
+  const handleCapture = (userFoundList) => {
+    const userIdList = userFoundList.map(u => u.userId); // Trích xuất userId từ object
+    setPlayerAttendance((prev) =>
+      prev.map((record) => {
+        if (userIdList.includes(record.userId)) {
+          return { ...record, status: 1 };
+        }
+        return record;
+      })
+    );
+
+    setCoachAttendance((prev) =>
+      prev.map((record) => {
+        if (userIdList.includes(record.userId)) {
+          return { ...record, status: 1 };
+        }
+        return record;
+      })
+    );
+
+    setIsAttend(!isAttend);
+  }
 
   if (!isOpen) return null;
 
@@ -181,24 +205,22 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                 <nav className="flex -mb-px" aria-label="Tabs">
                   <button
                     onClick={() => setActiveTab("coaches")}
-                    className={`${
-                      activeTab === "coaches"
+                    className={`${activeTab === "coaches"
                         ? "border-[#BD2427] text-[#BD2427]"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
+                      } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
-                    Huấn Luyện Viên 
+                    Huấn Luyện Viên
                     {/* ({coaches.length}) */}
                   </button>
                   <button
                     onClick={() => setActiveTab("players")}
-                    className={`${
-                      activeTab === "players"
+                    className={`${activeTab === "players"
                         ? "border-[#BD2427] text-[#BD2427]"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
+                      } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
-                    Cầu Thủ 
+                    Cầu Thủ
                     ({playerAttendance.length})
                   </button>
                 </nav>
@@ -288,11 +310,10 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   <button
                                     type="button"
                                     onClick={() => updateCoachStatus(coach.userId, 1)}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      coach.status === 1
+                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 1
                                         ? "bg-green-100 text-green-800 ring-2 ring-green-500"
                                         : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
-                                    }`}
+                                      }`}
                                   >
                                     <Check className="mr-1 h-4 w-4" />
                                     Có mặt
@@ -300,11 +321,10 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   <button
                                     type="button"
                                     onClick={() => updateCoachStatus(coach.userId, 0)}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      coach.status === 0
+                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 0
                                         ? "bg-red-100 text-red-800 ring-2 ring-red-500"
                                         : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
-                                    }`}
+                                      }`}
                                   >
                                     <X className="mr-1 h-4 w-4" />
                                     Vắng mặt
@@ -372,11 +392,10 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   <button
                                     type="button"
                                     onClick={() => updatePlayerStatus(player.userId, 1)}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      player.status === 1
+                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${player.status === 1
                                         ? "bg-green-100 text-green-800 ring-2 ring-green-500"
                                         : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
-                                    }`}
+                                      }`}
                                   >
                                     <Check className="mr-1 h-4 w-4" />
                                     Có mặt
@@ -384,11 +403,10 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                                   <button
                                     type="button"
                                     onClick={() => updatePlayerStatus(player.userId, 0)}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${
-                                      player.status === 0
+                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${player.status === 0
                                         ? "bg-red-100 text-red-800 ring-2 ring-red-500"
                                         : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
-                                    }`}
+                                      }`}
                                   >
                                     <X className="mr-1 h-4 w-4" />
                                     Vắng mặt
@@ -430,19 +448,18 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                   )}
                 </div>
                 <div className="flex space-x-3">
-                  <button
-                    type="button"
-                    className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427]"
+                  <Button
+                    className="inline-flex justify-center border border-gray-300 shadow-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427]"
                     onClick={onClose}
                   >
                     Đóng
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] disabled:opacity-50"
+                  </Button>
+                  <CameraCapture handleAICapture={handleCapture} />
+                  <Button
+                    className="inline-flex justify-center border border-transparent shadow-sm font-medium rounded-md text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] disabled:opacity-50"
                     onClick={saveAttendance}
                     disabled={isSaving || checkMissingAttendance()}
-                    
+
                   >
                     {isSaving ? (
                       <>
@@ -474,7 +491,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                         Lưu Điểm Danh
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </>
