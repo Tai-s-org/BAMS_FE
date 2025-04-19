@@ -27,7 +27,7 @@ export default function ManagerSidebar() {
         { title: "Sân bóng", icon: PiCourtBasketballFill, url: "/courts" },
         { title: "Thời khóa biểu", icon: FaCalendarAlt, url: "/schedules" },
         { title: "Danh sách lịch chờ", icon: AiFillSchedule, url: "/confirm-schedule" },
-        { title: "Quản lí khuôn mặt", icon: LuScanFace, url: "/confirm-schedule" },
+        { title: "Quản lí khuôn mặt", icon: LuScanFace, url: "/face-id-management" },
         { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
     ];
 
