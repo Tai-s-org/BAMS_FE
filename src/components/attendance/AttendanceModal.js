@@ -24,6 +24,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
   }, [session]);
 
   useEffect(() => {
+    if (isAttend)
     addToast({message: "Đã bổ sung điểm danh", type: "success"})
   }, [isAttend]);
 
@@ -99,11 +100,11 @@ export function AttendanceModal({ isOpen, onClose, session }) {
       setTimeout(() => {
         setIsSaving(false);
         setSaveSuccess(true);
+        addToast({type: "success", message: response?.data.message})
 
         // Hide success message after 3 seconds
         setTimeout(() => {
           setSaveSuccess(false);
-          addToast({type: "success", message: response?.data.message})
         }, 3000);
       }, 1000);
 
@@ -112,11 +113,11 @@ export function AttendanceModal({ isOpen, onClose, session }) {
       setTimeout(() => {
         setIsSaving(false);
         setSaveFailed(true);
+        addToast({type: "error", message: error?.response?.data?.message})
 
         // Hide success message after 3 seconds
         setTimeout(() => {
           setSaveFailed(false);
-          addToast({type: "error", message: error?.response?.data?.message})
         }, 3000);
       }, 1000);
     }
