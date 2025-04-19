@@ -32,8 +32,6 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await authApi.information();
             setUserInfo(response.data);
-            console.log("User info:", response.data);
-            
         } catch (error) {
             console.error("Error fetching user info:", error);
         }

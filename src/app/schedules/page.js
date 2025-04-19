@@ -14,6 +14,7 @@ import courtApi from "@/api/court";
 import teamApi from "@/api/team";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import { useToasts } from "@/hooks/providers/ToastProvider";
+import CameraCapture from "@/components/attendance/Capture";
 
 export default function SchedulePage() {
   const { user, userInfo } = useAuth();
