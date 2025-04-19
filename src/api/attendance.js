@@ -19,6 +19,13 @@ const attendanceApi = {
     takeAttendance: (data) => {
         return api.post('/Attendance/take-attendance', data);
     },
+    getFaceId: (data) => {
+        return api.post('/face-recognition/detect', data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    },
 }
 
 export default attendanceApi;
