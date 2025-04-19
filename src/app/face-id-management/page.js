@@ -275,7 +275,7 @@ export default function FaceIdManagement() {
                                     </Button>
                                 </div>
                                 <CardDescription>
-                                    Mã đội: {coach.teamId} • Hợp đồng: {coach.contractStartDate} đến {coach.contractEndDate}
+                                    Hợp đồng: {coach.contractStartDate} đến {coach.contractEndDate}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="pt-4">
@@ -307,7 +307,7 @@ export default function FaceIdManagement() {
                                     </Button>
                                 </div>
                                 <CardDescription>
-                                    Mã đội: {player.teamId} • Vị trí: {player.position} • Ngày tham gia: {player.clubJoinDate}
+                                    Vị trí: {player.position} • Ngày tham gia: {player.clubJoinDate}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="pt-4">
