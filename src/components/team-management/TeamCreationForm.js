@@ -25,7 +25,7 @@ export default function TeamCreationForm({onTeamCreated}) {
 
     // Simulate API call
     try {
-      const response = await teamApi.createTeam({ teamName: teamName, status: 0 });
+      const response = await teamApi.createTeam({ teamName: teamName});
 
       if (onTeamCreated) {
         addToast({ message: response?.data.message, type: response?.data.status });
