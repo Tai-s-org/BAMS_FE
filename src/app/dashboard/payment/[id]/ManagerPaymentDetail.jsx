@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
 import { Separator } from "@/components/ui/Seperator"
@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/Dialog"
 import Link from "next/link"
-import { ArrowLeft, FileText, DollarSign, Users, Clock, Plus, Pencil, Save, Trash2 } from "lucide-react"
+import { ArrowLeft, FileText, DollarSign, Users, Clock, Plus, Pencil, Save, Trash2, Check } from "lucide-react"
 import { DatePicker } from "@/components/ui/DatePicker"
+import teamFundApi from "@/api/teamFund"
 
 
 export default function ManagerReportDetail({ id }) {
@@ -17,34 +18,53 @@ export default function ManagerReportDetail({ id }) {
     // In a real app, this would come from your database
     const isApproved = id === "120" || id === "117"
     const isPending = id === "123"
+    console.log(id);
+    const [initialExpenseItems, setInitialExpenseItems] = useState([])
+
+
 
     // Initial expense items
-    const initialExpenseItems = [
-        {
-            id: 1,
-            name: "Mua dụng cụ tập mới",
-            amount: isPending ? "800000" : isApproved && id === "120000" ? "750000" : "700000",
-            date: "2025-04-16 23:21:04.000"
-        },
-        {
-            id: 2,
-            name: "Đi tập huấn",
-            amount: isPending ? "350000" : isApproved && id === "120000" ? "300000" : "300000",
-            date: "2025-04-16 23:21:04.000"
-        },
-        {
-            id: 3,
-            name: "Phí đăng kí thi đấu",
-            amount: isPending ? "450000" : isApproved && id === "120000" ? "400000" : "350000",
-            date: "2025-04-16 23:21:04.000"
-        },
-    ]
+    // const initialExpenseItems = [
+    //     {
+    //         id: 1,
+    //         name: "Mua dụng cụ tập mới",
+    //         amount: isPending ? "800000" : isApproved && id === "120000" ? "750000" : "700000",
+    //         date: "2025-04-16 23:21:04.000"
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Đi tập huấn",
+    //         amount: isPending ? "350000" : isApproved && id === "120000" ? "300000" : "300000",
+    //         date: "2025-04-16 23:21:04.000"
+    //     },
+    //     {
+    //         id: 3,
+    //         name: "Phí đăng kí thi đấu",
+    //         amount: isPending ? "450000" : isApproved && id === "120000" ? "400000" : "350000",
+    //         date: "2025-04-16 23:21:04.000"
+    //     },
+    // ]
 
-    const [expenseItems, setExpenseItems] = useState(initialExpenseItems)
+    const [expenseItems, setExpenseItems] = useState([])
     const [updatedItems, setUpdatedItems] = useState([])
     const [newItems, setNewItems] = useState([])
     const [showSaveDialog, setShowSaveDialog] = useState(false)
     const [isSaved, setIsSaved] = useState(false)
+
+    useEffect(() => {
+        const fetchExpenseItems = async () => {
+            try {
+                const response = await teamFundApi.listExpenditure(id);
+                console.log("Fetched expense items:", response.data);
+
+                setExpenseItems(response.data.data.items)
+            } catch (error) {
+                console.error("Error fetching expense items:", error)
+            }
+        }
+
+        fetchExpenseItems();
+    }, [id])
 
     // Function to toggle edit mode for an item
     const toggleEditMode = (id) => {
@@ -135,8 +155,12 @@ export default function ManagerReportDetail({ id }) {
     // Calculate total
     const calculateTotal = () => {
         return expenseItems.reduce((total, item) => {
-            return total + (Number.parseFloat(item.amount) || 0)
+            return total + (item.amount || 0)
         }, 0)
+    }
+
+    function formatTienVN(number) {
+        return number != null ? number.toLocaleString('vi-VN') : "";
     }
 
     return (
@@ -206,73 +230,67 @@ export default function ManagerReportDetail({ id }) {
                                         {expenseItems.map((item) => (
                                             <div key={item.id} className="border rounded-md p-4">
                                                 {item.isEditing ? (
-                                                    <div className="space-y-4">
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor={`item-name-${item.id}`}>Danh mục</Label>
-                                                                <Input
-                                                                    id={`item-name-${item.id}`}
-                                                                    value={item.name}
-                                                                    onChange={(e) => updateItem(item.id, "name", e.target.value)
-                                                                    }
-                                                                />
-                                                            </div>
+                                                    <div className="grid grid-cols-12 gap-1">
+                                                        <div className="space-y-2 col-span-5">
+                                                            <Label htmlFor={`item-name-${item.id}`}>Danh mục</Label>
+                                                            <Input
+                                                                id={`item-name-${item.id}`}
+                                                                value={item.name}
+                                                                onChange={(e) => updateItem(item.id, "name", e.target.value)
+                                                                }
+                                                            />
                                                         </div>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor={`item-amount-${item.id}`}>Số tiền (VND)</Label>
-                                                                <Input
-                                                                    id={`item-amount-${item.id}`}
-                                                                    type="number"
-                                                                    value={item.amount}
-                                                                    onChange={(e) => updateItem(item.id, "amount", e.target.value)
-                                                                    }
-                                                                    placeholder="0.00"
-                                                                />
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label htmlFor={`item-category-${item.id}`}>Danh mục</Label>
-                                                                <DatePicker
-                                                                    value={formatDate(item.date)}
-                                                                    onChange={(date) => updateItem(item.id, "date", date)}
-                                                                    placeholder={"Chọn ngày"}
-                                                                />
-                                                            </div>
-                                                            <div className="flex items-end gap-2">
-                                                                <Button variant="outline" onClick={() => toggleEditMode(item.id)} className="gap-1">
-                                                                    Hoàn tất
-                                                                </Button>
+                                                        <div className="space-y-2 col-span-3">
+                                                            <Label htmlFor={`item-amount-${item.id}`}>Số tiền (VND)</Label>
+                                                            <Input
+                                                                id={`item-amount-${item.id}`}
+                                                                type="number"
+                                                                value={item.amount}
+                                                                onChange={(e) => updateItem(item.id, "amount", e.target.value)
+                                                                }
+                                                                placeholder="0.00"
+                                                            />
+                                                        </div>
+                                                        <div className="col-span-3 space-y-2">
+                                                            <Label htmlFor={`item-category-${item.id}`}>Ngày chi tiêu</Label>
+                                                            <DatePicker
+                                                                value={item.date ? new Date(item.date) : null}
+                                                                onChange={(date) => updateItem(item.id, "date", date)}
+                                                                placeholder="Chọn ngày"
+                                                            />
+                                                        </div>
+                                                        <div className="flex items-end gap-2 col-span-1">
+                                                            <Button variant="outline" onClick={() => toggleEditMode(item.id)} className="gap-1 hover:bg-[#76ea76]">
+                                                                <Check className="h-4 w-4 " />
+                                                            </Button>
 
-                                                            </div>
                                                         </div>
 
                                                     </div>
                                                 ) : (
-                                                    <div className="flex flex-col md:flex-row md:items-center justify-between">
-                                                        <div className="space-y-1">
+                                                    <div className=" md:flex-row md:items-center grid grid-cols-12">
+                                                        <div className="col-span-5">
                                                             <div className="font-medium">{item.name}</div>
-                                                            <div className="text-sm text-muted-foreground capitalize">{item.category}</div>
                                                         </div>
-                                                        <div className="space-y-1">
+                                                        <div className="col-span-3 text-lg font-medium flex">{formatTienVN(item.amount)} VNĐ</div>
+                                                        <div className="col-span-2">
                                                             <div className="font-medium">{formatDate(item.date)}</div>
                                                         </div>
-                                                        <div className="flex items-center gap-4 mt-2 md:mt-0">
-                                                            <div className="text-lg font-medium">{item.amount} VND</div>
-                                                            {!isApproved && (
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() => toggleEditMode(item.id)}
-                                                                    className="gap-1"
-                                                                >
-                                                                    <Pencil className="h-4 w-4" />
-                                                                </Button>
-
-                                                            )}
-                                                            <Button variant="destructive" onClick={() => removeItem(item.id)} className="gap-1">
-                                                                <Trash2 className="h-4 w-4" />
+                                                        {!isApproved && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => toggleEditMode(item.id)}
+                                                                className="gap-1 col-span-1"
+                                                            >
+                                                                <Pencil className="h-4 w-4" />
                                                             </Button>
-                                                        </div>
+
+                                                        )}
+                                                        <Button variant="destructive" onClick={() => removeItem(item.id)} className="gap-1 col-span-1">
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+
                                                     </div>
                                                 )
                                                 }
@@ -281,7 +299,7 @@ export default function ManagerReportDetail({ id }) {
                                         ))}
 
                                         <div className="flex justify-end mt-4">
-                                            <div className="text-lg font-medium">Tổng: {calculateTotal().toFixed(2)} VND</div>
+                                            <div className="text-lg font-medium">Tổng: {formatTienVN(calculateTotal())} VNĐ</div>
                                         </div>
                                     </div>
                                 </div>
@@ -291,7 +309,7 @@ export default function ManagerReportDetail({ id }) {
                                 <div>
                                     <h3 className="font-medium mb-2">Số thành viên hiện tại (4)</h3>
                                     <p className="text-sm text-muted-foreground">
-                                        Mỗi thành viên sẽ đóng {(calculateTotal() / 4).toFixed(2)} VND sau khi được duyệt.
+                                        Mỗi thành viên sẽ đóng {(calculateTotal() / 4)} VND sau khi được duyệt.
                                     </p>
                                 </div>
 
@@ -338,7 +356,7 @@ export default function ManagerReportDetail({ id }) {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {/* <DollarSign className="h-4 w-4 text-muted-foreground" /> */}
-                                    <span className="text-sm">Tổng: {calculateTotal().toFixed(2)} VND</span>
+                                    <span className="text-sm">Tổng: {formatTienVN(calculateTotal())} VNĐ</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Clock className="h-4 w-4 text-muted-foreground" />

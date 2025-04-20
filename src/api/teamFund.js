@@ -16,8 +16,17 @@ const teamFundApi = {
     teamFundList: (data) => {
         return api.get(`/team-fund/team-fund-list`, {params: data});
     },
+    teamFundListByTeamId: (teamId, data) => {
+        return api.get(`/team-fund/team-fund-list?TeamId=${teamId}`, {params: data});
+    },
     generateQR: (data) => {
         return api.post(`/team-fund/generate-qr-by-paymentId`, data);
+    },
+    getManagerPaymentMethod: (paymentId) => {
+        return api.get(`/team-fund/get-manager-payment-type-by-paymentid=${paymentId}`);
+    },
+    updatePaymentStatus: (data) => {
+        return api.put(`/team-fund/update-payment-status`, data);
     },
 
 

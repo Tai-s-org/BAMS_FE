@@ -11,7 +11,7 @@ export function ApprovedReportsList() {
             id: "120",
             team: "Team Alpha",
             title: "February 2025 Expenses",
-            amount: 1450,
+            amount: 1450000,
             date: "March 5, 2025",
             approvedDate: "March 7, 2025",
             status: "approved",
@@ -20,7 +20,7 @@ export function ApprovedReportsList() {
             id: "121",
             team: "Team Beta",
             title: "February 2025 Expenses",
-            amount: 1100,
+            amount: 1100000,
             date: "March 8, 2025",
             approvedDate: "March 10, 2025",
             status: "approved",
@@ -29,12 +29,16 @@ export function ApprovedReportsList() {
             id: "122",
             team: "Team Delta",
             title: "February 2025 Expenses",
-            amount: 1300,
+            amount: 1300000,
             date: "March 12, 2025",
             approvedDate: "March 14, 2025",
             status: "approved",
         },
     ]
+
+    function formatTienVN(number) {
+        return number.toLocaleString('vi-VN');
+    }
 
     return (
         <div className="space-y-4">
@@ -48,14 +52,14 @@ export function ApprovedReportsList() {
                             <div className="font-medium">
                                 {report.team} - {report.title}
                             </div>
-                            <div className="text-sm text-muted-foreground">Approved on {report.approvedDate}</div>
+                            <div className="text-sm text-muted-foreground">Duyệt vào ngày {report.approvedDate}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <div className="font-medium">${report.amount}</div>
+                            <div className="font-medium">{formatTienVN(report.amount)} VNĐ</div>
                             <Badge variant="outline" className="bg-green-50 text-green-700">
-                                Approved
+                                Duyệt
                             </Badge>
                         </div>
                         <Link href={`/president/report/${report.id}`}>
