@@ -208,7 +208,6 @@ export default function FaceIdManagement() {
                 const response = await faceIdApi.deleteFaceId(faceIdToDelete)
                 addToast({ message: response?.data.message, type: response?.data.status });
                 setSelectedUserFaceIds((prevFaceIds) => prevFaceIds.filter((face) => face.id !== faceIdToDelete))
-
             } catch (error) {
                 console.error("Lỗi khi xóa Face ID:", error)
                 addToast({ message: error?.response?.data?.errors[0], type: "error" });
@@ -216,6 +215,7 @@ export default function FaceIdManagement() {
                 // Đóng hộp thoại xác nhận
                 setDeleteConfirmOpen(false)
                 setFaceIdToDelete(null)
+                setViewingFaceIds(false)
             }
         }
     }
