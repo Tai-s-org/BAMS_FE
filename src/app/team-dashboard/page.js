@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
-import { CalendarDays, Plus, Trash2, Users, BellIcon as Whistle, Clock, MapPin, Trophy } from "lucide-react"
+import { CalendarDays, Plus, Trash2, Users, BellIcon as Whistle, Clock, MapPin, Trophy, AlertCircle, CheckCircle2 } from "lucide-react"
 
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
@@ -43,6 +43,9 @@ export default function TeamDashboard() {
   const [nonTeamPlayers, setNonTeamPlayers] = useState([])
   const { user, userInfo } = useAuth();
   const {addToast} = useToasts();
+  const [isNewPlayersAdded, setIsNewPlayersAdded] = useState(false)
+  const [isResultModalOpen, setIsResultModalOpen] = useState(false)
+  const [addResults, setAddResults] = useState([])
 
   useEffect(() => {
       fetchTeam();
@@ -50,6 +53,10 @@ export default function TeamDashboard() {
       fetchTodayTrainingSession();
       fetchTodayMatches(); 
   }, [userInfo?.roleInformation?.teamId]);
+
+  useEffect(() => {
+    fetchNonTeamPlayers();
+  }, [isNewPlayersAdded]);
   
 
   const fetchTeam = async () => {
@@ -58,6 +65,9 @@ export default function TeamDashboard() {
       setTeam(response?.data.data);
     } catch (error) {
       console.error("Error fetching team:", error)
+      if (error?.response?.data.status === 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
@@ -70,6 +80,9 @@ export default function TeamDashboard() {
       setNonTeamPlayers(response?.data.data.items);
     } catch (error) {
       console.error("Error fetching non-team players:", error)
+      if (error?.response?.data.status === 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
@@ -84,6 +97,9 @@ export default function TeamDashboard() {
       setTrainingSessionsData(response?.data.data);
     } catch (error) {
       console.error("Error fetching tody training session:", error)
+      if (error?.response?.data.status === 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
@@ -98,6 +114,9 @@ export default function TeamDashboard() {
       setMatchesData(response?.data.data);
     } catch (error) {
       console.error("Error fetching today matches:", error)
+      if (error?.response?.data.status === 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
@@ -121,57 +140,67 @@ export default function TeamDashboard() {
 
   // Add selected players to team
   const handleAddPlayersToTeam = async () => {
-    // In a real app, you would make an API call here
-    const response = await playerApi.addToTeam(selectedPlayers, userInfo?.roleInformation.teamId);
+    const data = selectedPlayers.map((userId) => userId)
+    try {
+      const response = await playerApi.addToTeam(userInfo?.roleInformation.teamId, data);
+      setAddResults(response?.data.data || []);
+      addToast({ message: response?.data.message, type: response?.data.status });
+      setIsResultModalOpen(true);
+      const playersToAdd = nonTeamPlayers.filter(
+        (player) => selectedPlayers.includes(player.userId) && !team.players.some((p) => p.userId === player.userId),
+      )
+  
+      const updatedPlayers = [
+        ...team.players,
+        ...playersToAdd.map((player) => ({
+          userId: player.userId,
+          fullname: player.fullname,
+          email: player.email,
+          phone: player.phone,
+          teamId: team.teamId,
+          teamName: null,
+          profileImage: null,
+          address: player.address,
+          dateOfBirth: null,
+          weight: player.weight,
+          height: player.height,
+          position: player.position,
+          shirtNumber: player.shirtNumber,
+          relationshipWithParent: player.relationshipWithParent,
+          clubJoinDate: player.clubJoinDate,
+        })),
+      ]
+  
+      setTeam({
+        ...team,
+        players: updatedPlayers,
+      })
 
-    // For this demo, we'll just update the state
-    const playersToAdd = nonTeamPlayers.filter(
-      (player) => selectedPlayers.includes(player.userId) && !team.players.some((p) => p.userId === player.userId),
-    )
-
-    const updatedPlayers = [
-      ...team.players,
-      ...playersToAdd.map((player) => ({
-        userId: player.userId,
-        fullname: player.fullname,
-        email: player.email,
-        phone: player.phone,
-        teamId: team.teamId,
-        teamName: null,
-        profileImage: null,
-        address: player.address,
-        dateOfBirth: null,
-        weight: player.weight,
-        height: player.height,
-        position: player.position,
-        shirtNumber: player.shirtNumber,
-        relationshipWithParent: player.relationshipWithParent,
-        clubJoinDate: player.clubJoinDate,
-      })),
-    ]
-
-    setTeam({
-      ...team,
-      players: updatedPlayers,
-    })
-
+      
+    } catch (error) {
+      console.error("Error adding players to team:", error)
+      addToast({ message: "Lỗi khi thêm người cho team", type: "error" });
+    } finally {
     setIsAddPlayerModalOpen(false)
     setSelectedPlayers([])
+    }
   }
 
   // Remove player from team
   const handleRemovePlayer = async (userId) => {
     try {
       const data = [userId]
-      const response = await teamApi.removePlayer(data);
+      const response = await teamApi.removePlayer(userInfo?.roleInformation.teamId, data);
       addToast({ message: response?.data.message, type: response?.data.status });
-      // In a real app, you would make an API call here
       setTeam({
         ...team,
         players: team.players.filter((player) => player.userId !== userId),
       })
     } catch (error) {
       addToast({ message: error?.response?.data.message, type: "error" });
+      if (error?.response?.data.status === 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
     }
   }
 
@@ -437,8 +466,6 @@ export default function TeamDashboard() {
                   <TableHead>Email</TableHead>
                   <TableHead>Điện thoại</TableHead>
                   <TableHead>Vị trí</TableHead>
-                  <TableHead>Chiều cao</TableHead>
-                  <TableHead>Cân nặng</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -456,8 +483,6 @@ export default function TeamDashboard() {
                       <TableCell>{player.email || "N/A"}</TableCell>
                       <TableCell>{player.phone || "N/A"}</TableCell>
                       <TableCell>{player.position || "N/A"}</TableCell>
-                      <TableCell>{player.height ? `${player.height} cm` : "N/A"}</TableCell>
-                      <TableCell>{player.weight ? `${player.weight} kg` : "N/A"}</TableCell>
                     </TableRow>
                   )
                 })}
@@ -492,6 +517,49 @@ export default function TeamDashboard() {
                 Thêm vào đội
               </Button>
             </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Results Modal */}
+      <Dialog open={isResultModalOpen} onOpenChange={setIsResultModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Thêm thêm cầu thủ</DialogTitle>
+            <DialogDescription>Kết quả thêm cầu thủ vào {team.teamName}</DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-[60vh] overflow-y-auto">
+            <div className="space-y-3 py-2">
+              {addResults.map((result, index) => (
+                <div
+                  key={index}
+                  className={`flex items-start p-3 rounded-md ${result.success ? "bg-green-50" : "bg-red-50"}`}
+                >
+                  {result.success ? (
+                    <CheckCircle2 className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-5 w-5 text-red-600 mr-3 mt-0.5 flex-shrink-0" />
+                  )}
+                  <div className="flex-1">
+                    <div className="text-sm font-medium">
+                      {nonTeamPlayers.find((p) => p.userId === result.playerId)?.fullname}
+                    </div>
+                    <div className={`text-sm ${result.success ? "text-green-700" : "text-red-700"}`}>
+                      {result.message}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <DialogFooter className="mt-4">
+            <Button onClick={() => {
+              setIsNewPlayersAdded((prev) => !prev)
+              setIsResultModalOpen(false)}} className="bg-[#BD2427] hover:bg-[#9a1e20] text-white">
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
