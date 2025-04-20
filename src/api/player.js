@@ -10,8 +10,8 @@ const playerApi = {
     removeParent: (id) => {
         return api.put(`/player/${id}/remove-parent`);
     },
-    addToTeam: (playerId, teamId) => {
-        return api.put(`/player/${playerId}/assign-team/${teamId}`);
+    addToTeam: (teamId, data) => {
+        return api.post(`/player/assign-team/${teamId}`, data);
     },
 };
 
