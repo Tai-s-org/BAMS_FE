@@ -189,7 +189,8 @@ export default function TeamDashboard() {
   // Remove player from team
   const handleRemovePlayer = async (userId) => {
     try {
-      const data = [userId]
+      const data = []
+      data.push(userId)
       const response = await teamApi.removePlayer(userInfo?.roleInformation.teamId, data);
       addToast({ message: response?.data.message, type: response?.data.status });
       setTeam({
