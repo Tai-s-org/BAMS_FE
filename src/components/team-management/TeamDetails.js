@@ -26,7 +26,6 @@ export default function TeamDetails() {
   const fetchTeams = async () => {
     try {
       const response = await teamApi.listTeams({pageSize: 100, status: 1});
-      console.log("Teams:", response?.data.data.items);
       
       setTeams(response?.data.data.items);
 
