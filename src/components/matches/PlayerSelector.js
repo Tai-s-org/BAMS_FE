@@ -32,7 +32,7 @@ export default function PlayerSelector({ team, onSave, onCancel, availablePlayer
     //   const data = {
     //     matchId: matchId,
     //     playerId: selectedPlayers,
-    //     isStarting: true,
+    //     isStarting: false,
     //   }
     //   const response = await matchApi.callPlayer(data)
     // } catch (error) {

@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react"
 import { Button } from "../ui/Button"
 import SparklesText from "../ui/SparklesText"
 import attendanceApi from "@/api/attendance"
+import { FaCamera } from "react-icons/fa";
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import { MdOutlineCameraswitch } from "react-icons/md";
+import { TiUpload } from "react-icons/ti";
 
 const CameraCapture = ({ handleAICapture }) => {
   const [showModal, setShowModal] = useState(false)
@@ -138,29 +141,29 @@ const CameraCapture = ({ handleAICapture }) => {
 
               <div className="p-4 flex justify-center">
                 {!capturedImage ? (
-                  <button
+                  <Button
                     onClick={handleCapture}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-lg flex items-center"
+                    className="px-6 py-3 bg-[#BD2427] text-white rounded-lg hover:bg-red-900 font-medium text-lg flex items-center"
                   >
-                    <span className="mr-2">📸</span> Chụp ảnh
-                  </button>
+                    <span className="mr-2"><FaCamera /></span> Chụp ảnh
+                  </Button>
                 ) : (
                   <div className="flex gap-4">
-                    <button
+                    <Button
                       onClick={() => {
                         // Just clear the captured image, the useEffect will handle restarting the camera
                         setCapturedImage(null)
                       }}
-                      className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium"
+                      className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium text-lg flex items-center"
                     >
-                      🔄 Chụp lại
-                    </button>
-                    <button
+                      <span className="mr-2"><MdOutlineCameraswitch /></span> Chụp lại
+                    </Button>
+                    <Button
                       onClick={handleUpload}
-                      className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+                      className="px-6 py-3 bg-[#BD2427] text-white rounded-lg hover:bg-red-700 font-medium text-lg flex items-center"
                     >
-                      📤 Gửi ảnh
-                    </button>
+                      <span className="mr-2"><TiUpload /></span> Gửi ảnh
+                    </Button>
                   </div>
                 )}
               </div>

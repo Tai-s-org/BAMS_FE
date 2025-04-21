@@ -35,7 +35,9 @@ export default function FaceIdManagement() {
     const { userInfo } = useAuth()
     const [players, setPlayers] = useState([])
     const [coaches, setCoaches] = useState([])
+    const [facesOfTeam, setFacesOfTeam] = useState([])
     const [team, setTeam] = useState([])
+    const [isNewUpdate, setIsNewUpdate] = useState(false)
 
 
     useEffect(() => {
@@ -93,8 +95,16 @@ export default function FaceIdManagement() {
     useEffect(() => {
         if (userInfo?.roleInformation?.teamId) {
             fetchTeamDetail()
+            fetchFaceIdByTeam()
         }
     }, [userInfo])
+
+    useEffect(() => {
+        if (isNewUpdate) {
+            fetchFaceIdByTeam()
+            setIsNewUpdate(false)
+        }
+    }, [isNewUpdate])
 
     const fetchTeamDetail = async () => {
         try {
@@ -107,6 +117,18 @@ export default function FaceIdManagement() {
             if (error?.response?.data.status === 401) {
                 addToast({ message: "Phiên đăng nhập đã hết hạn", type: "error" });
             }
+        }
+    }
+
+    const fetchFaceIdByTeam = async () => {
+        try {
+            const data = {
+                teamId: userInfo?.roleInformation.teamId
+            }
+            const response = await faceIdApi.getFaceId(data)
+            setFacesOfTeam(response?.data.data || [])
+        } catch (error) {
+            console.error("Lỗi khi lấy Face ID:", error)
         }
     }
 
@@ -160,7 +182,7 @@ export default function FaceIdManagement() {
             try {
                 const response = await faceIdApi.registerFaceId(formData)
                 addToast({ message: response?.data.message, type: response?.data.status });
-
+                setIsNewUpdate(true)
             } catch (error) {
                 console.error("Lỗi khi đăng ký Face ID:", error)
                 addToast({ message: error?.response?.data?.errors?.Image || error?.response?.data?.errors[0], type: "error" });
@@ -208,6 +230,7 @@ export default function FaceIdManagement() {
                 const response = await faceIdApi.deleteFaceId(faceIdToDelete)
                 addToast({ message: response?.data.message, type: response?.data.status });
                 setSelectedUserFaceIds((prevFaceIds) => prevFaceIds.filter((face) => face.id !== faceIdToDelete))
+                setIsNewUpdate(true)
             } catch (error) {
                 console.error("Lỗi khi xóa Face ID:", error)
                 addToast({ message: error?.response?.data?.errors[0], type: "error" });
@@ -243,6 +266,12 @@ export default function FaceIdManagement() {
         return `${dateSplit[1].slice(0, 8)}`
     }
 
+    const countFaces = (userId) => {
+        const userFaces = facesOfTeam.find(face => face.userId === userId)
+        if (!userFaces) return 0
+        return userFaces.userFaces.length
+    }
+
     return (
         <div className="container mx-auto py-8 px-4">
             <h1 className="text-3xl font-bold mb-6 text-[#BD2427]">Quản Lý Face ID</h1>
@@ -271,7 +300,7 @@ export default function FaceIdManagement() {
                                         className="flex items-center gap-2"
                                     >
                                         <List className="h-4 w-4" />
-                                        Xem Face ID
+                                        Xem Face ID ({countFaces(coach.userId)})
                                     </Button>
                                 </div>
                                 <CardDescription>
@@ -303,7 +332,7 @@ export default function FaceIdManagement() {
                                         className="flex items-center gap-2"
                                     >
                                         <List className="h-4 w-4" />
-                                        Xem Face ID
+                                        Xem Face ID ({countFaces(player.userId)})
                                     </Button>
                                 </div>
                                 <CardDescription>
