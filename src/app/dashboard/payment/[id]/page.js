@@ -15,10 +15,10 @@ export default function PaymentDetailPage() {
     return (
         user ? (
             <div>
-                {user.roleCode == "President" && <PresidentReportDetail />}
-                {user.roleCode == "Manager" && <ManagerReportDetail />}
-                {user.roleCode == "Player" && <PlayerPaymentDetail />}
-                {user.roleCode == "Parent" && <ParentPaymentDetail />}
+                {user.roleCode == "President" && <PresidentReportDetail id={id} />}
+                {user.roleCode == "Manager" && <ManagerReportDetail id={id}/>}
+                {user.roleCode == "Player" && <PlayerPaymentDetail id={id} />}
+                {user.roleCode == "Parent" && <ParentPaymentDetail id={id}/>}
             </div>
         ) : null
     )

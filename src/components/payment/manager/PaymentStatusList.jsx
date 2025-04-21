@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
 import { Badge } from "@/components/ui/Badge"
 import { Progress } from "@/components/ui/Progress"
 
-export function PaymentStatusList() {
+export function PaymentStatusList(payments) {
     const paymentStatus = [
         {
             id: "report1",

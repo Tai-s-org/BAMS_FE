@@ -6,9 +6,41 @@ import { TeamMembersList } from "@/components/payment/manager/TeamMemberList"
 import { PaymentStatusList } from "@/components/payment/manager/PaymentStatusList"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import Link from "next/link"
-import { ArrowLeft, Plus, Filter } from "lucide-react"
+import { ArrowLeft, Plus, Filter, Wallet } from "lucide-react"
+import { useAuth } from "@/hooks/context/AuthContext"
+import { useEffect, useState } from "react"
+import teamFundApi from "@/api/teamFund"
+import paymentApi from "@/api/payment"
 
 export default function ManagerPayment() {
+    const { userInfo } = useAuth();
+    const [teamFunds, setTeamFunds] = useState([]);
+    const [payments, setPayments] = useState([]);
+    //console.log(userInfo?.roleInformation.teamId);
+    const teamId = userInfo?.roleInformation.teamId;
+
+    useEffect(() => {
+        const fetchManagerInfo = async () => {
+            console.log("teamId:", teamId);
+
+            if (!teamId) return; // Guard clause
+
+            try {
+                const teamFundResponse = await teamFundApi.teamFundListByTeamId(teamId);
+                console.log("Fetched team fund data:", teamFundResponse.data);
+                setTeamFunds(teamFundResponse.data.data);
+
+                const paymentsResponse = await paymentApi.getPaymentHistoryByTeam(teamId);
+                console.log("Fetched payment data:", paymentsResponse.data);
+                setPayments(paymentsResponse.data.data);
+            } catch (error) {
+                console.error('Error fetching manager info:', error);
+            }
+        };
+
+        fetchManagerInfo();
+    }, [teamId]);
+
     return (
         <div className="container mx-auto py-6">
             <div className="flex items-center justify-between mb-6">
@@ -20,11 +52,11 @@ export default function ManagerPayment() {
                     </Link>
                     <h1 className="text-2xl font-bold ml-4">Manager Dashboard</h1>
                 </div>
-                {/* <Link href="/dashboard/payment/create-team-fund">
+                <Link href="/dashboard/payment/team-payment">
                     <Button className="gap-1">
-                        <Plus className="h-4 w-4" /> Create New Report
+                        <Wallet className="h-4 w-4" /> View Team Payments
                     </Button>
-                </Link> */}
+                </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -89,7 +121,7 @@ export default function ManagerPayment() {
                                     <CardDescription>View and manage your team's expense reports</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <ReportsList />
+                                    <ReportsList  reports={teamFunds}/>
                                 </CardContent>
                             </Card>
                         </TabsContent>
@@ -101,7 +133,7 @@ export default function ManagerPayment() {
                                     <CardDescription>Track your team members' payment status</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <PaymentStatusList />
+                                    <PaymentStatusList payments={payments}/>
                                 </CardContent>
                             </Card>
                         </TabsContent>

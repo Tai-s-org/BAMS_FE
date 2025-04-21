@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button"
 import Link from "next/link"
 import { FileText, ArrowRight } from "lucide-react"
 
-export function PaymentHistoryList() {
+export function PaymentHistoryList({ completedPayments }) {
     const paymentHistory = [
         {
             id: "p001",
@@ -41,36 +41,44 @@ export function PaymentHistoryList() {
         },
     ]
 
+    function formatTienVN(number) {
+        return number != null ? number.toLocaleString('vi-VN') : "";
+    }
+
     return (
-        <div className="space-y-4">
-            {paymentHistory.map((payment) => (
-                <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-gray-100 rounded-full">
-                            <FileText className="h-5 w-5 text-gray-500" />
-                        </div>
-                        <div>
-                            <div className="font-medium">
-                                {payment.team} - {payment.title}
+        (completedPayments?.length > 0) ? (
+            <div className="space-y-4">
+                {completedPayments?.map((payment) => (
+                    <div key={payment.paymentId} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-gray-100 rounded-full">
+                                <FileText className="h-5 w-5 text-gray-500" />
                             </div>
-                            <div className="text-sm text-muted-foreground">Đã thanh toán ngày {payment.date}</div>
+                            <div>
+                                <div className="font-medium">
+                                    {payment.teamName} - {payment.teamFundId}
+                                </div>
+                                <div className="text-sm text-muted-foreground">Đã thanh toán ngày {payment.paidDate}</div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="text-right">
+                                <div className="font-medium">{formatTienVN(payment.totalAmount)} VND</div>
+                                <Badge variant="outline" className="bg-green-50 text-green-700">
+                                    Đã thanh toán
+                                </Badge>
+                            </div>
+                            <Link href={`/dashboard/payment/${payment.paymentId}`}>
+                                <Button variant="ghost" size="icon">
+                                    <ArrowRight className="h-4 w-4" />
+                                </Button>
+                            </Link>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <div className="text-right">
-                            <div className="font-medium">{payment.amount} VND</div>
-                            <Badge variant="outline" className="bg-green-50 text-green-700">
-                                Đã thanh toán
-                            </Badge>
-                        </div>
-                        <Link href={`/dashboard/payment/${payment.id}`}>
-                            <Button variant="ghost" size="icon">
-                                <ArrowRight className="h-4 w-4" />
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-            ))}
-        </div>
+                ))}
+            </div>
+        ) : (
+            <div>Hiện chưa hoàn thành thanh toán nào</div>
+        )
     )
 }

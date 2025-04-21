@@ -49,6 +49,10 @@ export function PaymentHistoryList() {
         },
     ]
 
+    function formatTienVN(number) {
+        return number.toLocaleString('vi-VN');
+    }
+
     return (
         <div className="space-y-4">
             {paymentHistory.map((payment) => (
@@ -70,7 +74,7 @@ export function PaymentHistoryList() {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <div className="font-medium">${payment.amount}</div>
+                            <div className="font-medium">{formatTienVN(payment.amount)} VNĐ</div>
                             <div className="text-sm text-muted-foreground">{payment.date}</div>
                         </div>
                         <Badge variant="outline" className="bg-green-50 text-green-700">
