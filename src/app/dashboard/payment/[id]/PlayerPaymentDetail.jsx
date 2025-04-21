@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/Label"
 import Link from "next/link"
 import { ArrowLeft, FileText, DollarSign, QrCode, CheckCircle, Upload, AlertTriangle, CreditCard, Wallet, BanknoteIcon, } from "lucide-react"
 import paymentApi from "@/api/payment"
+import teamFundApi from "@/api/teamFund"
+import Image from "next/image"
 
 export default function PaymentDetail({ id }) {
     const [payment, setPayment] = useState()
@@ -18,68 +20,118 @@ export default function PaymentDetail({ id }) {
     const [showQR, setShowQR] = useState(false)
     const [showUpload, setShowUpload] = useState(false)
     const [receiptImage, setReceiptImage] = useState(null)
+    const [paymentMethod, setPaymentMethod] = useState()
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("qr")
     const [paymentItems, setPaymentItems] = useState([]);
-    
-    useEffect(() => {
-        // Fetch payment details from the server using the ID
-        const fetchPaymentDetails = async () => {
-            try {
-                const response = await paymentApi.getPaymentDetail(id);
-                console.log("Payment details:", response.data)
-                setPayment(response.data.data)
-                setPaymentItems(response.data.data.paymentItems)
-            } catch (error) {
-                console.error("Error fetching payment details:", error)
-            }
-        }
+    const [qrCode, setqrCode] = useState()
+    const [remainingTime, setRemainingTime] = useState(600); // 10 phút = 600 giây
 
-        fetchPaymentDetails()
-    }, [id])
-
-    // For demo purposes, determine if payment is overdue based on ID
-    const isOverdue = id === "p102"
-
-    // Payment items list with name, amount, and note
-    // const paymentItems = [
-    //     {
-    //         id: 1,
-    //         name: "Equipment Fee",
-    //         amount: 200000,
-    //         note: "New team equipment purchase",
-    //     },
-    //     {
-    //         id: 2,
-    //         name: "Training Fee",
-    //         amount: 87000,
-    //         note: "Monthly training sessions",
-    //     },
-    //     {
-    //         id: 3,
-    //         name: "Facility Rental",
-    //         amount: 100000,
-    //         note: "Practice facility rental",
-    //     },
-    //     {
-    //         id: 4,
-    //         name: "Tournament Registration",
-    //         amount: 50000,
-    //         note: "Upcoming tournament registration fee",
-    //     },
-    // ]
-
-
-    const handlePay = () => {
-        if (selectedPaymentMethod === "qr") {
-            setShowQR(true)
-        } else {
-            // For cash or other methods, mark as paid immediately
-            setIsPaid(true)
+    const fetchPaymentDetails = async () => {
+        try {
+            const response = await paymentApi.getPaymentDetail(id);
+            console.log("Payment details:", response.data)
+            setPayment(response.data.data)
+            setPaymentItems(response.data.data.paymentItems)
+        } catch (error) {
+            console.error("Error fetching payment details:", error)
         }
     }
 
-    const handleQrPay = () => {
-        setIsPaid(true)
+    useEffect(() => {
+        // Fetch payment details from the server using the ID
+
+
+        const fetchPaymentMethod = async () => {
+            try {
+                const response = await teamFundApi.getManagerPaymentMethod(id)
+                console.log("Payment method:", response.data)
+                setPaymentMethod(response.data.data)
+            } catch (error) {
+                console.error("Error fetching payment method:", error)
+            }
+        }
+
+        fetchPaymentMethod()
+        fetchPaymentDetails()
+    }, [id])
+
+    const handlePay = () => {
+        if (selectedPaymentMethod === "qr") {
+            const isAutoPayment = paymentMethod.paymentMethod === 0;
+
+            const generateQR = async () => {
+                console.log("id: ", id);
+
+                try {
+                    const response = await teamFundApi.generateQR({
+                        "paymentId": id
+                    });
+                    console.log("QR Generated:", response.data.data);
+                    setqrCode(response.data.data.qrCode)
+                    setShowQR(true);
+
+                    if (isAutoPayment) {
+
+                        // Polling every 5s to check payment status
+                        const intervalId = setInterval(async () => {
+                            try {
+                                const statusResponse = await paymentApi.getPaymentDetail(id);
+                                const updatedStatus = statusResponse.data.data.status;
+                                console.log("Checking payment status:", updatedStatus);
+
+                                if (updatedStatus === 1) {
+                                    clearInterval(intervalId);
+                                    clearTimeout(timeoutId);
+                                    payment.status = 1
+                                    setShowQR(false);
+                                }
+                            } catch (error) {
+                                console.error("Error checking payment status:", error);
+                            }
+                        }, 5000);
+
+                        // Stop polling after 10 minutes
+                        const timeoutId = setTimeout(() => {
+                            clearInterval(intervalId);
+                            setShowQR(false);
+                            console.log("QR code timeout after 10 minutes");
+                        }, 10 * 60 * 1000);
+                    }
+                } catch (error) {
+                    console.error("Error generating QR:", error);
+                }
+            };
+
+            generateQR();
+        } else {
+            // For other methods (e.g., cash)
+            const updatePaymentStatus = async () => {
+                try {
+                    const response = await teamFundApi.updatePaymentStatus({
+                        "paymentId": id,
+                        "status": 3
+                    })
+                fetchPaymentDetails()
+                } catch (err) {
+
+                }
+            }
+
+            updatePaymentStatus();
+        }
+    };
+
+
+    const handleQrPay = async () => {
+            try {
+                const response = await teamFundApi.updatePaymentStatus({
+                    "paymentId": id,
+                    "status": 3
+                })
+            fetchPaymentDetails()
+            } catch (err) {
+
+            }
         setShowQR(false)
     }
 
@@ -95,6 +147,28 @@ export default function PaymentDetail({ id }) {
         return number != null ? number.toLocaleString('vi-VN') : "";
     }
 
+    //count time
+    useEffect(() => {
+        let interval
+
+        if (showQR && paymentMethod?.paymentMethod === 1) {
+            setRemainingTime(600); // reset lại 10 phút mỗi khi mở QR
+
+            interval = setInterval(() => {
+                setRemainingTime(prev => {
+                    if (prev <= 1) {
+                        clearInterval(interval);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+
+        return () => clearInterval(interval);
+    }, [showQR, paymentMethod]);
+
+
     return (
         <div className="container mx-auto py-6">
             <div className="flex items-center mb-6">
@@ -107,6 +181,7 @@ export default function PaymentDetail({ id }) {
                 {payment?.status === 1 && <Badge className="ml-4 bg-green-500">Đã thanh toán</Badge>}
                 {payment?.status === 0 && <Badge className="ml-4 bg-yellow-500">Chưa thanh toán</Badge>}
                 {payment?.status === 2 && <Badge className="ml-4 bg-red-500">Quá hạn</Badge>}
+                {payment?.status === 3 && <Badge className="ml-4 bg-green-500">Đã thanh toán (Chờ xác nhận)</Badge>}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -161,7 +236,7 @@ export default function PaymentDetail({ id }) {
                                     </div>
                                 </div>
 
-                                {!isPaid && !isOverdue && (
+                                {(payment?.status == 0 || payment?.status == 2) && (
                                     <>
                                         <Separator />
                                         <div>
@@ -171,28 +246,30 @@ export default function PaymentDetail({ id }) {
                                                 onValueChange={setSelectedPaymentMethod}
                                                 className="space-y-3"
                                             >
-                                                {/* <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
-                                                    <RadioGroupItem value="qr" id="qr" />
-                                                    <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
-                                                        <QrCode className="h-5 w-5" />
-                                                        <div>
-                                                            <div className="font-medium">Thanh toán bằng mã QR tự động</div>
-                                                            <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn</div>
+                                                {paymentMethod?.paymentMethod === 0 ?
+                                                    (
+                                                        <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+                                                            <RadioGroupItem value="qr" id="qr" />
+                                                            <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
+                                                                <QrCode className="h-5 w-5" />
+                                                                <div>
+                                                                    <div className="font-medium">Thanh toán bằng mã QR tự động</div>
+                                                                    <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn</div>
+                                                                </div>
+                                                            </Label>
                                                         </div>
-                                                    </Label>
-                                                </div> */}
-
-                                                <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
-                                                    <RadioGroupItem value="card" id="card" />
-                                                    <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
-                                                        <QrCode className="h-5 w-5" />
-                                                        <div>
-                                                            <div className="font-medium">Thanh toán bằng mã QR thủ công</div>
-                                                            <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn và chờ quản lí duyệt</div>
+                                                    ) : (
+                                                        <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+                                                            <RadioGroupItem value="qr" id="qr" />
+                                                            <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
+                                                                <QrCode className="h-5 w-5" />
+                                                                <div>
+                                                                    <div className="font-medium">Thanh toán bằng mã QR thủ công</div>
+                                                                    <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn và chờ quản lí duyệt</div>
+                                                                </div>
+                                                            </Label>
                                                         </div>
-                                                    </Label>
-                                                </div>
-
+                                                    )}
                                                 <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
                                                     <RadioGroupItem value="cash" id="cash" />
                                                     <Label htmlFor="cash" className="flex items-center gap-2 cursor-pointer">
@@ -222,7 +299,7 @@ export default function PaymentDetail({ id }) {
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-end gap-2">
-                            {!isPaid && !isOverdue && (
+                            {(payment?.status === 0 || payment?.status === 2) && (
                                 <>
                                     <Button onClick={() => setShowUpload(true)} variant="outline" className="gap-1">
                                         <Upload className="h-4 w-4" /> Tải lên biên lai thanh toán
@@ -232,18 +309,18 @@ export default function PaymentDetail({ id }) {
                                     </Button>
                                 </>
                             )}
-                            {!isPaid && isOverdue && (
+                            {!isPaid && payment?.status === 2 && (
                                 <div className="flex items-center text-red-500 gap-1">
                                     <AlertTriangle className="h-4 w-4" />
                                     <span>Thời hạn thanh toán đã hết hạn</span>
                                 </div>
                             )}
-                            {isPaid && !receiptImage && (
+                            {/* {isPaid && !receiptImage && (
                                 <Button onClick={() => setShowUpload(true)} variant="outline" className="gap-1">
                                     <Upload className="h-4 w-4" /> Tải lên biên lai thanh toán
                                 </Button>
-                            )}
-                            {isPaid && (
+                            )} */}
+                            {payment?.status === 3 && (
                                 <div className="flex items-center text-yellow-500 gap-1">
                                     <CheckCircle className="h-4 w-4" />
                                     <span>Đang chờ xác nhận của người quản lý</span>
@@ -268,22 +345,27 @@ export default function PaymentDetail({ id }) {
                                     {payment?.status === 1 ? (
                                         <>
                                             <CheckCircle className="h-4 w-4 text-green-500" />
-                                            <span className="text-sm">Trạng thái: Đã thanh toán (Đang chờ xác nhận)</span>
+                                            <span className="text-sm">Trạng thái: Đã thanh toán</span>
                                         </>
                                     ) : payment?.status === 2 ? (
                                         <>
                                             <AlertTriangle className="h-4 w-4 text-red-500" />
                                             <span className="text-sm">Tình trạng: Quá hạn</span>
                                         </>
-                                    ) : (
+                                    ) : payment?.status === 0 ? (
                                         <>
                                             <FileText className="h-4 w-4 text-yellow-500" />
                                             <span className="text-sm">Trạng thái: Chưa thanh toán</span>
                                         </>
+                                    ) : (
+                                        <>
+                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                            <span className="text-sm">Trạng thái: Đã thanh toán (Đang chờ xác nhận)</span>
+                                        </>
                                     )}
                                 </div>
 
-                                {isPaid && (
+                                {(payment?.status === 1 || payment?.status === 3) && (
                                     <>
                                         <Separator />
                                         <div>
@@ -291,7 +373,7 @@ export default function PaymentDetail({ id }) {
                                             <div className="space-y-2 text-sm">
                                                 <div className="grid grid-cols-2">
                                                     <div className="text-muted-foreground">Ngày thanh toán:</div>
-                                                    <div>April 16, 2025</div>
+                                                    <div>{ }</div>
                                                 </div>
                                                 <div className="grid grid-cols-2">
                                                     <div className="text-muted-foreground">Phương thức thanh toán:</div>
@@ -314,7 +396,7 @@ export default function PaymentDetail({ id }) {
                                     </>
                                 )}
 
-                                {isOverdue && (
+                                {payment?.status === 2 && (
                                     <>
                                         <Separator />
                                         <div className="p-3 bg-red-50 rounded-md border border-red-200">
@@ -338,10 +420,17 @@ export default function PaymentDetail({ id }) {
                         <DialogTitle>Mã QR thanh toán</DialogTitle>
                         <DialogDescription>Quét mã QR này bằng ứng dụng thanh toán của bạn để hoàn tất thanh toán.</DialogDescription>
                     </DialogHeader>
+                    {paymentMethod?.paymentMethod === 1 && (
+                        <p className="text-sm text-red-500 mb-2">
+                            Thời gian còn lại: {Math.floor(remainingTime / 60)}:{String(remainingTime % 60).padStart(2, '0')}
+                        </p>
+                    )}
                     <div className="flex flex-col items-center justify-center py-4">
                         <div className="border border-gray-200 p-4 rounded-lg mb-4">
                             <div className="w-64 h-64 bg-gray-100 flex items-center justify-center">
-                                <QrCode className="w-40 h-40 text-gray-800" />
+                                {qrCode ? (
+                                    <img src={qrCode} alt="QR Code" />
+                                ) : null}
                             </div>
                         </div>
                         <p className="text-sm text-muted-foreground mb-2">Số tiền: {formatTienVN(payment?.totalAmount)} VNĐ</p>
@@ -351,7 +440,10 @@ export default function PaymentDetail({ id }) {
                         <Button variant="outline" onClick={() => setShowQR(false)}>
                             Hủy
                         </Button>
-                        <Button onClick={handleQrPay}>Đã thanh toán</Button>
+                        {paymentMethod?.paymentMethod === 1 && (
+                            <Button onClick={handleQrPay}>Đã thanh toán</Button>
+                        )}
+
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

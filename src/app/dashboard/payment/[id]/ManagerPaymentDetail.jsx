@@ -47,6 +47,7 @@ export default function ManagerReportDetail({ id }) {
 
     const [expenseItems, setExpenseItems] = useState([])
     const [updatedItems, setUpdatedItems] = useState([])
+    const [teamFund, setTeamFund] = useState();
     const [newItems, setNewItems] = useState([])
     const [showSaveDialog, setShowSaveDialog] = useState(false)
     const [isSaved, setIsSaved] = useState(false)
@@ -58,6 +59,10 @@ export default function ManagerReportDetail({ id }) {
                 console.log("Fetched expense items:", response.data);
 
                 setExpenseItems(response.data.data.items)
+
+                const teamFundResponse = await teamFundApi.teamFundById(id);
+                console.log("Fetched teamFund:", teamFundResponse.data.data);
+                setTeamFund(teamFundResponse.data.data[0])
             } catch (error) {
                 console.error("Error fetching expense items:", error)
             }
@@ -133,12 +138,25 @@ export default function ManagerReportDetail({ id }) {
     }
 
     // Function to save changes
-    const saveChanges = () => {
-        const item = expenseItems.filter((item) => item.isNew)
+    const saveChanges = async () => {
+        const newItems = expenseItems.filter((item) => item.isNew)
         // In a real app, you would call your APIs here
         console.log("Updated items to send to API:", updatedItems)
-        console.log("New items to send to API:", item)
-        console.log("all:", expenseItems);
+        console.log("New items to send to API:", newItems)
+        try {
+            if(updatedItems.length > 0) {
+                const response = await teamFundApi.updateExpenditure(id, updatedItems);
+                console.log("update: ", response.data.data);
+                
+            }
+            if(newItems.length > 0) {
+                const response = await teamFundApi.addExpenditure(id, newItems);
+                console.log("update: ", response.data.data);
+                
+            }
+        } catch(err) {
+
+        }
 
 
         setIsSaved(true)
@@ -168,10 +186,10 @@ export default function ManagerReportDetail({ id }) {
             <div className="flex items-center mb-6">
                 <Link href="/dashboard/payment">
                     <Button variant="ghost" size="sm" className="gap-1">
-                        <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                        <ArrowLeft className="h-4 w-4" /> Quay lại danh sách
                     </Button>
                 </Link>
-                <h1 className="text-2xl font-bold ml-4">Expense Report #{id}</h1>
+                <h1 className="text-2xl font-bold ml-4">Expense Report #{teamFund?.teamFundId}</h1>
                 {isApproved && <Badge className="ml-4 bg-green-500">Approved</Badge>}
                 {isPending && <Badge className="ml-4 bg-yellow-500">Pending</Badge>}
                 {isSaved && <Badge className="ml-4 bg-blue-500">Changes Saved</Badge>}
@@ -184,19 +202,11 @@ export default function ManagerReportDetail({ id }) {
                             <div>
                                 <CardTitle className="flex items-center gap-2">
                                     <FileText className="h-5 w-5" />
-                                    {isPending
-                                        ? "March 2025 Expenses"
-                                        : isApproved && id === "120"
-                                            ? "February 2025 Expenses"
-                                            : "January 2025 Expenses"}
+                                    {teamFund?.description}
                                 </CardTitle>
                                 <CardDescription>
                                     Phải hoàn tất vào ngày {" "}
-                                    {isPending
-                                        ? "April 10, 2025"
-                                        : isApproved && id === "120"
-                                            ? "March 5, 2025"
-                                            : "February 8, 2025"}
+                                    {formatDate(teamFund?.endDate)}
                                 </CardDescription>
                             </div>
                             {!isApproved && (
@@ -352,7 +362,7 @@ export default function ManagerReportDetail({ id }) {
                             <div className="space-y-4">
                                 <div className="flex items-center gap-2">
                                     <Users className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">Team Alpha</span>
+                                    <span className="text-sm">{teamFund?.teamName}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {/* <DollarSign className="h-4 w-4 text-muted-foreground" /> */}

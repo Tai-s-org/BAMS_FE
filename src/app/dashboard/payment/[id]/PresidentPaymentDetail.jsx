@@ -1,21 +1,51 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
-import {Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/Dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/Dialog"
 import { Separator } from "@/components/ui/Seperator"
 import { Badge } from "@/components/ui/Badge"
 import { Textarea } from "@/components/ui/Textarea"
 import Link from "next/link"
 import { ArrowLeft, CheckCircle, FileText, DollarSign, Users } from "lucide-react"
+import teamFundApi from "@/api/teamFund"
 
 export default function PresidentReportDetail({ id }) {
     const [isApproved, setIsApproved] = useState(false)
     const [isRejected, setIsRejected] = useState(false)
     const [comment, setComment] = useState("")
+    const [teamFund, setTeamFund] = useState();
+    const [expenseItems, setExpenseItems] = useState([])
 
-    const handleApprove = () => {
+    const fetchExpenseItems = async () => {
+        try {
+            const response = await teamFundApi.listExpenditure(id);
+            console.log("Fetched expense items:", response.data);
+
+            setExpenseItems(response.data.data.items)
+
+            const teamFundResponse = await teamFundApi.teamFundById(id);
+            console.log("Fetched teamFund:", teamFundResponse.data.data);
+            setTeamFund(teamFundResponse.data.data[0])
+        } catch (error) {
+            console.error("Error fetching expense items:", error)
+        }
+    }
+
+    useEffect(() => {
+        fetchExpenseItems();
+    }, [id])
+
+    const handleApprove = async (id) => {
+        try {
+            const response = await teamFundApi.approveTeamFund({
+                "teamFundId": id,
+            })
+            fetchExpenseItems()
+        } catch (err) {
+
+        }
         setIsApproved(true)
         setIsRejected(false)
     }
@@ -28,14 +58,14 @@ export default function PresidentReportDetail({ id }) {
     return (
         <div className="container mx-auto py-6">
             <div className="flex items-center mb-6">
-                <Link href="/president/dashboard">
+                <Link href="/dashboard/payment">
                     <Button variant="ghost" size="sm" className="gap-1">
-                        <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                        <ArrowLeft className="h-4 w-4" /> Quay trở lại thống kê
                     </Button>
                 </Link>
-                <h1 className="text-2xl font-bold ml-4">Expense Report #{id}</h1>
-                {isApproved && <Badge className="ml-4 bg-green-500">Approved</Badge>}
-                {isRejected && <Badge className="ml-4 bg-red-500">Rejected</Badge>}
+                <h1 className="text-2xl font-bold ml-4">Báo cáo quỹ đội #{id}</h1>
+                {teamFund?.status === 1 && <Badge className="ml-4 bg-green-500">Đã duyệt</Badge>}
+                {teamFund?.status === 0 && <Badge className="ml-4 bg-yellow-500">Chưa duyệt</Badge>}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -44,109 +74,87 @@ export default function PresidentReportDetail({ id }) {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <FileText className="h-5 w-5" />
-                                Team Alpha Expense Report - March 2025
+                                {teamFund?.teamName} - {teamFund?.description}
                             </CardTitle>
-                            <CardDescription>Submitted by John Manager on April 10, 2025</CardDescription>
+                            <CardDescription>Hoàn thành bởi {teamFund?.teamId} vào ngày {teamFund?.endDate}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-6">
                                 <div>
-                                    <h3 className="font-medium mb-2">Description</h3>
+                                    <h3 className="font-medium mb-2">Mô tả</h3>
                                     <p className="text-sm text-muted-foreground">
-                                        Monthly expense report for Team Alpha including equipment, training, and travel expenses.
+                                        Báo cáo chi phí hàng tháng cho {teamFund?.teamName} bao gồm chi phí thiết bị, đào tạo và đi lại.
                                     </p>
                                 </div>
 
                                 <Separator />
 
                                 <div>
-                                    <h3 className="font-medium mb-2">Expense Items</h3>
+                                    <h3 className="font-medium mb-2">Danh mục chi tiêu</h3>
+
                                     <div className="space-y-4">
-                                        <div className="grid grid-cols-3 text-sm">
-                                            <div className="font-medium">Item</div>
-                                            <div className="font-medium">Category</div>
-                                            <div className="font-medium text-right">Amount</div>
+                                        <div className="grid grid-cols-12 text-sm">
+                                            <div className="font-medium col-span-4">Danh mục</div>
+                                            <div className="font-medium text-right col-span-3">Số tiền</div>
+                                            <div className="col-span-1"></div>
+                                            <div className="font-medium">Ngày </div>
                                         </div>
 
                                         <Separator />
 
-                                        <div className="grid grid-cols-3 text-sm">
-                                            <div>New Equipment</div>
-                                            <div>Equipment</div>
-                                            <div className="text-right">$800</div>
-                                        </div>
+                                        {expenseItems.map((item, index) => (
+                                            <div key={index}>
+                                                <div className="grid grid-cols-12 text-sm">
+                                                    <div className="col-span-4">{item.name}</div>
+                                                    <div className="text-right col-span-3">{item.amount} VNĐ</div>
+                                                    <div className="col-span-1"></div>
+                                                    <div className="font-medium">{item.paidDate} </div>
+                                                </div>
+                                                <Separator />
+                                            </div>
+                                        ))}
 
-                                        <Separator />
-
-                                        <div className="grid grid-cols-3 text-sm">
-                                            <div>Training Session</div>
-                                            <div>Training</div>
-                                            <div className="text-right">$350</div>
-                                        </div>
-
-                                        <Separator />
-
-                                        <div className="grid grid-cols-3 text-sm">
-                                            <div>Travel Expenses</div>
-                                            <div>Travel</div>
-                                            <div className="text-right">$450</div>
-                                        </div>
-
-                                        <Separator />
-
-                                        <div className="grid grid-cols-3 text-sm font-medium">
-                                            <div className="col-span-2">Total</div>
-                                            <div className="text-right">$1,600</div>
+                                        <div className="grid grid-cols-12 text-sm font-medium">
+                                            <div className="col-span-4">Tổng</div>
+                                            <div className="text-right col-span-3">
+                                                {expenseItems.reduce((total, item) => total + Number(item.amount), 0)} VNĐ
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
+
                                 <Separator />
 
-                                <div>
+                                {/* <div>
                                     <h3 className="font-medium mb-2">Team Members (4)</h3>
                                     <p className="text-sm text-muted-foreground">Each member will be charged $400 after approval.</p>
-                                </div>
+                                </div> */}
 
                                 <Separator />
-
-                                <div>
-                                    <h3 className="font-medium mb-2">Attachments</h3>
-                                    <div className="text-sm text-blue-500 underline">receipt-march-2025.pdf</div>
-                                </div>
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between">
-                            <div className="space-y-2">
-                                <h3 className="text-sm font-medium">President Comment</h3>
-                                <Textarea
-                                    placeholder="Add your comment here..."
-                                    className="w-80"
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    disabled={isApproved || isRejected}
-                                />
-                            </div>
                             <div className="space-x-2">
-                                {!isApproved && !isRejected && (
+                                {teamFund?.status === 0 && (
                                     <>
                                         <Dialog>
                                             <DialogTrigger asChild>
-                                                <Button variant="destructive">Reject</Button>
+                                                <Button variant="destructive">Từ chối</Button>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
-                                                    <DialogTitle>Reject Expense Report</DialogTitle>
+                                                    <DialogTitle>Từ chối báo cáo chi phí</DialogTitle>
                                                     <DialogDescription>
-                                                        Are you sure you want to reject this expense report? This action cannot be undone.
+                                                    Bạn có chắc chắn muốn từ chối báo cáo chi phí này không?
                                                     </DialogDescription>
                                                 </DialogHeader>
                                                 <DialogFooter>
                                                     <Button variant="outline" onClick={() => { }}>
-                                                        Cancel
+                                                        Hủy
                                                     </Button>
                                                     <Button variant="destructive" onClick={handleReject}>
-                                                        Confirm Rejection
+                                                        Xác nhận
                                                     </Button>
                                                 </DialogFooter>
                                             </DialogContent>
@@ -154,28 +162,27 @@ export default function PresidentReportDetail({ id }) {
 
                                         <Dialog>
                                             <DialogTrigger asChild>
-                                                <Button>Approve</Button>
+                                                <Button>Phê duyệt</Button>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
-                                                    <DialogTitle>Approve Expense Report</DialogTitle>
+                                                    <DialogTitle>Phê duyệt báo cáo chi phí</DialogTitle>
                                                     <DialogDescription>
-                                                        Are you sure you want to approve this expense report? This will charge each team member
-                                                        $400.
+                                                        Bạn có chắc chắn muốn chấp thuận báo cáo chi phí này không?
                                                     </DialogDescription>
                                                 </DialogHeader>
                                                 <DialogFooter>
                                                     <Button variant="outline" onClick={() => { }}>
-                                                        Cancel
+                                                        Hủy
                                                     </Button>
-                                                    <Button onClick={handleApprove}>Confirm Approval</Button>
+                                                    <Button onClick={() => handleApprove(teamFund.teamFundId)}>Xác nhận</Button>
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
                                     </>
                                 )}
 
-                                {(isApproved || isRejected) && (
+                                {(teamFund?.status === 1) && (
                                     <Button
                                         variant="outline"
                                         onClick={() => {
@@ -184,7 +191,7 @@ export default function PresidentReportDetail({ id }) {
                                             setComment("")
                                         }}
                                     >
-                                        Reset Status
+                                        Đặt lại trạng thái
                                     </Button>
                                 )}
                             </div>
@@ -201,28 +208,26 @@ export default function PresidentReportDetail({ id }) {
                             <div className="space-y-4">
                                 <div className="flex items-center gap-2">
                                     <Users className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">Team Alpha</span>
+                                    <span className="text-sm">{teamFund?.teamName}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">Monthly Budget: $2,000</span>
+                                    <span className="text-sm"></span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle className="h-4 w-4 text-green-500" />
-                                    <span className="text-sm">Previous Report: Approved</span>
-                                </div>
+                                {teamFund?.status === 1 ? (
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                        <span className="text-sm">Trạng thái: Đã duyệt</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="h-4 w-4 text-yellow-500" />
+                                        <span className="text-sm">Trạng thái: Chưa duyệt</span>
+                                    </div>
+                                )}
+
 
                                 <Separator />
-
-                                <div>
-                                    <h3 className="text-sm font-medium mb-2">Team Members</h3>
-                                    <ul className="space-y-2 text-sm">
-                                        <li>Alex Player</li>
-                                        <li>Sam Player</li>
-                                        <li>Taylor Player</li>
-                                        <li>Jordan Player</li>
-                                    </ul>
-                                </div>
                             </div>
                         </CardContent>
                     </Card>

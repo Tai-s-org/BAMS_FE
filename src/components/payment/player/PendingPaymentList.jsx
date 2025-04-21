@@ -30,7 +30,7 @@ export function PendingPaymentsList({ pendingPayments }) {
     function formatTienVN(number) {
         return number != null ? number.toLocaleString('vi-VN') : "";
     }
-    
+
     return (
         (pendingPayments?.length > 0) ? (
             <div className="space-y-4">
@@ -61,7 +61,7 @@ export function PendingPaymentsList({ pendingPayments }) {
                                     {payment.isOverdue ? "Hết hạn" : "Chưa thanh toán"}
                                 </Badge>
                             </div>
-                            <Link href={`/dashboard/payment/${payment.id}`}>
+                            <Link href={`/dashboard/payment/${payment.paymentId}`}>
                                 <Button variant="ghost" size="icon">
                                     <ArrowRight className="h-4 w-4" />
                                 </Button>

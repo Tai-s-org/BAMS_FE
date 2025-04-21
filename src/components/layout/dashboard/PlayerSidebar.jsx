@@ -19,7 +19,7 @@ export default function PlayerSidebar() {
 
     const menuItems = [
         { title: "Accounts", icon: LayoutDashboard, url: "/dashboard/accounts" },
-        { title: "Payments", icon: CreditCard, url: "/payments" },
+        { title: "Thanh toán", icon: CreditCard, url: "/dashboard/payment" },
         { title: "Balances", icon: BarChart3, url: "/balances" },
         { title: "Customers", icon: Users, url: "/customers" },
         { title: "Products", icon: Package, url: "/products" },
