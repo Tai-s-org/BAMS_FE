@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge"
 import Link from "next/link"
 import { ArrowLeft, FileText, DollarSign, CheckCircle, AlertTriangle, User } from "lucide-react"
 
-export default function ParentPaymentDetail({ params }) {
+export default function ParentPaymentDetail({ id }) {
     // For demo purposes, determine payment details based on ID
     const paymentDetails = {
         p101: {
@@ -87,7 +87,7 @@ export default function ParentPaymentDetail({ params }) {
                     </Button>
                 </Link>
                 <h1 className="text-2xl font-bold ml-4">
-                    Payment #{params.id} - {paymentDetails.child}
+                    Payment #{id} - {paymentDetails.child}
                 </h1>
                 {isPaid && <Badge className="ml-4 bg-green-500">Paid</Badge>}
                 {!isPaid && !isOverdue && <Badge className="ml-4 bg-yellow-500">Pending</Badge>}

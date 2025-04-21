@@ -4,11 +4,11 @@ const paymentApi = {
     getPaymentHistoryByTeam: (teamId, data) => {
         return api.get(`/payment-management/team?teamId=${teamId}`, {params: data});
     },
-    getPaymentHistoryByUser: (userId, data) => {
-        return api.get(`/payment/user-history?userId=${userId}`, {params: data});
+    getMyPaymentHistory: (data) => {
+        return api.get(`/payment-management/my-payment`, {params: data});
     },
     getPaymentDetail: (id) => {
-        return api.get(`/payment/detail/${id}`);
+        return api.get(`/payment-management/payment-detail?PaymentId=${id}`);
     }
     
 

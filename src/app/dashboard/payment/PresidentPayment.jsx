@@ -8,23 +8,44 @@ import { TeamSummary } from "@/components/payment/president/TeamSummary"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
 import Link from "next/link"
 import { ArrowLeft, Filter } from "lucide-react"
+import { useEffect, useState } from "react"
+import teamFundApi from "@/api/teamFund"
 
 export default function PresidentPayment() {
+    const [teamFundList, setTeamFundList] = useState([])
+
+
+    useEffect(() => {
+        const fetchTeamFund = async() => {
+            try {
+                const response = await teamFundApi.teamFundList();
+                console.log(response.data);
+                setTeamFundList(response.data.data)
+            } catch (error) {
+                
+            }
+        }
+        fetchTeamFund()
+    }, [])
+
+    const pendingTeamFundList = teamFundList.filter((item) => item.status === 0)
+    const aprrovedTeamFundList = teamFundList.filter((item) => item.status === 1)
+
     return (
         <div className="container mx-auto py-6">
             <div className="flex items-center mb-6">
-                <Link href="/">
+                <Link href="/dashboard">
                     <Button variant="ghost" size="sm" className="gap-1">
-                        <ArrowLeft className="h-4 w-4" /> Back
+                        <ArrowLeft className="h-4 w-4" /> Quay lại
                     </Button>
                 </Link>
-                <h1 className="text-2xl font-bold ml-4">President Dashboard</h1>
+                <h1 className="text-2xl font-bold ml-4">Thống kê thanh toán của câu lạc bộ</h1>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Total Teams</CardTitle>
+                        <CardTitle className="text-sm font-medium">Tổng số đội</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">5</div>
@@ -33,10 +54,10 @@ export default function PresidentPayment() {
 
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Pending Reports</CardTitle>
+                        <CardTitle className="text-sm font-medium">Báo cáo đang chờ xử lý</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">3</div>
+                        <div className="text-2xl font-bold">{pendingTeamFundList?.length}</div>
                     </CardContent>
                 </Card>
 
@@ -59,14 +80,14 @@ export default function PresidentPayment() {
                 </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="lg:col-span-2">
                     <Tabs defaultValue="pending">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                             <TabsList>
-                                <TabsTrigger value="pending">Pending Reports</TabsTrigger>
-                                <TabsTrigger value="approved">Approved Reports</TabsTrigger>
-                                <TabsTrigger value="history">Payment History</TabsTrigger>
+                                <TabsTrigger value="pending">Báo cáo đang chờ duyệt</TabsTrigger>
+                                <TabsTrigger value="approved">Báo cáo đã duyệt</TabsTrigger>
+                                <TabsTrigger value="history">Lịch sử thanh toán</TabsTrigger>
                             </TabsList>
 
                             <div className="flex flex-wrap gap-2 items-center">
@@ -76,7 +97,7 @@ export default function PresidentPayment() {
                                         <SelectValue placeholder="Select team" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all-teams">All Teams</SelectItem>
+                                        <SelectItem value="all-teams">Tất cả các đội</SelectItem>
                                         <SelectItem value="team-alpha">Team Alpha</SelectItem>
                                         <SelectItem value="team-beta">Team Beta</SelectItem>
                                         <SelectItem value="team-gamma">Team Gamma</SelectItem>
@@ -90,7 +111,7 @@ export default function PresidentPayment() {
                                         <SelectValue placeholder="Select month" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="april-2025">April 2025</SelectItem>
+                                        <SelectItem value="april-2025">Tháng 4 2025</SelectItem>
                                         <SelectItem value="march-2025">March 2025</SelectItem>
                                         <SelectItem value="february-2025">February 2025</SelectItem>
                                         <SelectItem value="january-2025">January 2025</SelectItem>
@@ -103,11 +124,11 @@ export default function PresidentPayment() {
                         <TabsContent value="pending">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Pending Expense Reports</CardTitle>
-                                    <CardDescription className="text-[#94949B]">Review and approve team expense reports</CardDescription>
+                                    <CardTitle>Báo cáo quỹ đội chờ xét duyệt</CardTitle>
+                                    <CardDescription className="text-[#94949B]">Xem xét và phê duyệt báo cáo chi phí của các đội</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <PendingReportsList />
+                                    <PendingReportsList  pendingReports={pendingTeamFundList}/>
                                 </CardContent>
                             </Card>
                         </TabsContent>
@@ -115,11 +136,11 @@ export default function PresidentPayment() {
                         <TabsContent value="approved">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Approved Expense Reports</CardTitle>
-                                    <CardDescription className="text-[#94949B]">Recently approved team expense reports</CardDescription>
+                                    <CardTitle>Báo cáo chi phí đã được phê duyệt</CardTitle>
+                                    <CardDescription className="text-[#94949B]">Báo cáo chi phí của các đội được phê duyệt gần đây</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <ApprovedReportsList />
+                                    <ApprovedReportsList approvedReports={aprrovedTeamFundList} />
                                 </CardContent>
                             </Card>
                         </TabsContent>
@@ -127,8 +148,8 @@ export default function PresidentPayment() {
                         <TabsContent value="history">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Payment History</CardTitle>
-                                    <CardDescription className="text-[#94949B]">Track all team payment activities</CardDescription>
+                                    <CardTitle>Lịch sử thanh toán</CardTitle>
+                                    <CardDescription className="text-[#94949B]">Theo dõi tất cả các hoạt động thanh toán của đội</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <PaymentHistoryList />
@@ -138,7 +159,7 @@ export default function PresidentPayment() {
                     </Tabs>
                 </div>
 
-                <div>
+                {/* <div>
                     <Card>
                         <CardHeader>
                             <CardTitle>Team Summary</CardTitle>
@@ -148,7 +169,7 @@ export default function PresidentPayment() {
                             <TeamSummary />
                         </CardContent>
                     </Card>
-                </div>
+                </div> */}
             </div>
         </div>
     )
