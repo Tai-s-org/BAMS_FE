@@ -35,11 +35,18 @@ const matchApi = {
         return api.post(`/match/${matchId}/articles`, data);
     },
     uploadArticleFile: (id, data) => {
-        return api.post(`/match/${id}/upload-article-file`, data);
+        return api.post(`/match/${id}/upload-article-file`, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
     },
     deleteArticleFile: (filePath) => {
         return api.delete(`/match/delete-article-file`, {params: {filePath}});
     },
+    deleteArticle: (matchId, articleId) => {
+        return api.delete(`/match/${matchId}/article/${articleId}`);
+    }
 };
 
 export default matchApi;

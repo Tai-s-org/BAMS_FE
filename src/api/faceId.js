@@ -14,6 +14,7 @@ const faceIdApi = {
     deleteFaceId: (id) => {
         return api.delete(`/face-recognition/delete/${id}`)
     }
+
 }
 
 export default faceIdApi

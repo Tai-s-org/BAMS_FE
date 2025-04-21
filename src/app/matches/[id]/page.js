@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { format, set } from "date-fns"
+import { format } from "date-fns"
 import { Calendar, Clock, MapPin, Edit, ArrowLeft, Plus, Trash2, FileText, Users, Info } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Badge } from "@/components/ui/Badge"
@@ -25,29 +25,53 @@ import ArticleForm from "@/components/matches/ArticleForm"
 import PlayerSelector from "@/components/matches/PlayerSelector"
 import matchApi from "@/api/match"
 import { useAuth } from "@/hooks/context/AuthContext"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 export default function MatchDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const {userInfo} = useAuth();
+  const { userInfo } = useAuth();
   const [match, setMatch] = useState(null)
   const [showArticleForm, setShowArticleForm] = useState(false)
   const [editingArticle, setEditingArticle] = useState(null)
   const [showPlayerSelector, setShowPlayerSelector] = useState(false)
   const [selectedTeam, setSelectedTeam] = useState("home")
   const [availablePlayers, setAvailablePlayers] = useState([])
+  const { addToast } = useToasts()
+  const [isUpdate, setIsUpdate] = useState(false)
 
   useEffect(() => {
     fetchMatchDetails();
     fetchListPlayers();
   }, [params.id])
 
+  useEffect(() => {
+    if (isUpdate) {
+      fetchMatchDetails()
+      setIsUpdate(false)
+    }
+  }, [isUpdate])
+
   const fetchMatchDetails = async () => {
     try {
       const response = await matchApi.getMatchById(params.id);
-      setMatch(response?.data.data)
+
+      const matches = response?.data.data.matchArticles?.map((article) => article.url.startsWith("uploads/") ? {
+        ...article,
+        uploadType: "file",
+      } : {
+        ...article,
+        uploadType: "url",
+      })
+      setMatch({
+        ...response?.data.data,
+        matchArticles: matches,
+      })
     } catch (error) {
       console.error("Error fetching match details:", error)
+      if (error.status == 401) {
+        addToast({ message: "Phiên đăng nhập của bạn đã hết", type: "error" });
+      }
     }
   }
 
@@ -57,43 +81,55 @@ export default function MatchDetailPage() {
       setAvailablePlayers(response?.data.data);
     } catch (error) {
       console.error("Error fetching players:", error)
-      if(error.status == 401) {
-        addToast({ message: error?.response?.data.Message, type: "error" });
+      if (error.status == 401) {
+        addToast({ message: "Phiên đăng nhập của bạn đã hết", type: "error" });
       }
     }
   }
 
-  const handleDeleteArticle = (articleId) => {
-    setMatch({
-      ...match,
-      matchArticles: match.matchArticles.filter((article) => article.id !== articleId),
-    })
+  const handleDeleteArticle = async (articleId, filePath) => {
+    try {
+      if (filePath.startsWith("uploads/")) {
+        const response = await matchApi.deleteArticleFile(filePath)
+      }
+
+      await matchApi.deleteArticle(match.matchId, articleId)
+
+      addToast({
+        message: "Xóa tư liệu thành công",
+        type: "success",
+      })
+
+      setMatch({
+        ...match,
+        matchArticles: match.matchArticles.filter((article) => article.articleId !== articleId),
+      })
+
+    } catch (error) {
+      console.error("Error deleting article:", error)
+      if (error.status == 401) {
+        addToast({ message: "Phiên đăng nhập của bạn đã hết", type: "error" });
+      } else {
+        addToast({
+          message: "Xóa tư liệu thất bại",
+          type: "error",
+        })
+      }
+    }
   }
 
-  const handleSaveArticle = (article) => {
-    if (editingArticle) {
-      // Update existing article
-      setMatch({
-        ...match,
-        matchArticles: match.matchArticles.map((a) =>
-          a.id === editingArticle.id ? { ...article, id: editingArticle.id } : a
-        ),
-      })
-    } else {
-      // Add new article
-      setMatch({
-        ...match,
-        matchArticles: [...match.matchArticles, { ...article, id: Date.now() }],
-      })
+  const handleSaveArticle = (isSuccess) => {
+    if (isSuccess) {
+      setIsUpdate(true)
     }
     setShowArticleForm(false)
     setEditingArticle(null)
   }
 
-  const handleEditArticle = (article) => {
-    setEditingArticle(article)
-    setShowArticleForm(true)
-  }
+  // const handleEditArticle = (article) => {
+  //   setEditingArticle(article)
+  //   setShowArticleForm(true)
+  // }
 
   const handleAddPlayers = (players, team) => {
     if (team === "home") {
@@ -239,7 +275,7 @@ export default function MatchDetailPage() {
               onSave={handleSaveArticle}
               onCancel={() => {
                 setShowArticleForm(false)
-                setEditingArticle(null)
+                // setEditingArticle(null)
               }}
               matchId={params.id}
             />
@@ -254,14 +290,14 @@ export default function MatchDetailPage() {
           ) : (
             <div className="space-y-4">
               {match?.matchArticles.map((article) => (
-                <Card key={article.id}>
+                <Card key={article.articleId}>
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
                       <CardTitle>{article.title}</CardTitle>
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleEditArticle(article)}>
+                        {/* <Button variant="ghost" size="sm" onClick={() => handleEditArticle(article)}>
                           <Edit className="h-4 w-4" />
-                        </Button>
+                        </Button> */}
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="sm" className="text-red-500">
@@ -277,7 +313,7 @@ export default function MatchDetailPage() {
                               <AlertDialogCancel>Hủy</AlertDialogCancel>
                               <AlertDialogAction
                                 className="bg-[#BD2427] hover:bg-[#9a1e21]"
-                                onClick={() => handleDeleteArticle(article.id)}
+                                onClick={() => handleDeleteArticle(article.articleId, article.url)}
                               >
                                 Xóa
                               </AlertDialogAction>
@@ -287,12 +323,10 @@ export default function MatchDetailPage() {
                       </div>
                     </div>
                     <div className="text-sm text-gray-500">
-                      
+
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p>{article.content}</p>
-
                     {article.uploadType === "url" && article.url && (
                       <div className="mt-4 p-3 border rounded-md flex items-center">
                         <FileText className="h-5 w-5 mr-2 text-[#BD2427]" />
@@ -307,17 +341,33 @@ export default function MatchDetailPage() {
                       </div>
                     )}
 
-                    {article.uploadType === "file" && article.fileUrl && (
-                      <div className="mt-4 p-3 border rounded-md flex items-center">
-                        <FileText className="h-5 w-5 mr-2 text-[#BD2427]" />
-                        <a
-                          href={article.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#BD2427] hover:underline"
-                        >
-                          Tài liệu đính kèm
-                        </a>
+                    {article.uploadType === "file" && article.url && (
+                      <div className="mt-4 p-3 border rounded-md">
+                        {article.url.match(/\.(jpeg|jpg|gif|png)$/) ? (
+                          // Display image
+                          <img
+                            src={process.env.NEXT_PUBLIC_IMAGE_API_URL + article.url}
+                            alt="Article content"
+                            className="max-w-full h-auto rounded-md"
+                          />
+                        ) : article.url.match(/\.(mp4|webm|ogg)$/) ? (
+                          // Display video
+                          <video
+                            controls
+                            className="max-w-full rounded-md"
+                          >
+                            <source src={process.env.NEXT_PUBLIC_IMAGE_API_URL + article.url} type={`video/${article.url.split('.').pop().toLowerCase()}`} />
+                            Trình duyệt của bạn không hỗ trợ video này
+                          </video>
+                        ) : (
+                          // Default file display
+                          <div className="flex items-center">
+                            <FileText className="h-5 w-5 mr-2 text-[#BD2427]" />
+                            <a href={article.url} target="_blank" rel="noopener noreferrer">
+                              Xem tệp đính kèm
+                            </a>
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>

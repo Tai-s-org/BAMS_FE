@@ -46,33 +46,38 @@ export default function ArticleForm({ article, onSave, onCancel, matchId }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // In a real app, you would upload the file to a server here
-    // and get back a URL to store
-
-    const newArticle = {
-      title,
-      uploadType,
-      url: uploadType === "url" ? url : null,
-      fileUrl: uploadType === "file" ? fileUrl || (file ? URL.createObjectURL(file) : null) : null,
-      createdAt: new Date().toISOString(),
-      articleType,
+    let fileUrl = null;
+    // Handle uploading the file if it exists
+    if (file) {
+      try {
+        const formData = new FormData()
+        formData.append("File", file)
+        formData.append("ArticleType", articleType)
+        const response = await matchApi.uploadArticleFile(matchId, formData)
+        setUrl(response.data.data)
+        fileUrl = response.data.data
+        addToast({ type: response.data.status, message: response.data.message })
+      } catch (error) {
+        console.error("Error upload article file:", error)
+        if (error?.response?.status == 401) {
+          addToast({ message: "Phiên đăng nhập của bạn đã hết", type: "error" });
+        } else {
+          addToast({ type: error.response.data.status, message: error.response.data.message })
+        }
+      } finally {
+        setFile(null)
+        setFilePreview(null)
+      }
     }
-
-    console.log("Submitting article:", {
-      title: title,
-      articleType: articleType,
-      url: uploadType === "url" ? url : null,
-    });
-
+    // Handle create article
     const submitData = [{
       title: title,
       articleType: articleType,
-      url: uploadType === "url" ? url : null,
+      url: uploadType === "url" ? url : `${process.env.NEXT_PUBLIC_IMAGE_API_URL}${fileUrl}`,
     }];
 
     try {
       const response = await matchApi.createArticle(matchId, submitData)
-      console.log("Article created:", response.data)
       addToast({ type: response.data.status, message: response.data.message })
       // Reset form
       setTitle("")
@@ -80,12 +85,15 @@ export default function ArticleForm({ article, onSave, onCancel, matchId }) {
       setFile(null)
       setFilePreview(null)
       setFileUrl(null)
+      onSave(true)
     } catch (error) {
-      console.error("Error uploading file:", error)
-      addToast({ type: error.response.data.status, message: error.response.data.message })
+      console.error("Error creating article:", error)
+      if (error?.status == 401) {
+        addToast({ message: "Phiên đăng nhập của bạn đã hết", type: "error" });
+      } else {
+        addToast({ type: error.response.data.status, message: error.response.data.message })
+      }
     }
-    // Call the onSave function with the new article data    
-    onSave(newArticle)
   }
 
   const removeFile = () => {
