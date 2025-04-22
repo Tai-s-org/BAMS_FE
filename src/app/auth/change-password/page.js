@@ -75,7 +75,6 @@
 // }
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import authApi from "@/api/auth";
 import { Input } from "@/components/ui/Input";
@@ -86,8 +85,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function SetNewPassword() {
-    const searchParams = useSearchParams();
-    const token = searchParams.get("token");
     const [oldPassword, setOldPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
