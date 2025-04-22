@@ -13,6 +13,7 @@ import { ArrowLeft, FileText, DollarSign, QrCode, CheckCircle, Upload, AlertTria
 import paymentApi from "@/api/payment"
 import teamFundApi from "@/api/teamFund"
 import Image from "next/image"
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 
 export default function PaymentDetail({ id }) {
     const [payment, setPayment] = useState()
@@ -111,7 +112,7 @@ export default function PaymentDetail({ id }) {
                         "paymentId": id,
                         "status": 3
                     })
-                fetchPaymentDetails()
+                    fetchPaymentDetails()
                 } catch (err) {
 
                 }
@@ -123,15 +124,15 @@ export default function PaymentDetail({ id }) {
 
 
     const handleQrPay = async () => {
-            try {
-                const response = await teamFundApi.updatePaymentStatus({
-                    "paymentId": id,
-                    "status": 3
-                })
+        try {
+            const response = await teamFundApi.updatePaymentStatus({
+                "paymentId": id,
+                "status": 3
+            })
             fetchPaymentDetails()
-            } catch (err) {
+        } catch (err) {
 
-            }
+        }
         setShowQR(false)
     }
 
@@ -190,7 +191,7 @@ export default function PaymentDetail({ id }) {
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <FileText className="h-5 w-5" />
-                                {payment?.teamName} - teamfund: {payment?.teamFundId}
+                                {payment?.teamName} - {payment?.teamFundDescription}
                             </CardTitle>
                             <CardDescription>Phần chi phí của đội bạn</CardDescription>
                         </CardHeader>
@@ -205,7 +206,7 @@ export default function PaymentDetail({ id }) {
 
                                 <Separator />
 
-                                <div>
+                                {/* <div>
                                     <h3 className="font-medium mb-2">Danh mục thanh toán</h3>
                                     <div className="space-y-4">
                                         <div className="grid grid-cols-12 text-sm font-medium">
@@ -234,6 +235,38 @@ export default function PaymentDetail({ id }) {
                                             <div className="col-span-5"></div>
                                         </div>
                                     </div>
+                                </div> */}
+
+                                <div>
+                                    <h3 className="font-medium mb-2">Danh mục thanh toán</h3>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow className="text-sm font-medium">
+                                                <TableHead className="w-4/12">Danh mục</TableHead>
+                                                <TableHead className="w-2/12 text-right">Giá tiền</TableHead>
+                                                <TableHead className="w-1/12"></TableHead>
+                                                <TableHead className="w-5/12">Ghi chú</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {paymentItems.map((item) => (
+                                                <TableRow key={item.paymentItemId} className="text-sm">
+                                                    <TableCell className="font-medium">{item.paidItemName}</TableCell>
+                                                    <TableCell className="text-right">{formatTienVN(item.amount)} VNĐ</TableCell>
+                                                    <TableCell></TableCell>
+                                                    <TableCell className="text-muted-foreground">{item.note}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                        <TableFooter>
+                                            <TableRow className="text-sm font-medium">
+                                                <TableCell className="font-bold">Tổng</TableCell>
+                                                <TableCell className="text-right font-bold">{formatTienVN(payment?.totalAmount)} VNĐ</TableCell>
+                                                <TableCell></TableCell>
+                                                <TableCell></TableCell>
+                                            </TableRow>
+                                        </TableFooter>
+                                    </Table>
                                 </div>
 
                                 {(payment?.status == 0 || payment?.status == 2) && (

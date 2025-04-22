@@ -6,10 +6,12 @@ import { Button } from "../ui/Button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import authApi from "@/api/auth";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false); // Thêm state loading để chặn spam request
+    const { addToast } = useToasts();
 
     const handleSubmit = async (event) => {
         event.preventDefault(); // Chặn hành vi mặc định của form
@@ -21,9 +23,9 @@ export default function ForgotPassword() {
         setLoading(true);
         try {
             const response = await authApi.forgotPassword({ email });
-            //addToast({ message: response.message || "Vui lòng kiểm tra email của bạn", type: "success" });
+            addToast({ message: response.message || "Vui lòng kiểm tra email của bạn", type: "success" });
         } catch (error) {
-            //addToast({ message: error.response?.data?.message || "Đã xảy ra lỗi, vui lòng thử lại", type: "error" });
+            addToast({ message: error.response?.data?.message || "Đã xảy ra lỗi, vui lòng thử lại", type: "error" });
         } finally {
             setLoading(false);
         }

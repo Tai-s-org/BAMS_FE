@@ -12,7 +12,7 @@ export default function ForgotPasswordForm({ email, setEmail, handleSubmit }) {
     console.log(email);
     
     return (
-        <div className="min-h-screen-full flex items-center justify-center bg-gray-100 p-4">
+        <div className="min-h-screen-full flex items-center justify-center p-4">
             <Card className="w-full max-w-md overflow-hidden shadow-xl relative bg-white border-0 mt-20 mb-20">
                 <div className="absolute top-0 left-0 right-0 h-1 bg-[#BD2427]"></div>
 

@@ -25,7 +25,7 @@ export default function ProfileHeader({
                     <div className="relative">
                         <div className="w-32 h-32 rounded-full bg-white p-1 shadow-lg">
                             <Avatar className="w-full h-full">
-                                <AvatarImage src={avatarPreview || user.profileImage} alt={user.fullname} />
+                                <AvatarImage src={"https://png.pngtree.com/png-vector/20191009/ourmid/pngtree-user-icon-png-image_1796659.jpg" || user.profileImage} alt={user?.fullname} />
                                 {/* <AvatarFallback className="bg-white text-red-700 text-4xl">
                                     {user?.fullname
                                         .split(" ")
@@ -59,16 +59,16 @@ export default function ProfileHeader({
                                     <Badge className="bg-white text-red-700 hover:bg-gray-100">
                                         <User className="h-3 w-3 mr-1" />@{user.username}
                                     </Badge>
-                                    <Badge className="bg-red-900 text-white hover:bg-red-500">
+                                    {/* <Badge className="bg-red-900 text-white hover:bg-red-500">
                                         <Shield className="h-3 w-3 mr-1" />
                                         {user.roleCode}
                                     </Badge>
                                     <Badge className="bg-rose-600 text-white hover:bg-rose-500">
                                         <Users className="h-3 w-3 mr-1" />
-                                        {user.teamId}
-                                    </Badge>
+                                        {user?.roleInformation?.teamId}
+                                    </Badge> */}
                                     {user.roleCode === "Player" && (
-                                        <Badge className="bg-red-800 text-white hover:bg-red-700">#{user.shirtNumber}</Badge>
+                                        <Badge className="bg-red-800 text-white hover:bg-red-700">#{user?.roleInformation?.shirtNumber}</Badge>
                                     )}
                                 </div>
                             </div>

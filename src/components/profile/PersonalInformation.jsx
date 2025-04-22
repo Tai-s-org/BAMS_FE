@@ -6,11 +6,23 @@ import { Label } from "@/components/ui/Label"
 import { Textarea } from "@/components/ui/Textarea"
 import { Calendar, Mail, MapPin, Phone, User } from "lucide-react"
 import { formatDate } from "@/utils/format"
+import { parseISO, isValid } from "date-fns"
+import { DatePicker } from "../ui/DatePicker"
 
 export default function PersonalInformation({ user, isEditing, formData, handleInputChange }) {
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        })
+    }
+
     return (
         <Card className="md:col-span-8 border-none shadow-md">
-            <div className="bg-red-700 py-4 px-6 rounded-t-lg">
+            <div className="bg-[#bd2427] py-4 px-6 rounded-t-lg">
                 <h2 className="text-xl font-semibold text-white flex items-center">
                     <User className="h-5 w-5 mr-2" />
                     Thông tin cá nhân
@@ -104,16 +116,23 @@ export default function PersonalInformation({ user, isEditing, formData, handleI
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="dateOfBirth" className="text-gray-700 flex items-center">
-                                <Calendar className="h-4 w-4 mr-2 text-red-800" />
                                 Ngày sinh
                             </Label>
-                            <Input
-                                id="dateOfBirth"
-                                name="dateOfBirth"
-                                type="date"
-                                value={formData.dateOfBirth}
-                                onChange={handleInputChange}
-                                className="border-gray-300 focus:border-red-800 focus:ring-red-800"
+                            <DatePicker
+                                onChange={(date) => {
+                                    handleInputChange({
+                                        target: {
+                                            name: "dateOfBirth",
+                                            value: date ? date.toISOString().split("T")[0] : null,
+                                        },
+                                    });
+                                }}
+                                value={
+                                    formData?.dateOfBirth && isValid(parseISO(formData.dateOfBirth))
+                                        ? parseISO(formData.dateOfBirth)
+                                        : null
+                                }
+                                placeholder={formData.dateOfBirth}
                             />
                         </div>
                         <div className="space-y-2 sm:col-span-2">
