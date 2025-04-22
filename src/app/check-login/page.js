@@ -11,7 +11,7 @@ export default function CheckLogin() {
     useEffect(() => {
         if (!user) return; 
         
-        if (user?.roleCode === "Admin") {
+        if (user?.roleCode === "President") {
           router.push('/team-management');
         }
 

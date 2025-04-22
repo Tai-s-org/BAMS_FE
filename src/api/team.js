@@ -19,8 +19,8 @@ const teamApi = {
     dissolveTeam: (id, note) => {
         return api.delete(`/team/disband/${id}`, {params: note});
     },
-    removePlayer: (teamId, data) => {
-        return api.delete(`/team/remove/${teamId}/players`, data);
+    removePlayer: (data) => {
+        return api.post(`/team/remove/players`, data);
     },
 }
 
