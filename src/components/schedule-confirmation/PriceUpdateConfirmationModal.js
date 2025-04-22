@@ -19,9 +19,11 @@ export default function PriceUpdateConfirmationModal({
   onConfirm,
   scheduledDate,
   currentPrice,
+  priceByHour,
   courtName,
 }) {
   const [price, setPrice] = useState(currentPrice)
+  const [priceByHourState, setPriceByHourState] = useState(priceByHour)
   const [error, setError] = useState("")
 
   const handleConfirm = () => {
@@ -38,6 +40,11 @@ export default function PriceUpdateConfirmationModal({
     setPrice(currentPrice)
     setError("")
     onClose()
+  }
+
+  const translateMoney = (money) => {
+    if (money === undefined || money === null) return ""
+    return money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ/giờ";
   }
 
   return (
@@ -64,13 +71,13 @@ export default function PriceUpdateConfirmationModal({
 
           <div className="space-y-2">
             <Label htmlFor="current-price" className="text-muted-foreground">
-              Giá hiện tại
+              Giá một giờ
             </Label>
-            <p className="font-medium text-[#BD2427]">{currentPrice}.000 Đồng</p>
+            <p className="font-medium text-[#BD2427]">{translateMoney(priceByHourState)}</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="new-price">Giá thực tế(phần nghìn)</Label>
+            <Label htmlFor="new-price">Giá thực tế</Label>
             <Input
               id="new-price"
               type="number"

@@ -28,10 +28,11 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
     contact: "",
     rentPricePerHour: 0,
     kind: "5x5",
+    usagePurpose: "3",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -39,8 +40,8 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
 
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
-    if (value < 0 || value > 500) {
-      setPriceWarning("Giá phải trong khoảng 0 - 500");
+    if (value < 0 || value > 500000) {
+      setPriceWarning("Giá phải trong khoảng 0 - 500000");
       return;
     }
     setFormData((prev) => ({ ...prev, [name]: Number.parseInt(value) }));
@@ -51,7 +52,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
   };
 
   const handleImageChange = (imageUrl) => {
-    if (!formData.imageUrl.trim()) {
+    if (imageUrl.trim() === "") {
       setImageWarning("Vui lòng chọn ảnh sân.");
     } else {
       setImageWarning(null);
@@ -72,14 +73,12 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
     }
 
     try {
-      // In a real app, you would make an API call here
       onCreateCourt(formData);
       onClose();
-      router.refresh();
+      setIsSubmitting(false);
+      // router.refresh();
     } catch (error) {
       console.error("Error creating court:", error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -95,7 +94,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
 
         <form onSubmit={handleSubmit} className="space-y-6 py-4">
           {/* Image Upload Component */}
-          <ImageUpload onImageChange={handleImageChange}/>
+          <ImageUpload onImageChange={handleImageChange} />
           {imageWarning && <div className="text-red-500 text-sm">{imageWarning}</div>}
 
           <div className="space-y-2">
@@ -107,7 +106,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
               name="courtName"
               value={formData.courtName}
               onChange={handleChange}
-              placeholder="Main Arena Court"
+              placeholder="Sân Mydit"
               required
             />
           </div>
@@ -117,7 +116,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
               <Label htmlFor="type">Loại Sân</Label>
               <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)} className="border-0">
                 <SelectTrigger id="type">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder="Chọn loại sân" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Indoor">Trong nhà</SelectItem>
@@ -130,7 +129,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
               <Label htmlFor="kind">Kiểu Sân</Label>
               <Select value={formData.kind} onValueChange={(value) => handleSelectChange("kind", value)}>
                 <SelectTrigger id="kind">
-                  <SelectValue placeholder="Select court kind" />
+                  <SelectValue placeholder="Chọn kiểu sân" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="3x3">3x3</SelectItem>
@@ -138,6 +137,22 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="usagePurpose" className="required">
+              Mục đích sử dụng
+            </Label>
+            <Select value={formData.usagePurpose} onValueChange={(value) => handleSelectChange("usagePurpose", value)} >
+              <SelectTrigger id="usagePurpose">
+                <SelectValue placeholder="Chọn mục đích sử dụng" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="3">Tất Cả</SelectItem>
+                <SelectItem value="2">Luyện tập</SelectItem>
+                <SelectItem value="1">Thi đấu</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -169,7 +184,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="rentPricePerHour">Giá Thuê (nghìn đồng/giờ)</Label>
+            <Label htmlFor="rentPricePerHour">Giá Thuê (VNĐ/giờ)</Label>
             <Input id="rentPricePerHour" name="rentPricePerHour" type="number" value={formData.rentPricePerHour} onChange={handleNumberChange} />
           </div>
           {priceWarning && <div className="text-red-500 text-sm">{priceWarning}</div>}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { format } from "date-fns"
+import { format, set } from "date-fns"
 import { CalendarDays, Plus, Trash2, Users, BellIcon as Whistle, Clock, MapPin, Trophy, AlertCircle, CheckCircle2 } from "lucide-react"
 
 import { Button } from "@/components/ui/Button"
@@ -25,12 +25,13 @@ import scheduleApi from "@/api/schedule"
 import matchApi from "@/api/match"
 import { GiBasketballJersey, GiWhistle } from "react-icons/gi"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import RemoveConfirmDialog from "@/components/ui/RemoveConfirmDialog"
 
 export default function TeamDashboard() {
   const [team, setTeam] = useState({
     teamId: "",
     teamName: "",
-    status: 1,
+    status: -1,
     createAt: "",
     coaches: [],
     managers: [],
@@ -46,8 +47,12 @@ export default function TeamDashboard() {
   const [isNewPlayersAdded, setIsNewPlayersAdded] = useState(false)
   const [isResultModalOpen, setIsResultModalOpen] = useState(false)
   const [addResults, setAddResults] = useState([])
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [deletePlayerName, setDeletePlayerName] = useState(null)
+  const [deletePlayerId, setDeletePlayerId] = useState(null)
 
   useEffect(() => {
+    if (!userInfo?.roleInformation?.teamId) return
     fetchTeam();
     fetchNonTeamPlayers();
     fetchTodayTrainingSession();
@@ -143,7 +148,6 @@ export default function TeamDashboard() {
     const data = selectedPlayers.map((userId) => userId)
     try {
       const response = await playerApi.addToTeam(userInfo?.roleInformation.teamId, data);
-      console.log("Add players response:", response)
       setAddResults(response?.data.data || []);
       addToast({ message: response?.data.message, type: response?.data.status });
       setIsResultModalOpen(true);
@@ -194,13 +198,15 @@ export default function TeamDashboard() {
         teamId: userInfo?.roleInformation.teamId,
         playerIds: [userId]
       }
-      console.log("Removing player with ID:", data);
       const response = await teamApi.removePlayer(data);
       addToast({ message: response?.data.message, type: response?.data.status });
       setTeam({
         ...team,
         players: team.players.filter((player) => player.userId !== userId),
       })
+      setIsDeleteModalOpen(false)
+      setDeletePlayerId(null)
+      setDeletePlayerName(null)
     } catch (error) {
       console.error("Error removing player:", error);
 
@@ -224,9 +230,9 @@ export default function TeamDashboard() {
           </div>
           <Badge
             variant="outline"
-            className={`px-3 py-1 ${team.status === 1 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+            className={`px-3 py-1 ${team.status === 1 ? "bg-green-100 text-green-800" : team.status === 0 ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-800"}`}
           >
-            {team.status === 1 ? "Đang hoạt động" : "Không hoạt động"}
+            {team.status === 1 ? "Đang hoạt động" : team.status === 0 ? "Không hoạt động" : "Chưa có đội"}
           </Badge>
         </div>
       </div>
@@ -248,7 +254,7 @@ export default function TeamDashboard() {
                 {trainingSessionsData.map((session) => (
                   <div key={session.trainingSessionId} className="flex flex-col p-4 border rounded-lg">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium">{session.courtName}</h3>
+                      <h3 className="font-medium">{session.courtName} - {session.courtAddress}</h3>
                       <Badge variant={session.status === 0 ? "outline" : "secondary"}>
                         {session.status === 0 ? "Đã lên lịch" : "Đã hoàn thành"}
                       </Badge>
@@ -316,7 +322,7 @@ export default function TeamDashboard() {
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground mt-1">
                       <MapPin className="h-4 w-4 mr-1" />
-                      <span>{match.courtName}</span>
+                      <span>{match.courtName} - {match.courtAddress}</span>
                     </div>
                   </div>
                 ))}
@@ -357,18 +363,16 @@ export default function TeamDashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Tên</TableHead>
-                    <TableHead>Ngày bắt đầu hợp đồng</TableHead>
-                    <TableHead>Ngày kết thúc hợp đồng</TableHead>
-                    <TableHead>Tiểu sử</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Số điện thoại</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {team?.coaches.map((coach) => (
                     <TableRow key={coach.userId}>
                       <TableCell className="font-medium">{coach.coachName}</TableCell>
-                      <TableCell>{formatDate(coach.contractStartDate)}</TableCell>
-                      <TableCell>{formatDate(coach.contractEndDate)}</TableCell>
-                      <TableCell>{coach.bio || "N/A"}</TableCell>
+                      <TableCell>{coach.coachEmail || "N/A"}</TableCell>
+                      <TableCell>{coach.coachPhone || "N/A"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -381,16 +385,16 @@ export default function TeamDashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Tên</TableHead>
-                    <TableHead>Tên ngân hàng</TableHead>
-                    <TableHead>Số tài khoản</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Số điện thoại</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {team.managers.map((manager) => (
                     <TableRow key={manager.userId}>
                       <TableCell className="font-medium">{manager.managerName}</TableCell>
-                      <TableCell>{manager.bankName || "N/A"}</TableCell>
-                      <TableCell>{manager.bankAccountNumber || "N/A"}</TableCell>
+                      <TableCell>{manager.managerEmail || "N/A"}</TableCell>
+                      <TableCell>{manager.managerPhone || "N/A"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -412,10 +416,10 @@ export default function TeamDashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Tên</TableHead>
+                    <TableHead>Email</TableHead>
                     <TableHead>Vị trí</TableHead>
-                    <TableHead>Chiều cao</TableHead>
-                    <TableHead>Cân nặng</TableHead>
-                    <TableHead>Số áo</TableHead>
+                    <TableHead>Ngày sinh</TableHead>
+                    <TableHead>Số điện thoại</TableHead>
                     <TableHead>Ngày tham gia</TableHead>
                     <TableHead className="text-right">Thao tác</TableHead>
                   </TableRow>
@@ -424,16 +428,20 @@ export default function TeamDashboard() {
                   {team.players.map((player) => (
                     <TableRow key={player.userId}>
                       <TableCell className="font-medium">{player.fullname}</TableCell>
+                      <TableCell>{player.email || "N/A"}</TableCell>
                       <TableCell>{player.position || "N/A"}</TableCell>
-                      <TableCell>{player.height ? `${player.height} cm` : "N/A"}</TableCell>
-                      <TableCell>{player.weight ? `${player.weight} kg` : "N/A"}</TableCell>
-                      <TableCell>{player.shirtNumber || "N/A"}</TableCell>
+                      <TableCell>{player.dateOfBirth ? `${player.weight} kg` : "N/A"}</TableCell>
+                      <TableCell>{player.phone || "N/A"}</TableCell>
                       <TableCell>{formatDate(player.clubJoinDate)}</TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleRemovePlayer(player.userId)}
+                          onClick={() => {
+                            setDeletePlayerName(player.fullname)
+                            setDeletePlayerId(player.userId)
+                            setIsDeleteModalOpen(true)
+                          }}
                           className="text-[#BD2427] hover:text-[#9a1e20] hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -570,6 +578,19 @@ export default function TeamDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {deletePlayerId && deletePlayerName
+        && <RemoveConfirmDialog deleteConfirmOpen={isDeleteModalOpen}
+          onClose={() => {
+            setDeletePlayerId(null)
+            setDeletePlayerName(null)
+            setIsDeleteModalOpen(false)
+          }}
+          onConfirm={handleRemovePlayer}
+          context={deletePlayerName + " khỏi đội " + team.teamName}
+          deletedId={deletePlayerId}
+        />
+      }
     </div>
   )
 }

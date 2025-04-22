@@ -12,7 +12,7 @@ export default function ScheduleCancelItem({ schedule, onApprove, onReject, user
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
           <div className="p-4">
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <h3 className="text-lg font-semibold text-[#BD2427]">{schedule.requestReason}</h3>
+              <h3 className="text-lg font-semibold text-[#BD2427]">Lý do hủy buổi tập: {schedule.requestReason}</h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">

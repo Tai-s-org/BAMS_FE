@@ -6,8 +6,9 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { MapPin, Phone, ArrowLeft, DollarSign, Users } from "lucide-react";
+import { MapPin, Phone, ArrowLeft, Users } from "lucide-react";
 import UpdateCourtModal from "@/components/court/UpdateCourtModal";
+import { PiMoneyWavy } from "react-icons/pi";
 import courtApi from "@/api/court";
 import { useAuth } from "@/hooks/context/AuthContext";
 
@@ -15,9 +16,9 @@ export default function CourtDetailPage({ params }) {
   const { user } = useAuth();
 
   if (user.roleCode !== "Manager") {
-      alert("Không có quyền truy cập");
-      redirect("/dashboard");
-    }
+    alert("Không có quyền truy cập");
+    redirect("/dashboard");
+  }
 
   const { id } = React.use(params);
   const [currentCourt, setCurrentCourt] = useState();
@@ -44,6 +45,34 @@ export default function CourtDetailPage({ params }) {
   const handleUpdateCourt = (updatedCourt) => {
     setCurrentCourt(updatedCourt);
   };
+
+  const translateCourtType = (type) => {
+    switch (type) {
+      case "Outdoor":
+        return "Sân Ngoài Trời";
+      case "Indoor":
+        return "Sân Trong Nhà";
+      default:
+        return type;
+    }
+  }
+
+  const translateCourtUsagePurpose = (usagePurpose) => {
+    switch (usagePurpose) {
+      case "1":
+        return "Thi đấu";
+      case "2":
+        return "Luyện tập";
+      case "3":
+        return "Tất Cả";
+      default:
+        return usagePurpose;
+    }
+  }
+
+  const translateMoney = (money) => {
+    return money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ/giờ";
+  }
 
   return (
     currentCourt && <div className="container mx-auto px-4 py-8">
@@ -86,10 +115,13 @@ export default function CourtDetailPage({ params }) {
               <h1 className="text-2xl font-bold tracking-tight mb-2">{currentCourt.courtName}</h1>
               <div className="flex items-center gap-3">
                 <Badge variant="outline" className="font-medium">
-                  {currentCourt.type}
+                  {translateCourtType(currentCourt.type)}
                 </Badge>
                 <Badge variant="outline" className="font-medium">
                   {currentCourt.kind}
+                </Badge>
+                <Badge variant="outline" className="font-medium">
+                  {translateCourtUsagePurpose(currentCourt.usagePurpose.toString())}
                 </Badge>
               </div>
             </div>
@@ -104,8 +136,15 @@ export default function CourtDetailPage({ params }) {
                   <div className="flex items-start gap-3">
                     <MapPin className="h-5 w-5 text-[#BD2427] mt-0.5" />
                     <div>
-                      <p className="font-medium">Địa Chỉ</p>
-                      <p className="text-muted-foreground">{currentCourt.address}</p>
+                      <p className="font-medium">Địa Chỉ (Nhấn để mở GoogleMaps)</p>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentCourt.address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground underline hover:text-[#BD2427] transition-colors"
+                      >
+                        {currentCourt.address}
+                      </a>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -124,10 +163,10 @@ export default function CourtDetailPage({ params }) {
                 <h2 className="text-lg font-semibold mb-4">Thông Tin Sân</h2>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <DollarSign className="h-5 w-5 text-[#BD2427] mt-0.5" />
+                    <PiMoneyWavy className="h-5 w-5 text-[#BD2427] mt-0.5" />
                     <div>
                       <p className="font-medium">Giá Thuê</p>
-                      <p className="text-muted-foreground">{currentCourt.rentPricePerHour}.000đ/giờ</p>
+                      <p className="text-muted-foreground">{translateMoney(currentCourt.rentPricePerHour)}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
