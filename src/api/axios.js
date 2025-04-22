@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useLoading } from "@/hooks/context/LoadingContext";
-import authApi from "./auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 

@@ -42,22 +42,22 @@ export default function TeamDashboard() {
   const [matchesData, setMatchesData] = useState([])
   const [nonTeamPlayers, setNonTeamPlayers] = useState([])
   const { user, userInfo } = useAuth();
-  const {addToast} = useToasts();
+  const { addToast } = useToasts();
   const [isNewPlayersAdded, setIsNewPlayersAdded] = useState(false)
   const [isResultModalOpen, setIsResultModalOpen] = useState(false)
   const [addResults, setAddResults] = useState([])
 
   useEffect(() => {
-      fetchTeam();
-      fetchNonTeamPlayers();
-      fetchTodayTrainingSession();
-      fetchTodayMatches(); 
+    fetchTeam();
+    fetchNonTeamPlayers();
+    fetchTodayTrainingSession();
+    fetchTodayMatches();
   }, [userInfo?.roleInformation?.teamId]);
 
   useEffect(() => {
     fetchNonTeamPlayers();
   }, [isNewPlayersAdded]);
-  
+
 
   const fetchTeam = async () => {
     try {
@@ -143,13 +143,14 @@ export default function TeamDashboard() {
     const data = selectedPlayers.map((userId) => userId)
     try {
       const response = await playerApi.addToTeam(userInfo?.roleInformation.teamId, data);
+      console.log("Add players response:", response)
       setAddResults(response?.data.data || []);
       addToast({ message: response?.data.message, type: response?.data.status });
       setIsResultModalOpen(true);
       const playersToAdd = nonTeamPlayers.filter(
         (player) => selectedPlayers.includes(player.userId) && !team.players.some((p) => p.userId === player.userId),
       )
-  
+
       const updatedPlayers = [
         ...team.players,
         ...playersToAdd.map((player) => ({
@@ -170,35 +171,39 @@ export default function TeamDashboard() {
           clubJoinDate: player.clubJoinDate,
         })),
       ]
-  
+
       setTeam({
         ...team,
         players: updatedPlayers,
       })
 
-      
+
     } catch (error) {
       console.error("Error adding players to team:", error)
       addToast({ message: "Lỗi khi thêm người cho team", type: "error" });
     } finally {
-    setIsAddPlayerModalOpen(false)
-    setSelectedPlayers([])
+      setIsAddPlayerModalOpen(false)
+      setSelectedPlayers([])
     }
   }
 
   // Remove player from team
   const handleRemovePlayer = async (userId) => {
     try {
-      const data = []
-      data.push(userId)
-      const response = await teamApi.removePlayer(userInfo?.roleInformation.teamId, data);
+      const data = {
+        teamId: userInfo?.roleInformation.teamId,
+        playerIds: [userId]
+      }
+      console.log("Removing player with ID:", data);
+      const response = await teamApi.removePlayer(data);
       addToast({ message: response?.data.message, type: response?.data.status });
       setTeam({
         ...team,
         players: team.players.filter((player) => player.userId !== userId),
       })
     } catch (error) {
-      addToast({ message: error?.response?.data.message, type: "error" });
+      console.error("Error removing player:", error);
+
       if (error?.response?.data.status === 401) {
         addToast({ message: error?.response?.data.Message, type: "error" });
       }
@@ -342,7 +347,7 @@ export default function TeamDashboard() {
               </TabsTrigger>
               <TabsTrigger value="players">
                 <GiBasketballJersey className="h-4 w-4" />
-                Cầu thủ 
+                Cầu thủ
               </TabsTrigger>
             </TabsList>
 
@@ -394,7 +399,7 @@ export default function TeamDashboard() {
 
             {/* Players Tab */}
             <TabsContent value="players">
-              { user?.roleCode === "Manager" &&<div className="flex justify-end mb-4">
+              {user?.roleCode === "Manager" && <div className="flex justify-end mb-4">
                 <Button
                   onClick={() => setIsAddPlayerModalOpen(true)}
                   className="bg-[#BD2427] hover:bg-[#9a1e20] text-white"
@@ -558,7 +563,8 @@ export default function TeamDashboard() {
           <DialogFooter className="mt-4">
             <Button onClick={() => {
               setIsNewPlayersAdded((prev) => !prev)
-              setIsResultModalOpen(false)}} className="bg-[#BD2427] hover:bg-[#9a1e20] text-white">
+              setIsResultModalOpen(false)
+            }} className="bg-[#BD2427] hover:bg-[#9a1e20] text-white">
               Close
             </Button>
           </DialogFooter>
