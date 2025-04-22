@@ -83,28 +83,31 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import Image from "next/image";
 import { Eye, EyeOff } from "lucide-react";
+import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function SetNewPassword() {
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
-
-    const [password, setPassword] = useState("");
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showOldPassword, setShowOldPassword] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const { addToast } = useToasts();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const validateResponse = await authApi.validateForgotPassword(token);
-            if (validateResponse.data) {
-                if (password !== confirmPassword) {
-                    alert("Mật khẩu không khớp!");
-                    return;
-                }
-                await authApi.SetNewPassword({ token, password, confirmPassword });
-                alert("Đặt lại mật khẩu thành công!");
-            }
+            const response = await authApi.changePassword({
+                "oldPassword": oldPassword,
+                "newPassword": newPassword,
+                "confirmNewPassword": confirmPassword
+            });
+            addToast({
+                message: response.data.message,
+                type: "success",
+            })
         } catch (error) {
             console.error("Lỗi:", error);
             alert("Có lỗi xảy ra, vui lòng thử lại!");
@@ -125,15 +128,35 @@ export default function SetNewPassword() {
 
                 <CardContent className="space-y-4">
                     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4">
-                        <h2 className="text-xl font-bold">Đặt lại mật khẩu</h2>
+                        <h2 className="text-xl font-bold">Đổi mật khẩu</h2>
+                        <div className="relative">
+                            <Input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Mật khẩu cũ"
+                                value={oldPassword}
+                                onChange={(e) => setOldPassword(e.target.value)}
+                                required
+                                className="pr-10"
+                            />
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                onClick={() => setShowOldPassword(!showPassword)}
+                            >
+                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                <span className="sr-only">{showOldPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}</span>
+                            </Button>
+                        </div>
 
                         {/* Mật khẩu mới */}
                         <div className="relative">
                             <Input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Mật khẩu mới"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
                                 required
                                 className="pr-10"
                             />
