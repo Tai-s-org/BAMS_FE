@@ -14,7 +14,6 @@ import courtApi from "@/api/court";
 import teamApi from "@/api/team";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import { useToasts } from "@/hooks/providers/ToastProvider";
-import CameraCapture from "@/components/attendance/Capture";
 
 export default function SchedulePage() {
   const { user, userInfo } = useAuth();
@@ -420,7 +419,7 @@ export default function SchedulePage() {
         session={selectedSession}
       />}
 
-      <RecurringSessionModal isOpen={recurringSessionModalOpen} onClose={() => setRecurringSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts} />
+      {userInfo && <RecurringSessionModal isOpen={recurringSessionModalOpen} onClose={() => setRecurringSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts} />}
 
       {userInfo && <SingleSessionModal isOpen={singleSessionModalOpen} onClose={() => setSingleSessionModalOpen(false)} teamId={userInfo?.roleInformation.teamId} courts={courts} isModified={() => setIsModified(!isModified)} />}
     </div>

@@ -29,6 +29,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
     contact: "",
     rentPricePerHour: 0,
     kind: "5x5",
+    usagePurpose: "3",
   })
   const { addToast } = useToasts();
   const [imageWarning, setImageWarning] = useState(null);
@@ -39,6 +40,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
   useEffect(() => {
     if (court) {
       setFormData(court)
+      console.log("court", court);
     }
   }, [court])
 
@@ -65,8 +67,8 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
       return;
     }
 
-    if (numValue < 0 || numValue > 500) {
-      setPriceWarning("Giá phải trong khoảng 0 - 500");
+    if (numValue < 0 || numValue > 500000) {
+      setPriceWarning("Giá phải trong khoảng 0 - 500000");
       return;
     }
 
@@ -80,7 +82,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
   }
 
   const handleImageChange = (imageUrl) => {
-    if (!formData.imageUrl.trim()) {
+    if (!imageUrl.trim() || imageUrl.trim() === "") {
       setImageWarning("Vui lòng chọn ảnh sân.");
     } else {
       setImageWarning(null);
@@ -131,7 +133,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
         <form onSubmit={handleSubmit} className="space-y-6 py-4">
           {/* Image Upload Component */}
           <ImageUpload initialImage={process.env.NEXT_PUBLIC_IMAGE_API_URL + formData.imageUrl} onImageChange={handleImageChange} />
-
+          {imageWarning && <div className="text-red-500 text-sm">{imageWarning}</div>}
           <div className="space-y-2">
             <Label htmlFor="name" className="required">
               Tên Sân
@@ -175,6 +177,22 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="usagePurpose" className="required">
+              Mục đích sử dụng
+            </Label>
+            <Select value={formData.usagePurpose.toString()} onValueChange={(value) => handleSelectChange("usagePurpose", value)} >
+              <SelectTrigger id="usagePurpose">
+                <SelectValue placeholder="Chọn mục đích sử dụng" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="3">Tất Cả</SelectItem>
+                <SelectItem value="2">Luyện tập</SelectItem>
+                <SelectItem value="1">Thi đấu</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="address" className="required">
               Địa chỉ
             </Label>
@@ -203,7 +221,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="price">Giá Thuê (nghìn đồng/giờ)</Label>
+            <Label htmlFor="price">Giá Thuê (VNĐ/giờ)</Label>
             <Input
               id="price"
               name="rentPricePerHour"
@@ -211,7 +229,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
               value={formData.rentPricePerHour}
               onChange={handleNumberChange}
               min="0"
-              max="500"
+              max="500000"
             />
           </div>
           {priceWarning && <div className="text-red-500 text-sm">{priceWarning}</div>}
@@ -221,7 +239,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
             <Button type="button" variant="outline" onClick={onClose}>
               Hủy
             </Button>
-            <Button type="submit">{isSubmitting ? "Đang Cập Nhật..." : "Cập Nhật"}</Button>
+            <Button type="submit" disabled={isSubmitting || imageWarning > 0}>{isSubmitting ? "Đang Cập Nhật..." : "Cập Nhật"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

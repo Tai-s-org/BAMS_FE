@@ -204,7 +204,7 @@ export default function DocumentManagement() {
                                     ref={fileInputRef}
                                     onChange={handleFileChange}
                                     className="hidden"
-                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                                    accept=".docx"
                                 />
                                 <Button type="button" variant="outline" onClick={handleSelectFileClick} className="flex-1">
                                     {selectedFile ? selectedFile.name : "Chọn tệp"}

@@ -449,7 +449,7 @@ export default function FaceIdManagement() {
                     <DialogHeader>
                         <DialogTitle>Xác nhận xóa</DialogTitle>
                         <DialogDescription>
-                            Bạn có chắc chắn muốn xóa Face ID này không? Hành động này không thể hoàn tất.
+                            Bạn có chắc chắn muốn xóa Face ID này không? Hành động này không thể hoàn trả.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="flex flex-row justify-end gap-2 sm:justify-end">

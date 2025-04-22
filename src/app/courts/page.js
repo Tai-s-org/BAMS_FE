@@ -18,7 +18,7 @@ import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function CourtManagement() {
   const { user } = useAuth();
-  const {addToast} = useToasts();
+  const { addToast } = useToasts();
 
   if (user.roleCode !== "Manager") {
     alert("Không có quyền truy cập");
@@ -35,6 +35,7 @@ export default function CourtManagement() {
   const [typeFilter, setTypeFilter] = useState("");
   const [priceRange, setPriceRange] = useState([0, 200]);
   const [courtKindFilter, setCourtKindFilter] = useState("");
+  const [usagePurposeFilter, setUsagePurposeFilter] = useState("");
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [isModified, setIsModified] = useState(false);
 
@@ -53,7 +54,8 @@ export default function CourtManagement() {
         MinRentPricePerHour: priceRange[0],
         MaxRentPricePerHour: priceRange[1],
         PageNumber: currentPage,
-        PageSize: courtsPerPage
+        PageSize: courtsPerPage,
+        UsagePurpose: usagePurposeFilter === "" ? "3" : usagePurposeFilter,
       }
 
       const currentCourts = await courtApi.courtList(data);
@@ -80,7 +82,7 @@ export default function CourtManagement() {
       setIsModified(!isModified);
     } catch (err) {
       console.error(err);
-      addToast({ message: err?.response?.data.message, type: "error" });
+      addToast({ message: err?.response?.data.errors.errorName, type: "error" });
     }
   };
 
@@ -171,13 +173,25 @@ export default function CourtManagement() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          
           <div className="md:col-span-2">
             <Label className="text-sm font-medium text-black block mb-2 pt-2">
-              Khoảng Giá: {priceRange[0]}.000đ - {priceRange[1]}.000đ
+              Khoảng Giá: {priceRange[0]}đ - {priceRange[1]}đ
             </Label>
-            <Slider min={0} max={500} step={50} value={priceRange} onValueChange={setPriceRange} className="py-4" />
+            <Slider min={0} max={500000} step={50000} value={priceRange} onValueChange={setPriceRange} className="py-4" />
+          </div>
+          <div className="md:col-span-1 flex items-center">
+            <Select value={usagePurposeFilter} onValueChange={setUsagePurposeFilter} >
+              <SelectTrigger className="w-full bg-white border border-gray-300 rounded-md shadow-sm">
+                <SelectValue placeholder="Chọn mục đích sử dụng" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="3">Tất Cả</SelectItem>
+                <SelectItem value="2">Luyện tập</SelectItem>
+                <SelectItem value="1">Thi đấu</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex items-end">
             <Button
