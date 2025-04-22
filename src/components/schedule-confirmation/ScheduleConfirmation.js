@@ -15,7 +15,6 @@ import PriceConfirmationModal from "./PriceConfirmationModal"
 import PriceUpdateConfirmationModal from "./PriceUpdateConfirmationModal"
 
 export default function ScheduleConfirmation() {
-  // Sử dụng state riêng cho từng loại lịch
   const [createSchedules, setCreateSchedules] = useState([])
   const [updateSchedules, setUpdateSchedules] = useState([])
   const [cancelSchedules, setCancelSchedules] = useState([])
@@ -112,9 +111,9 @@ export default function ScheduleConfirmation() {
 
   const handleApproveCancel = async (scheduleId) => {
     try {
-        const response = await scheduleApi.approveCancelPendingTrainingSession(scheduleId);
-        addToast({ message: response?.data.message, type: response?.data.status });
-        setRefresh(!refresh)
+      const response = await scheduleApi.approveCancelPendingTrainingSession(scheduleId);
+      addToast({ message: response?.data.message, type: response?.data.status });
+      setRefresh(!refresh)
     } catch (error) {
       console.error("Error approving cancel:", error)
       addToast({ message: error?.response?.data.message, type: "error" });
@@ -200,6 +199,14 @@ export default function ScheduleConfirmation() {
     }
   }
 
+  const handleCalcTime = (startTime, endTime) => {
+    console.log("startTime", startTime, "endTime", endTime);
+    
+    const start = new Date(`1970-01-01T${startTime}Z`)
+    const end = new Date(`1970-01-01T${endTime}Z`)
+    const diff = (end - start) / 1000 / 60 / 60 
+    return diff
+  }
 
   return (
     <div className="space-y-6">
@@ -212,7 +219,6 @@ export default function ScheduleConfirmation() {
 
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Khoảng thời gian</label>
             </div>
           </div>
 
@@ -222,7 +228,7 @@ export default function ScheduleConfirmation() {
                 Tạo mới
               </TabsTrigger>
               <TabsTrigger value="update">
-                Chỉnh sửa
+                Cập nhật
               </TabsTrigger>
               <TabsTrigger value="cancel">
                 Hủy lịch
@@ -237,6 +243,9 @@ export default function ScheduleConfirmation() {
                   </div>
                 ) : (
                   <div className="space-y-4">
+                    <div className="text-md text-muted-foreground mb-2">
+                      Có <span className="font-semibold text-[#BD2427]">{filteredCreateSchedules.length}</span> yêu cầu tạo lịch tập mới
+                    </div>
                     {filteredCreateSchedules.map((schedule) => (
                       <ScheduleItem
                         key={schedule.trainingSessionId}
@@ -253,9 +262,12 @@ export default function ScheduleConfirmation() {
 
             <TabsContent value="update" className="mt-0">
               <div className="space-y-4">
+                <div className="text-md text-muted-foreground mb-2">
+                  Có <span className="font-semibold text-[#BD2427]">{filteredUpdateSchedules.length}</span> yêu cầu cập nhật lịch tập
+                </div>
                 {filteredUpdateSchedules.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    Không có yêu cầu chỉnh sửa lịch tập trong khoảng thời gian này
+                    Không có yêu cầu cập nhật lịch tập trong khoảng thời gian này
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -275,6 +287,9 @@ export default function ScheduleConfirmation() {
 
             <TabsContent value="cancel" className="mt-0">
               <div className="space-y-4">
+                <div className="text-md text-muted-foreground mb-2">
+                  Có <span className="font-semibold text-[#BD2427]">{filteredCancelSchedules.length}</span> yêu cầu hủy lịch tập
+                </div>
                 {filteredCancelSchedules.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     Không có yêu cầu hủy lịch tập trong khoảng thời gian này
@@ -317,6 +332,10 @@ export default function ScheduleConfirmation() {
           currentPrice={selectedScheduleForPrice.courtPrice}
           courtName={selectedScheduleForPrice.courtName}
           scheduledDate={selectedScheduleForPrice.scheduledDate}
+          times={handleCalcTime(
+            selectedScheduleForPrice.scheduledStartTime,
+            selectedScheduleForPrice.scheduledEndTime
+          )}
         />
       )}
 
@@ -332,6 +351,7 @@ export default function ScheduleConfirmation() {
           currentPrice={selectedScheduleForPrice.oldCourtPrice}
           courtName={selectedScheduleForPrice.newCourtName}
           scheduledDate={selectedScheduleForPrice.newScheduledDate}
+          priceByHour={selectedScheduleForPrice.oldCourtRentPrice}
         />
       )}
     </div>

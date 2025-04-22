@@ -29,7 +29,7 @@ export default function TrainingSessionDetail() {
     const [isModified, setIsModified] = useState(false)
     const [attendanceRvOpen, setAttendanceRvOpen] = useState(false)
     const [cancelModalOpen, setCancelModalOpen] = useState(false)
-    const {addToast} = useToasts();
+    const { addToast } = useToasts();
 
     const fetchCoaches = async () => {
         try {
@@ -54,8 +54,8 @@ export default function TrainingSessionDetail() {
 
     useEffect(() => {
         fetchCourts()
-        if(user?.roleCode === "Coach") {
-        fetchCoaches()
+        if (user?.roleCode === "Coach") {
+            fetchCoaches()
         }
     }, [session])
 
@@ -100,38 +100,13 @@ export default function TrainingSessionDetail() {
                     addToast({ message: element, type: "error" });
                 });
             }
-            if(error?.response?.status === 401) {
+            if (error?.response?.status === 401) {
                 addToast({ message: error?.response?.data.Message, type: "error" });
             }
         } finally {
             setCancelModalOpen(false)
         }
     };
-
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case "present":
-                return (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <Check className="mr-1 h-3 w-3" />
-                        Có mặt
-                    </span>
-                )
-            case "absent":
-                return (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        <X className="mr-1 h-3 w-3" />
-                        Vắng mặt
-                    </span>
-                )
-            default:
-                return (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        Chưa điểm danh
-                    </span>
-                )
-        }
-    }
 
     if (!session) {
         return (
@@ -265,8 +240,15 @@ export default function TrainingSessionDetail() {
                                             </svg>
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-gray-900">Địa điểm</div>
-                                            <div className="text-sm text-gray-500">{session.court.courtName}</div>
+                                            <div className="text-sm font-medium text-gray-900">Địa điểm (Nhấn để truy cập GoogleMaps)</div>
+                                            <a
+                                                href={`https://www.google.com/maps?q=${encodeURIComponent(session.court.address)}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-sm text-gray-500 hover:underline"
+                                            >
+                                                {session.court.courtName} - {session.court.address}
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -398,7 +380,7 @@ export default function TrainingSessionDetail() {
             />
 
             {/* Modal Xem Kết Quả Điểm Danh */}
-            <AttendanceReviewModal isOpen={attendanceRvOpen} onClose={() => setAttendanceRvOpen(false)} session={session} sessionId={params.id}/>
+            <AttendanceReviewModal isOpen={attendanceRvOpen} onClose={() => setAttendanceRvOpen(false)} session={session} sessionId={params.id} />
 
             {/* Modal Hủy Buổi Tập */}
             <CancelModal isOpen={cancelModalOpen} onClose={() => setCancelModalOpen(false)} onConfirm={handleCancel} />

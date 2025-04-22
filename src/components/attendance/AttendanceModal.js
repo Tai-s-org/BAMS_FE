@@ -15,17 +15,18 @@ export function AttendanceModal({ isOpen, onClose, session }) {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const [isAttend, setIsAttend] = useState(false);
-  const {addToast} = useToasts()
+  const { addToast } = useToasts()
 
   // Initialize attendance data
   useEffect(() => {
+    if (!session) return;
     fetchPlayerAttendance();
     fetchCoachAttendance();
   }, [session]);
 
   useEffect(() => {
     if (isAttend)
-    addToast({message: "Đã bổ sung điểm danh", type: "success"})
+      addToast({ message: "Đã bổ sung điểm danh", type: "success" })
   }, [isAttend]);
 
   const fetchPlayerAttendance = async () => {
@@ -34,6 +35,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
         trainingSessionId: session.trainingSessionId,
       }
       const response = await attendanceApi.getPlayerAttendance(data);
+      console.log("Player attendance data:", response?.data.data);
       setPlayerAttendance(response?.data.data);
     } catch (error) {
       console.error("Error fetching player attendance:", error);
@@ -100,7 +102,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
       setTimeout(() => {
         setIsSaving(false);
         setSaveSuccess(true);
-        addToast({type: "success", message: response?.data.message})
+        addToast({ type: "success", message: response?.data.message })
 
         // Hide success message after 3 seconds
         setTimeout(() => {
@@ -113,7 +115,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
       setTimeout(() => {
         setIsSaving(false);
         setSaveFailed(true);
-        addToast({type: "error", message: error?.response?.data?.message})
+        addToast({ type: "error", message: error?.response?.data?.message })
 
         // Hide success message after 3 seconds
         setTimeout(() => {
@@ -156,6 +158,16 @@ export function AttendanceModal({ isOpen, onClose, session }) {
 
   if (!isOpen) return null;
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A"
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -190,12 +202,12 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-500">Đội</p>
-                    <p className="mt-1 text-base font-semibold text-gray-900">{session.teamId}</p>
+                    <p className="mt-1 text-base font-semibold text-gray-900">{session.teamName}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-500">Thời gian</p>
                     <p className="mt-1 text-base font-semibold text-gray-900">
-                      {(session.scheduledDate)} ({session.scheduledStartTime} - {session.scheduledEndTime})
+                      Ngày {formatDate(session.scheduledDate)} từ {session.scheduledStartTime} đến {session.scheduledEndTime}
                     </p>
                   </div>
                 </div>
@@ -207,8 +219,8 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                   <button
                     onClick={() => setActiveTab("coaches")}
                     className={`${activeTab === "coaches"
-                        ? "border-[#BD2427] text-[#BD2427]"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      ? "border-[#BD2427] text-[#BD2427]"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                       } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
                     Huấn Luyện Viên
@@ -217,8 +229,8 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                   <button
                     onClick={() => setActiveTab("players")}
                     className={`${activeTab === "players"
-                        ? "border-[#BD2427] text-[#BD2427]"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      ? "border-[#BD2427] text-[#BD2427]"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                       } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
                     Cầu Thủ
@@ -230,7 +242,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
               {/* Content */}
               <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">
                 {/* Summary */}
-                <div className="mb-6 grid grid-cols-4 gap-4">
+                <div className="mb-6 grid grid-cols-4 gap-4 hidden md:grid">
                   <div className="bg-green-50 rounded-lg p-3 flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
                       <UserCheck className="h-5 w-5 text-green-600" />
@@ -274,158 +286,139 @@ export function AttendanceModal({ isOpen, onClose, session }) {
 
                 {/* Attendance List */}
                 {activeTab === "coaches" ? (
-                  <div className="overflow-hidden rounded-lg border border-gray-200">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Huấn Luyện Viên
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Trạng Thái
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {coachAttendance.map((coach) => {
-                          return (
-                            <tr key={coach.userId}>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex items-center">
-                                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                    <span className="font-medium text-gray-600">{coach.fullName.charAt(0)}</span>
-                                  </div>
-                                  <div className="ml-4">
-                                    <div className="text-sm font-medium text-gray-900">{coach.fullName}</div>
-                                  </div>
+                  <div className="w-full overflow-x-auto rounded-lg border border-gray-200">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Huấn Luyện Viên
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Tên Đăng Nhập
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Trạng Thái
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {coachAttendance.map((coach) => {
+                        return (
+                          <tr key={coach.userId}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                  <span className="font-medium text-gray-600">{coach.fullName.charAt(0)}</span>
                                 </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex space-x-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => updateCoachStatus(coach.userId, 1)}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 1
-                                        ? "bg-green-100 text-green-800 ring-2 ring-green-500"
-                                        : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
-                                      }`}
-                                  >
-                                    <Check className="mr-1 h-4 w-4" />
-                                    Có mặt
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => updateCoachStatus(coach.userId, 0)}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 0
-                                        ? "bg-red-100 text-red-800 ring-2 ring-red-500"
-                                        : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
-                                      }`}
-                                  >
-                                    <X className="mr-1 h-4 w-4" />
-                                    Vắng mặt
-                                  </button>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900">{coach.fullName}</div>
                                 </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{coach.username}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex space-x-2">
+                                <button
+                                  type="button"
+                                  onClick={() => updateCoachStatus(coach.userId, 1)}
+                                  className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 1
+                                    ? "bg-green-100 text-green-800 ring-2 ring-green-500"
+                                    : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
+                                    }`}
+                                >
+                                  <Check className="mr-1 h-4 w-4" />
+                                  Có mặt
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => updateCoachStatus(coach.userId, 0)}
+                                  className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 0
+                                    ? "bg-red-100 text-red-800 ring-2 ring-red-500"
+                                    : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
+                                    }`}
+                                >
+                                  <X className="mr-1 h-4 w-4" />
+                                  Vắng mặt
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>                
                 ) : (
-                  <div className="overflow-hidden rounded-lg border border-gray-200">
-                    <table className="min-w-full divide-y divide-gray-200">
+                  <div className="w-full overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                    <table className="min-w-[800px] w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Cầu Thủ
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Sinh nhật
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Trạng Thái
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                          >
-                            Ghi Chú
-                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cầu Thủ</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên đăng nhập</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ghi Chú</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {playerAttendance.map((player) => {
-
-                          return (
-                            <tr key={player.userId}>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex items-center">
-                                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#BD2427]/10 flex items-center justify-center">
-                                    <span className="font-medium text-[#BD2427]">{player.fullName.charAt(0)}</span>
-                                  </div>
-                                  <div className="ml-4">
-                                    <div className="text-sm font-medium text-gray-900">{player.fullName}</div>
-                                    <div className="text-xs text-gray-500"></div>
-                                  </div>
+                        {playerAttendance.map((player) => (
+                          <tr key={player.userId}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#BD2427]/10 flex items-center justify-center">
+                                  <span className="font-medium text-[#BD2427]">{player.fullName.charAt(0)}</span>
                                 </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-500">20/11/2025</div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex space-x-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => updatePlayerStatus(player.userId, 1)}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${player.status === 1
-                                        ? "bg-green-100 text-green-800 ring-2 ring-green-500"
-                                        : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
-                                      }`}
-                                  >
-                                    <Check className="mr-1 h-4 w-4" />
-                                    Có mặt
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => updatePlayerStatus(player.userId, 0)}
-                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${player.status === 0
-                                        ? "bg-red-100 text-red-800 ring-2 ring-red-500"
-                                        : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
-                                      }`}
-                                  >
-                                    <X className="mr-1 h-4 w-4" />
-                                    Vắng mặt
-                                  </button>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900">{player.fullName}</div>
                                 </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <input
-                                  type="text"
-                                  className="shadow-sm focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                                  placeholder="Thêm ghi chú..."
-                                  value={player.note}
-                                  onChange={(e) => updatePlayerNote(player.userId, e.target.value)}
-                                />
-                              </td>
-                            </tr>
-                          );
-                        })}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{player.username}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex space-x-2">
+                                <button
+                                  type="button"
+                                  onClick={() => updatePlayerStatus(player.userId, 1)}
+                                  className={`inline-flex items-center px-2.5 py-1.5 border text-xs font-medium rounded ${player.status === 1
+                                    ? "bg-green-100 text-green-800 ring-2 ring-green-500"
+                                    : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
+                                    }`}
+                                >
+                                  <Check className="mr-1 h-4 w-4" />
+                                  Có mặt
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => updatePlayerStatus(player.userId, 0)}
+                                  className={`inline-flex items-center px-2.5 py-1.5 border text-xs font-medium rounded ${player.status === 0
+                                    ? "bg-red-100 text-red-800 ring-2 ring-red-500"
+                                    : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
+                                    }`}
+                                >
+                                  <X className="mr-1 h-4 w-4" />
+                                  Vắng mặt
+                                </button>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <input
+                                type="text"
+                                className="shadow-sm focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
+                                placeholder="Thêm ghi chú..."
+                                value={player.note}
+                                onChange={(e) => updatePlayerNote(player.userId, e.target.value)}
+                              />
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -433,7 +426,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
               </div>
 
               {/* Footer */}
-              <div className="bg-gray-50 px-6 py-4 flex items-center justify-between">
+              <div className="bg-gray-50 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center">
                   {saveSuccess && (
                     <div className="flex items-center text-green-700 bg-green-50 px-3 py-1 rounded-md">
@@ -448,7 +441,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                     </div>
                   )}
                 </div>
-                <div className="flex space-x-3">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto mt-2 sm:mt-0">
                   <Button
                     className="inline-flex justify-center border border-gray-300 shadow-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427]"
                     onClick={onClose}

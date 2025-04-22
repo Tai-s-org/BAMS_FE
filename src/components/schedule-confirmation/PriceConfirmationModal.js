@@ -20,8 +20,16 @@ export default function PriceConfirmationModal({
   scheduledDate,
   currentPrice,
   courtName,
+  times
 }) {
-  const [price, setPrice] = useState(currentPrice)
+  const calcMoney = (price, times) => {
+    if (price === undefined || price === null) return 0
+    if (times === undefined || times === null) return 0
+    console.log("price", price, "times", times);
+    
+    return price * times
+  }
+  const [price, setPrice] = useState(() => calcMoney(currentPrice, times))
   const [error, setError] = useState("")
 
   const handleConfirm = () => {
@@ -39,6 +47,12 @@ export default function PriceConfirmationModal({
     setError("")
     onClose()
   }
+
+  const translateMoney = (money) => {
+    if (money === undefined || money === null) return ""
+    return money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VNĐ/giờ";
+  }
+
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -64,13 +78,13 @@ export default function PriceConfirmationModal({
 
           <div className="space-y-2">
             <Label htmlFor="current-price" className="text-muted-foreground">
-              Giá hiện tại
+              Giá một giờ
             </Label>
-            <p className="font-medium text-[#BD2427]">{currentPrice}.000 Đồng</p>
+            <p className="font-medium text-[#BD2427]">{translateMoney(currentPrice)}</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="new-price">Giá thực tế(phần nghìn)</Label>
+            <Label htmlFor="new-price">Giá thực tế</Label>
             <Input
               id="new-price"
               type="number"

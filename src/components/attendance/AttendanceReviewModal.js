@@ -32,7 +32,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
     try {
       const data = {
         trainingSessionId: sessionId,
-      }  
+      }
       const response = await attendanceApi.getCoachAttendance(data)
       setCoachAttendance(response?.data.data)
     } catch (error) {
@@ -111,7 +111,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
                   <div>
                     <p className="text-sm font-medium text-gray-500">Thời gian</p>
                     <p className="mt-1 text-base font-semibold text-gray-900">
-                      {session.scheduledDate} ({session.time})
+                      {session.scheduledDate} từ {session.time}
                     </p>
                   </div>
                 </div>
@@ -121,21 +121,19 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
                 <nav className="flex -mb-px" aria-label="Tabs">
                   <button
                     onClick={() => setActiveTab("coaches")}
-                    className={`${
-                      activeTab === "coaches"
-                        ? "border-[#BD2427] text-[#BD2427]"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
+                    className={`${activeTab === "coaches"
+                      ? "border-[#BD2427] text-[#BD2427]"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
                     Huấn Luyện Viên ({coachAttendance.length})
                   </button>
                   <button
                     onClick={() => setActiveTab("players")}
-                    className={`${
-                      activeTab === "players"
-                        ? "border-[#BD2427] text-[#BD2427]"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
+                    className={`${activeTab === "players"
+                      ? "border-[#BD2427] text-[#BD2427]"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      } w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm`}
                   >
                     Cầu Thủ ({playerAttendance.length})
                   </button>
@@ -143,7 +141,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
               </div>
 
               <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">
-                <div className="mb-6 grid grid-cols-3 gap-4">
+                <div className="mb-6 grid grid-cols-3 gap-4 hidden md:grid">
                   <div className="bg-green-50 rounded-lg p-3 flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
                       <UserCheck className="h-5 w-5 text-green-600" />
@@ -187,7 +185,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
                 </div>
 
                 {activeTab === "coaches" ? (
-                  <div className="overflow-hidden rounded-lg border border-gray-200">
+                  <div className="overflow-x-auto rounded-lg border border-gray-200">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
@@ -196,6 +194,12 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           >
                             Huấn Luyện Viên
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Tên đăng nhập
                           </th>
                           <th
                             scope="col"
@@ -218,6 +222,11 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
                                 </div>
                               </div>
                             </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-500">
+                                {coach.username}
+                              </div>
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(coach.status)}</td>
                           </tr>
                         ))}
@@ -225,7 +234,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
                     </table>
                   </div>
                 ) : (
-                  <div className="overflow-hidden rounded-lg border border-gray-200">
+                  <div className="overflow-x-auto rounded-lg border border-gray-200">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
@@ -239,7 +248,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
                             scope="col"
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                           >
-                            Sinh nhật
+                            Tên Đăng Nhập
                           </th>
                           <th
                             scope="col"
@@ -270,7 +279,7 @@ export function AttendanceReviewModal({ isOpen, onClose, session, sessionId }) {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-500">20/11/2005</div>
+                              <div className="text-sm text-gray-500">{player.username}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(player.status)}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
