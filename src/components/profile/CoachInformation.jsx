@@ -57,8 +57,8 @@ export default function CoachInformation({ roleInformation, isEditing, formData,
                             </Label>
                             <Input
                                 id="teamId"
-                                name="teamId"
-                                value={formData.teamId}
+                                name="roleInformation.teamId"
+                                value={formData.roleInformation.teamId}
                                 onChange={handleInputChange}
                                 className="border-gray-300 focus:border-red-700 focus:ring-red-700"
                             />
@@ -70,8 +70,8 @@ export default function CoachInformation({ roleInformation, isEditing, formData,
                             </Label>
                             <Textarea
                                 id="bio"
-                                name="bio"
-                                value={formData.bio}
+                                name="roleInformation.bio"
+                                value={formData.roleInformation.bio}
                                 onChange={handleInputChange}
                                 className="border-gray-300 focus:border-red-600 focus:ring-red-600"
                                 rows={3}
@@ -84,9 +84,9 @@ export default function CoachInformation({ roleInformation, isEditing, formData,
                             </Label>
                             <Input
                                 id="contractStartDate"
-                                name="contractStartDate"
+                                name="roleInformation.contractStartDate"
                                 type="date"
-                                value={formData.contractStartDate}
+                                value={formData.roleInformation.contractStartDate}
                                 onChange={handleInputChange}
                                 className="border-gray-300 focus:border-rose-600 focus:ring-rose-600"
                             />
@@ -98,9 +98,9 @@ export default function CoachInformation({ roleInformation, isEditing, formData,
                             </Label>
                             <Input
                                 id="contractEndDate"
-                                name="contractEndDate"
+                                name="roleInformation.contractEndDate"
                                 type="date"
-                                value={formData.contractEndDate}
+                                value={formData.roleInformation.contractEndDate}
                                 onChange={handleInputChange}
                                 className="border-gray-300 focus:border-red-800 focus:ring-red-800"
                             />

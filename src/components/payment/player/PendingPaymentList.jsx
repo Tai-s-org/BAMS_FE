@@ -31,6 +31,15 @@ export function PendingPaymentsList({ pendingPayments }) {
         return number != null ? number.toLocaleString('vi-VN') : "";
     }
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        })
+    }
+
     return (
         (pendingPayments?.length > 0) ? (
             <div className="space-y-4">
@@ -46,17 +55,17 @@ export function PendingPaymentsList({ pendingPayments }) {
                             </div>
                             <div>
                                 <div className="font-medium">
-                                    {payment.team} - {payment.title}
+                                    {payment.teamName} - {payment.title}
                                 </div>
                                 <div className={`text-sm ${payment.isOverdue ? "text-red-500" : "text-muted-foreground"}`}>
                                     {payment.isOverdue ? "Hết hạn từ " : "Hạn đóng "}
-                                    {payment.dueDate}
+                                    {formatDate(payment.dueDate)}
                                 </div>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="text-right">
-                                <div className="font-medium">{formatTienVN(payment.amount)} VNĐ</div>
+                                <div className="font-medium">{formatTienVN(payment.totalAmount)} VNĐ</div>
                                 <Badge variant="outline" className={payment.isOverdue ? "bg-red-50 text-red-700" : "bg-yellow-50"}>
                                     {payment.isOverdue ? "Hết hạn" : "Chưa thanh toán"}
                                 </Badge>

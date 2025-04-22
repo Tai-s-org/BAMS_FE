@@ -8,22 +8,17 @@ import { useAuth } from "@/hooks/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export function UserDropdown({ user }) {
+export function UserDropdown() {
     const [open, setOpen] = React.useState(false);
     const popupRef = React.useRef(null);
     const buttonRef = React.useRef(null);
-    const { logout } = useAuth();
+    const { logout, userInfo } = useAuth();
     const router = useRouter();
 
     const menuItems = [
         { icon: User, label: "Thông tin cá nhân", href: "/profile" },
-        { icon: Settings, label: "Settings", href: "/settings" },
+        // { icon: Settings, label: "Settings", href: "/settings" },
         { icon: KeyRound, label: "Đổi mật khẩu", href: "/auth/change-password" },
-        { icon: History, label: "Changelog", href: "/changelog" },
-        { icon: Users, label: "Team", href: "/team" },
-        { icon: UserPlus, label: "Invite Member", href: "/invite" },
-        { icon: HelpCircle, label: "Support", href: "/support" },
-        { icon: MessageSquare, label: "Community", href: "/community" },
     ];
 
     const handleLogout = () => {
@@ -53,6 +48,9 @@ export function UserDropdown({ user }) {
         };
     }, [open]);
 
+    console.log(userInfo);
+    
+
     return (
         <div className="relative">
             <Button
@@ -62,10 +60,7 @@ export function UserDropdown({ user }) {
                 onClick={() => setOpen((prevState) => !prevState)}
             >
                 <Avatar>
-                    <AvatarImage src={user.image || "/placeholder.svg?height=40&width=40"} alt={user.name} />
-                    <AvatarFallback className="bg-[#bd2427] text-white">
-                        {user.name.split(" ").map((n) => n[0]).join("")}
-                    </AvatarFallback>
+                    <AvatarImage src={userInfo?.profileImage || "https://png.pngtree.com/png-vector/20191009/ourmid/pngtree-user-icon-png-image_1796659.jpg"} alt={userInfo?.username} />
                 </Avatar>
             </Button>
 
@@ -77,14 +72,11 @@ export function UserDropdown({ user }) {
                     <div className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-t-lg">
                         <div className="flex items-center gap-2">
                             <Avatar className="h-9 w-9 border-2 border-[#bd2427]/20">
-                                <AvatarImage src={user.image || "/placeholder.svg?height=32&width=32"} alt={user.name} />
-                                <AvatarFallback className="bg-[#bd2427] text-white text-xs">
-                                    {user.name.split(" ").map((n) => n[0]).join("")}
-                                </AvatarFallback>
+                                <AvatarImage src={userInfo?.profileImage || 'https://png.pngtree.com/png-vector/20191009/ourmid/pngtree-user-icon-png-image_1796659.jpg'} alt={userInfo?.username} />
                             </Avatar>
                             <div className="flex flex-col">
-                                <span className="text-sm font-semibold text-gray-900">{user.name}</span>
-                                <span className="text-xs text-gray-500">{user.email}</span>
+                                <span className="text-sm font-semibold text-gray-900">{userInfo?.fullname}</span>
+                                <span className="text-xs text-gray-500">{userInfo?.email}</span>
                             </div>
                         </div>
                     </div>

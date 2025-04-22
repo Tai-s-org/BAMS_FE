@@ -6,6 +6,19 @@ import { FileText, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 export function ReportsList({reports}) {
+    function formatTienVN(number) {
+        return number != null ? number.toLocaleString('vi-VN') : "";
+    }
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        })
+    }
+
     // const reports = [
     //     {
     //         id: "123",
@@ -45,7 +58,7 @@ export function ReportsList({reports}) {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <div className="font-medium">{report.amount} VND</div>
+                            <div className="font-medium">{formatTienVN(report.totalExpenditure)} VNĐ</div>
                             <Badge
                                 variant="outline"
                                 className={report.status === 1 ? "bg-green-50 text-green-700" : "bg-yellow-50"}

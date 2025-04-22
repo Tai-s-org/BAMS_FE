@@ -22,7 +22,7 @@ export default function ManagerSidebar() {
 
     const menuItems = [
         { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
-        { title: "Payments", icon: CreditCard, url: "/dashboard/payment" },
+        { title: "Thanh toán", icon: CreditCard, url: "/dashboard/payment" },
         { title: "Balances", icon: BarChart3, url: "/balances" },
         { title: "Sân bóng", icon: PiCourtBasketballFill, url: "/courts" },
         { title: "Thời khóa biểu", icon: FaCalendarAlt, url: "/schedules" },

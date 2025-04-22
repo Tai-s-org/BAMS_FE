@@ -45,16 +45,11 @@ export default function ManagerPayment() {
         <div className="container mx-auto py-6">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center">
-                    <Link href="/">
-                        <Button variant="ghost" size="sm" className="gap-1">
-                            <ArrowLeft className="h-4 w-4" /> Back
-                        </Button>
-                    </Link>
-                    <h1 className="text-2xl font-bold ml-4">Manager Dashboard</h1>
+                    <h1 className="text-2xl font-bold ml-4"></h1>
                 </div>
                 <Link href="/dashboard/payment/team-payment">
                     <Button className="gap-1">
-                        <Wallet className="h-4 w-4" /> View Team Payments
+                        <Wallet className="h-4 w-4" /> Xem các thanh toán của đội
                     </Button>
                 </Link>
             </div>
@@ -92,10 +87,10 @@ export default function ManagerPayment() {
                 <div className="lg:col-span-2">
                     <Tabs defaultValue="reports">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                            <TabsList>
+                            {/* <TabsList>
                                 <TabsTrigger value="reports">Báo cáo thu chi</TabsTrigger>
                                 <TabsTrigger value="payments">Trạng thái thanh toán</TabsTrigger>
-                            </TabsList>
+                            </TabsList> */}
 
                             <div className="flex gap-2 items-center">
                                 <Filter className="h-4 w-4 text-muted-foreground" />
@@ -104,7 +99,7 @@ export default function ManagerPayment() {
                                         <SelectValue placeholder="Select month" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="april-2025">April 2025</SelectItem>
+                                        <SelectItem value="april-2025">Tháng 4 2025</SelectItem>
                                         <SelectItem value="march-2025">March 2025</SelectItem>
                                         <SelectItem value="february-2025">February 2025</SelectItem>
                                         <SelectItem value="january-2025">January 2025</SelectItem>
@@ -114,19 +109,19 @@ export default function ManagerPayment() {
                             </div>
                         </div>
 
-                        <TabsContent value="reports">
+                        {/* <TabsContent value="reports"> */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Báo cáo thu chi</CardTitle>
-                                    <CardDescription>View and manage your team's expense reports</CardDescription>
+                                    <CardDescription>Xem và quản lý báo cáo chi phí của đội</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <ReportsList  reports={teamFunds}/>
                                 </CardContent>
                             </Card>
-                        </TabsContent>
+                        {/* </TabsContent> */}
 
-                        <TabsContent value="payments">
+                        {/* <TabsContent value="payments">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Trạng thái thanh toán</CardTitle>
@@ -136,7 +131,7 @@ export default function ManagerPayment() {
                                     <PaymentStatusList payments={payments}/>
                                 </CardContent>
                             </Card>
-                        </TabsContent>
+                        </TabsContent> */}
                     </Tabs>
                 </div>
 
