@@ -11,8 +11,9 @@ import ManagerList from "./ManagerList";
 import CoachList from "./CoachList";
 import teamApi from "@/api/team";
 import { useToasts } from "@/hooks/providers/ToastProvider";
+import RemoveConfirmDialog from "../ui/RemoveConfirmDialog";
 
-export default function TeamDetails() {
+export default function TeamDetails({onRemoveMember}) {
   const [teams, setTeams] = useState([]);
   const [selectedTeamId, setSelelectedTeamId] = useState();
   const [selectedTeam, setSelectedTeam] = useState();
@@ -21,6 +22,9 @@ export default function TeamDetails() {
   const [showCoaches, setShowCoaches] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [deletedId, setDeletedId] = useState(null);
+  const [context, setContext] = useState("");
   const {addToast} = useToasts();
 
   const fetchTeams = async () => {
@@ -121,6 +125,25 @@ export default function TeamDetails() {
     setShowCoaches(false);
     setIsEditing(false);
   };
+
+  const handleRemoveMember = async (userId) => {
+    if (!deletedId) return;
+    if (!context) return;
+    
+    try {
+      if (context.startsWith("cầu thủ")) {
+        await teamApi.removePlayer(selectedTeam.teamId, [userId]);
+      }
+      else if (context.startsWith("quản lý")) {
+        await teamApi.removeManager(selectedTeam.teamId, [userId]);
+      }
+      else if (context.startsWith("huấn luyện viên")) {
+        await teamApi.removeCoach(selectedTeam.teamId, [userId]);
+      }
+    } catch (error) {
+      console.error("Error removing member:", error);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -266,14 +289,35 @@ export default function TeamDetails() {
                   </Button>
                 </div>
 
-                {showPlayers && <PlayerList players={selectedTeam.players} />}
-                {showManagers && <ManagerList managers={selectedTeam.managers} />}
-                {showCoaches && <CoachList coaches={selectedTeam.coaches} />}
+                {showPlayers && <PlayerList onRemoveMember={(userId, userName) => {
+                                setContext("cầu thủ "+userName);
+                                setDeletedId(userId);
+                                setRemoveDialogOpen(true);
+                              }} players={selectedTeam.players} />}
+                {showManagers && <ManagerList onRemoveMember={(userId, userName) => {
+                                setContext("quản lý "+userName);
+                                setDeletedId(userId);
+                                setRemoveDialogOpen(true);
+                              }} managers={selectedTeam.managers} />}
+                {showCoaches && <CoachList onRemoveMember={(userId, userName) => {
+                                setContext("huấn luyện viên "+userName);
+                                setDeletedId(userId);
+                                setRemoveDialogOpen(true);
+                              }} coaches={selectedTeam.coaches} />}
               </CardContent>
             </Card>
           </TabsContent>
         ))}
       </Tabs>}
+
+      {deletedId && <RemoveConfirmDialog onClose={() => {
+        setDeletedId(null);
+        setContext(null);
+        setRemoveDialogOpen(false)}} 
+        onConfirm={handleRemoveMember} 
+        deleteConfirmOpen={removeDialogOpen} 
+        context={context} 
+        deletedId={deletedId} />}
     </div>
   );
 }

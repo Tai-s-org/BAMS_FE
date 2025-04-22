@@ -1,8 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import { Button } from "../ui/Button";
 
-export default function PlayerList({ players }) {
+export default function PlayerList({ players, onRemoveMember }) {
   return (
     <Card className="border-t-2 border-t-[#BD2427]">
       <CardHeader>
@@ -13,11 +14,14 @@ export default function PlayerList({ players }) {
           <TableHeader>
             <TableRow>
               <TableHead>Cầu Thủ</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Điện thoại</TableHead>
+              <TableHead>Ngày sinh</TableHead>
               <TableHead>Vị Trí</TableHead>
-              <TableHead className="text-center">Số Áo</TableHead>
               <TableHead>Chiều Cao</TableHead>
               <TableHead>Cân Nặng</TableHead>
               <TableHead>Ngày Tham Gia</TableHead>
+              <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -27,7 +31,7 @@ export default function PlayerList({ players }) {
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="/placeholder.svg" alt={player.fullname} />
-                      <AvatarFallback>
+                      <AvatarFallback className="bg-[#BD2427]/80 text-white">
                         {player.fullname
                           .charAt(0).toUpperCase()}
                       </AvatarFallback>
@@ -35,11 +39,16 @@ export default function PlayerList({ players }) {
                     <span>{player.fullname}</span>
                   </div>
                 </TableCell>
-                <TableCell>{player.position}</TableCell>
-                <TableCell className="text-center">{player.shirtNumber || "-"}</TableCell>
-                <TableCell>{player.height} cm</TableCell>
-                <TableCell>{player.weight} kg</TableCell>
+                <TableCell>{player.email || "-"}</TableCell>
+                <TableCell>{player.phone || "-"}</TableCell>
+                <TableCell>{player.dateOfBirth || "-"}</TableCell>
+                <TableCell>{player.position || "-"}</TableCell>
+                <TableCell>{player.height || "-"} cm</TableCell>
+                <TableCell>{player.weight || "-"} kg</TableCell>
                 <TableCell>{new Date(player.clubJoinDate).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  <Button className="text-white hover:bg-red-900 ml-2" onClick={() => onRemoveMember(player.userId, player.fullname)}>Xóa</Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
