@@ -22,6 +22,12 @@ const teamApi = {
     removePlayer: (data) => {
         return api.post(`/team/remove/players`, data);
     },
+    removeCoach: (teamId, data) => {
+        return api.delete(`/team/remove/${teamId}/coaches`, data);
+    },
+    removeManager: (teamId, data) => {
+        return api.delete(`/team/remove/${teamId}/managers`, data);
+    },
 }
 
 export default teamApi;
