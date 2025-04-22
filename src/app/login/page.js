@@ -1,7 +1,10 @@
 "use client";
 
 import LoginComponent from "@/components/auth/LoginComponent";
+import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/context/AuthContext";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -17,6 +20,7 @@ export default function LoginPage() {
 
     return (
         <div className="flex justify-center items-center min-h-screen">
+            
             <LoginComponent />
         </div>
     );

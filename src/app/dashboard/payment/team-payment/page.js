@@ -115,12 +115,12 @@ export default function ManagerPayments() {
                                 </AvatarFallback>
                             </Avatar>
                             <div>
-                                <div className="font-medium">{payment.player}</div>
+                                <div className="font-medium">Thanh toán {payment.paymentId} bởi {payment.fullname}</div>
                                 <div className="text-sm text-muted-foreground">{payment.note}</div>
                                 <div className="text-xs text-muted-foreground">
                                     {payment.status === 1 || payment.status === 3
                                         ? `Đã thanh toán: ${formatDate(payment.paidDate)}`
-                                        : payment.status === "overdue"
+                                        : payment.status === 0
                                             ? `Hạn thanh toán: ${formatDate(payment.dueDate)}`
                                             : `Qua hạn: ${payment.dueDate}`}
                                 </div>
@@ -151,12 +151,12 @@ export default function ManagerPayments() {
                                 </Badge>
                             </div>
                             <div className="flex gap-2">
-                                {payment.stauts === 1 || payment.status === 3 && (
+                                {(payment.stauts === 1 || payment.status === 3) && (
                                     <Button variant="outline" size="sm" onClick={() => viewReceipt(payment.paymentId)}>
                                         <Eye className="h-4 w-4" />
                                     </Button>
                                 )}
-                                {payment.status === 3 && (
+                                {(payment.status === 3 || payment.status === 0 )&&  (
                                     <Button size="sm" onClick={() => confirmPayment(payment)}>
                                         Xác nhận
                                     </Button>
@@ -174,10 +174,10 @@ export default function ManagerPayments() {
             <div className="flex items-center mb-6">
                 <Link href="/manager/dashboard">
                     <Button variant="ghost" size="sm" className="gap-1">
-                        <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+                        <ArrowLeft className="h-4 w-4" /> Quay lại thống kê
                     </Button>
                 </Link>
-                <h1 className="text-2xl font-bold ml-4">Team Payments</h1>
+                <h1 className="text-2xl font-bold ml-4">Thanh toán của đội</h1>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -223,7 +223,7 @@ export default function ManagerPayments() {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <CardTitle>Thanh toán của cả đội</CardTitle>
-                            <CardDescription>Track and confirm payments from your team members</CardDescription>
+                            <CardDescription>Theo dõi và xác nhận thanh toán từ các thành viên trong đội của bạn</CardDescription>
                         </div>
                         <div className="flex gap-2 items-center">
                             <Filter className="h-4 w-4 text-muted-foreground" />
@@ -232,7 +232,7 @@ export default function ManagerPayments() {
                                     <SelectValue placeholder="Filter by report" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Reports</SelectItem>
+                                    <SelectItem value="all">Tất cả</SelectItem>
                                     <SelectItem value="march-2025">March 2025 Expenses</SelectItem>
                                     <SelectItem value="february-2025">February 2025 Expenses</SelectItem>
                                     <SelectItem value="equipment">Equipment Upgrade</SelectItem>

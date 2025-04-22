@@ -20,7 +20,7 @@ export default function FormLogin({ onSubmit, loading }) {
     };
 
     return (
-        <div className="min-h-screen-full flex items-center justify-center bg-gray-100 p-4">
+        <div className="min-h-screen-full flex items-center justify-center p-4 h-[650px]">
             <Card className="w-full max-w-md overflow-hidden shadow-xl relative bg-white border-0">
                 <div className="absolute top-0 left-0 right-0 h-1 bg-[#BD2427]"></div>
 
@@ -28,8 +28,7 @@ export default function FormLogin({ onSubmit, loading }) {
                     <div className="mx-auto bg-[#BD2427] w-20 h-20 rounded-full flex items-center justify-center mb-2 shadow-lg relative">
                         <Image src={'/assets/logo/logo.png'}  width={'100'} height={'100'} alt="logo"/>
                     </div>
-                    <CardTitle className="text-3xl font-bold text-[#BD2427] tracking-wider">YÊN HÒA STORM</CardTitle>
-                    <CardDescription className="text-gray-600">Đăng nhập để tiếp tục</CardDescription>
+                    <CardTitle className="text-3xl font-bold text-[#BD2427] tracking-wider">Đăng nhập</CardTitle>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
@@ -43,7 +42,7 @@ export default function FormLogin({ onSubmit, loading }) {
                                 <Input
                                     id="usernameOrEmail"
                                     type="text"
-                                    placeholder="Username hoặc email"
+                                    placeholder="Email hoặc Tên đăng nhập"
                                     value={usernameOrEmail}
                                     onChange={(e) => setUsername(e.target.value)}
                                     required
@@ -94,28 +93,6 @@ export default function FormLogin({ onSubmit, loading }) {
                         </Button>
                     </form>
                 </CardContent>
-
-                <CardFooter className="flex flex-col space-y-4 pt-0">
-                    <div className="relative flex items-center w-full">
-                        <div className="flex-grow border-t border-gray-300"></div>
-                        <span className="flex-shrink mx-4 text-gray-500 text-sm">hoặc</span>
-                        <div className="flex-grow border-t border-gray-300"></div>
-                    </div>
-
-                    <Button
-                        variant="outline"
-                        className="w-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition-all duration-300"
-                    >
-                        Tiếp tục với Google
-                    </Button>
-
-                    <p className="text-center text-sm text-gray-600 mt-4">
-                        Chưa có tài khoản?{" "}
-                        <Link href="/signup" className="text-[#BD2427] hover:text-red-600 font-medium">
-                            Đăng ký
-                        </Link>
-                    </p>
-                </CardFooter>
 
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#BD2427]"></div>
             </Card>

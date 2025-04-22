@@ -84,7 +84,7 @@ export default function PlayerInformation({ user, isEditing, formData, handleInp
                             </Label>
                             <Input
                                 id="parentId"
-                                name="parentId"
+                                name="roleInformation.parentId"
                                 value={formData.roleInformation.parentId}
                                 onChange={handleInputChange}
                                 className="border-gray-300 focus:border-red-700 focus:ring-red-700"
@@ -97,7 +97,7 @@ export default function PlayerInformation({ user, isEditing, formData, handleInp
                             </Label>
                             <Input
                                 id="teamId"
-                                name="teamId"
+                                name="roleInformation.teamId"
                                 value={formData.roleInformation.teamId}
                                 onChange={handleInputChange}
                                 className="border-gray-300 focus:border-red-600 focus:ring-red-600"
@@ -110,7 +110,7 @@ export default function PlayerInformation({ user, isEditing, formData, handleInp
                             </Label>
                             <Input
                                 id="relationshipWithParent"
-                                name="relationshipWithParent"
+                                name="roleInformation.relationshipWithParent"
                                 value={formData.roleInformation.relationshipWithParent}
                                 onChange={handleInputChange}
                                 className="border-gray-300 focus:border-rose-600 focus:ring-rose-600"
@@ -123,7 +123,7 @@ export default function PlayerInformation({ user, isEditing, formData, handleInp
                             </Label>
                             <Input
                                 id="weight"
-                                name="weight"
+                                name="roleInformation.weight"
                                 type="number"
                                 value={formData.roleInformation.weight}
                                 onChange={handleInputChange}
@@ -137,7 +137,7 @@ export default function PlayerInformation({ user, isEditing, formData, handleInp
                             </Label>
                             <Input
                                 id="height"
-                                name="height"
+                                name="roleInformation.height"
                                 type="number"
                                 value={formData.roleInformation.height}
                                 onChange={handleInputChange}
@@ -151,7 +151,7 @@ export default function PlayerInformation({ user, isEditing, formData, handleInp
                             </Label>
                             <Input
                                 id="position"
-                                name="position"
+                                name="roleInformation.position"
                                 value={formData.roleInformation.position}
                                 onChange={handleInputChange}
                                 className="border-gray-300 focus:border-red-600 focus:ring-red-600"
@@ -164,7 +164,7 @@ export default function PlayerInformation({ user, isEditing, formData, handleInp
                             </Label>
                             <Input
                                 id="shirtNumber"
-                                name="shirtNumber"
+                                name="roleInformation.shirtNumber"
                                 type="number"
                                 value={formData.roleInformation.shirtNumber}
                                 onChange={handleInputChange}
@@ -178,7 +178,7 @@ export default function PlayerInformation({ user, isEditing, formData, handleInp
                             </Label>
                             <Input
                                 id="joinDate"
-                                name="joinDate"
+                                name="roleInformation.joinDate"
                                 type="date"
                                 value={formData.roleInformation.joinDate || ""}
                                 onChange={handleInputChange}
