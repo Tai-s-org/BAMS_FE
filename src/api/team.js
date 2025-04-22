@@ -19,14 +19,14 @@ const teamApi = {
     dissolveTeam: (id, note) => {
         return api.delete(`/team/disband/${id}`, {params: note});
     },
-    removePlayer: (data) => {
-        return api.post(`/team/remove/players`, data);
+    removePlayer: (teamId, data) => {
+        return api.post(`/team/remove/${teamId}/players`, data);
     },
     removeCoach: (teamId, data) => {
-        return api.delete(`/team/remove/${teamId}/coaches`, data);
+        return api.post(`/team/remove/${teamId}/coaches`, data);
     },
     removeManager: (teamId, data) => {
-        return api.delete(`/team/remove/${teamId}/managers`, data);
+        return api.post(`/team/remove/${teamId}/managers`, data);
     },
 }
 
