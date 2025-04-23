@@ -28,6 +28,9 @@ const teamApi = {
     removeManager: (teamId, data) => {
         return api.post(`/team/remove/${teamId}/managers`, data);
     },
+    updateFundManager: (teamId, managerId) => {
+        return api.put(`/team/${teamId}/update-fund-manager/${managerId}`);
+    }
 }
 
 export default teamApi;

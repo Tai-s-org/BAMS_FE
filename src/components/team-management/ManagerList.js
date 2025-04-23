@@ -21,7 +21,7 @@ export default function ManagerList({ managers, onRemoveMember }) {
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          {managers.length > 0 ? (<TableBody>
             {managers.map((manager) => (
               <TableRow key={manager.userId}>
                 <TableCell>
@@ -47,7 +47,15 @@ export default function ManagerList({ managers, onRemoveMember }) {
                 </TableCell>
               </TableRow>
             ))}
-          </TableBody>
+          </TableBody>)
+            :
+            (<TableBody>
+              <TableRow>
+                <TableCell colSpan={6} className="text-center">
+                  Không có quản lý nào trong đội bóng này
+                </TableCell>
+              </TableRow>
+            </TableBody>)}
         </Table>
       </CardContent>
     </Card>

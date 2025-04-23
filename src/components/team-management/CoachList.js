@@ -21,7 +21,7 @@ export default function CoachList({ coaches, onRemoveMember }) {
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          {coaches.length > 0 ?( <TableBody>
             {coaches.map((coach) => (
               <TableRow key={coach.userId}>
                 <TableCell>
@@ -48,7 +48,15 @@ export default function CoachList({ coaches, onRemoveMember }) {
                 </TableCell>
               </TableRow>
             ))}
-          </TableBody>
+          </TableBody>)
+          :
+          (<TableBody>
+            <TableRow>
+              <TableCell colSpan={6} className="text-center">
+                Không có huấn luyện viên nào trong đội bóng này
+              </TableCell>
+            </TableRow>
+          </TableBody>)}
         </Table>
       </CardContent>
     </Card>
