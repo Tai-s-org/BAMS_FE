@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Button } from "../ui/Button";
+import Link from "next/link";
 
 export default function CoachList({ coaches, onRemoveMember }) {
   return (
@@ -21,7 +22,7 @@ export default function CoachList({ coaches, onRemoveMember }) {
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
-          {coaches.length > 0 ?( <TableBody>
+          {coaches.length > 0 ? (<TableBody>
             {coaches.map((coach) => (
               <TableRow key={coach.userId}>
                 <TableCell>
@@ -44,19 +45,22 @@ export default function CoachList({ coaches, onRemoveMember }) {
                   {new Date(coach.contractEndDate).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
+                  <Button className="text-[#BD2427] bg-white hover:bg-gray-200 border border-[#BD2427]" asChild>
+                    <Link href={`/dashboard/coach-management/${coach.userId}`}><LuEye className="mr-2" />Chi tiết</Link>
+                  </Button>
                   <Button className="text-white hover:bg-red-900 ml-2" onClick={() => onRemoveMember(coach.userId, coach.coachName)}>Xóa</Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>)
-          :
-          (<TableBody>
-            <TableRow>
-              <TableCell colSpan={6} className="text-center">
-                Không có huấn luyện viên nào trong đội bóng này
-              </TableCell>
-            </TableRow>
-          </TableBody>)}
+            :
+            (<TableBody>
+              <TableRow>
+                <TableCell colSpan={6} className="text-center">
+                  Không có huấn luyện viên nào trong đội bóng này
+                </TableCell>
+              </TableRow>
+            </TableBody>)}
         </Table>
       </CardContent>
     </Card>

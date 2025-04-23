@@ -240,7 +240,7 @@ export default function TrainingSessionDetail() {
                                             </svg>
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-gray-900">Địa điểm (Nhấn để truy cập GoogleMaps)</div>
+                                            <div className="text-sm font-medium text-gray-900">Địa điểm</div>
                                             <a
                                                 href={`https://www.google.com/maps?q=${encodeURIComponent(session.court.address)}`}
                                                 target="_blank"

@@ -45,9 +45,6 @@ export default function TeamDetails() {
   const [selectedFundManager, setSelectedFundManager] = useState(
     selectedTeam.fundManagerId ? selectedTeam.fundManagerId : null,
   )
-  const [selectedFundManagerName, setSelectedFundManagerName] = useState(
-    selectedTeam.fundManagerName ? selectedTeam.fundManagerName : null,
-  )
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [matches, setMatches] = useState([])
   const {addToast} = useToasts();
@@ -167,7 +164,6 @@ export default function TeamDetails() {
     setShowCoaches(false);
     setShowMonthlyMatches(false)
     setSelectedFundManager(team.fundManagerId ? team.fundManagerId : null)
-    setSelectedFundManagerName(team.fundManagerName ? team.fundManagerName : null)
     setIsEditing(false);
   };
 
