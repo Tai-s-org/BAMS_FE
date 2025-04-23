@@ -24,7 +24,7 @@ export default function PlayerList({ players, onRemoveMember }) {
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          {players.length > 0 ? (<TableBody>
             {players.map((player) => (
               <TableRow key={player.userId}>
                 <TableCell>
@@ -51,7 +51,16 @@ export default function PlayerList({ players, onRemoveMember }) {
                 </TableCell>
               </TableRow>
             ))}
-          </TableBody>
+          </TableBody>)
+            :
+            (<TableBody>
+              <TableRow>
+                <TableCell colSpan={9} className="text-center">
+                  Không có cầu thủ nào trong đội bóng này
+                </TableCell>
+              </TableRow>
+            </TableBody>
+            )}
         </Table>
       </CardContent>
     </Card>
