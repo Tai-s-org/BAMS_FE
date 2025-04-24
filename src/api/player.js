@@ -13,6 +13,9 @@ const playerApi = {
     addToTeam: (teamId, data) => {
         return api.post(`/player/assign-team/${teamId}`, data);
     },
+    getAllPlayerWithTeam: (filter) => {
+        return api.get("/player/player-list", { params: filter });
+    },
 };
 
 export default playerApi;

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { format, set } from "date-fns"
-import { CalendarDays, Plus, Trash2, Users, BellIcon as Whistle, Clock, MapPin, Trophy, AlertCircle, CheckCircle2 } from "lucide-react"
+import { CalendarDays, Plus, Trash2, Users, BellIcon as Whistle, Clock, MapPin, Trophy, AlertCircle, CheckCircle2, Eye } from "lucide-react"
 
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
@@ -26,6 +26,8 @@ import matchApi from "@/api/match"
 import { GiBasketballJersey, GiWhistle } from "react-icons/gi"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 import RemoveConfirmDialog from "@/components/ui/RemoveConfirmDialog"
+import Link from "next/link"
+import { LuEye } from "react-icons/lu"
 
 export default function TeamDashboard() {
   const [team, setTeam] = useState({
@@ -251,9 +253,11 @@ export default function TeamDashboard() {
                   <div key={session.trainingSessionId} className="flex flex-col p-4 border rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-medium">{session.courtName} - {session.courtAddress}</h3>
-                      <Badge variant={session.status === 0 ? "outline" : "secondary"}>
-                        {session.status === 0 ? "Đã lên lịch" : "Đã hoàn thành"}
+                        <Link href={`/training-sessions/${session.trainingSessionId}`} className="text-[#BD2427] hover:text-[#9a1e20]">
+                      <Badge variant={"outline"}>
+                         <LuEye className="h-4 w-4 mr-1" /> Chi tiết
                       </Badge>
+                        </Link>
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="h-4 w-4 mr-1" />
