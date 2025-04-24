@@ -28,6 +28,7 @@ import { useToasts } from "@/hooks/providers/ToastProvider"
 import RemoveConfirmDialog from "@/components/ui/RemoveConfirmDialog"
 import Link from "next/link"
 import { LuEye } from "react-icons/lu"
+import { useRouter } from "next/navigation"
 
 export default function TeamDashboard() {
   const [team, setTeam] = useState({
@@ -52,6 +53,7 @@ export default function TeamDashboard() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [deletePlayerName, setDeletePlayerName] = useState(null)
   const [deletePlayerId, setDeletePlayerId] = useState(null)
+  const router = useRouter();
 
   useEffect(() => {
     if (!userInfo?.roleInformation?.teamId) return
@@ -65,7 +67,6 @@ export default function TeamDashboard() {
     fetchNonTeamPlayers();
   }, [isNewPlayersAdded]);
 
-
   const fetchTeam = async () => {
     try {
       const response = await teamApi.teamDetail(userInfo?.roleInformation.teamId);
@@ -74,6 +75,7 @@ export default function TeamDashboard() {
       console.error("Error fetching team:", error)
       if (error?.response?.data.status === 401) {
         addToast({ message: error?.response?.data.Message, type: "error" });
+        router.refresh();
       }
     }
   }
@@ -253,11 +255,11 @@ export default function TeamDashboard() {
                   <div key={session.trainingSessionId} className="flex flex-col p-4 border rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-medium">{session.courtName} - {session.courtAddress}</h3>
-                        <Link href={`/training-sessions/${session.trainingSessionId}`} className="text-[#BD2427] hover:text-[#9a1e20]">
-                      <Badge variant={"outline"}>
-                         <LuEye className="h-4 w-4 mr-1" /> Chi tiết
-                      </Badge>
-                        </Link>
+                      <Link href={`/training-sessions/${session.trainingSessionId}`} className="text-[#BD2427] hover:text-[#9a1e20]">
+                        <Badge variant={"outline"}>
+                          <LuEye className="h-4 w-4 mr-1" /> Chi tiết
+                        </Badge>
+                      </Link>
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="h-4 w-4 mr-1" />
@@ -434,6 +436,9 @@ export default function TeamDashboard() {
                       <TableCell>{player.phone || "N/A"}</TableCell>
                       <TableCell>{formatDate(player.clubJoinDate)}</TableCell>
                       <TableCell className="text-right">
+                        <Button className="text-[#BD2427] bg-white hover:bg-gray-200 border border-[#BD2427]" asChild>
+                          <Link href={`/dashboard/player-management/${player.userId}`}><LuEye className="mr-2" />Chi tiết</Link>
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"

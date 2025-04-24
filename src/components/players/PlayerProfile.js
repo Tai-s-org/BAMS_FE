@@ -31,46 +31,12 @@ import {
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { format } from "date-fns"
-import { vi } from "date-fns/locale"
-import { cn } from "@/lib/utils"
 import playerApi from "@/api/player"
 import parentApi from "@/api/parent"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 import { DatePicker } from "../ui/DatePicker"
-
-// This would typically come from a database or API
-const player = {
-  userId: "3d13ec17-a669-4292-9dd5-e446a71a93d1",
-  fullname: "sssin g",
-  email: "uwo7rgdj@tempmail.id.vn",
-  phone: "0344858585",
-  teamId: "T001",
-  teamName: "Team A",
-  profileImage: null,
-  address: null,
-  dateOfBirth: null,
-  weight: 10,
-  height: 10,
-  position: "Tiền Đạo",
-  shirtNumber: null,
-  clubJoinDate: "2025-04-03",
-  parentId: "8bd4839e327140dfb192f38bb7843a18",
-}
-
-// Sample parent data
-const parent = {
-  userId: "8bd4839e327140dfb192f38bb7843a18",
-  citizenId: "string",
-  createdByManagerId: "7",
-  username: "uanfgw@example.com",
-  fullname: "anhfe",
-  email: "uanfgw@example.com",
-  phone: "string",
-  address: "N/A",
-  profileImage: null,
-  dateOfBirth: null,
-  isEnable: true,
-}
+import { useAuth } from "@/hooks/context/AuthContext"
+import RemoveConfirmDialog from "../ui/RemoveConfirmDialog"
 
 export default function PlayerDetailPage() {
   const [player, setPlayer] = useState({
@@ -92,8 +58,11 @@ export default function PlayerDetailPage() {
   })
   const [parent, setParent] = useState(null)
   const router = useRouter()
-  const {id}= useParams()
+  const { id } = useParams()
   const { addToast } = useToasts()
+  const [deletedId, setDeletedId] = useState(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const { user } = useAuth()
 
 
   useEffect(() => {
@@ -104,12 +73,11 @@ export default function PlayerDetailPage() {
   const fetchPlayerData = async () => {
     try {
       const filter = {
-        OnlyNoTeam: false
+        OnlyNoTeam: false,
+        PageSize: 100
       }
-      const response = await playerApi.getAllPlayerWithTeam()
+      const response = await playerApi.getAllPlayerWithTeam(filter)
       const playerData = response.data.data.items.find((player) => player.userId === id)
-      console.log("Player data:", playerData);
-      
       if (playerData) {
         setPlayer(playerData)
         if (playerData.parentId) {
@@ -120,17 +88,13 @@ export default function PlayerDetailPage() {
             setHasParent(true)
           }
         }
-      } else {
-        console.error("Player not found")
-        addToast("Cầu thủ không tồn tại", { type: "error" })
       }
     } catch (error) {
       console.error("Error fetching player data:", error)
-      addToast("Lỗi khi tải dữ liệu cầu thủ", { type: "error" })
+      addToast({ message: "Không tìm thấy cầu thủ", type: "error" })
     }
   }
 
-  // Format date to be more readable
   const formatDate = (dateString) => {
     if (!dateString) return "Không có thông tin"
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -165,10 +129,18 @@ export default function PlayerDetailPage() {
   }
 
   // Function to handle removing parent
-  const handleRemoveParent = () => {
-    console.log("Gỡ bỏ phụ huynh có ID:", player.parentId)
+  const handleRemoveParent = async () => {
     setHasParent(false)
-    // This would typically make an API call to update the player record
+    try {
+      const response = await playerApi.removeParent(player.userId)
+      addToast({ message: response.data.message, type: "success" })
+    } catch (error) {
+      console.error("Error removing parent:", error)
+      addToast({ message: error?.response?.data.message, type: "error" })
+    } finally {
+      setDeletedId(null)
+      setIsDeleteDialogOpen(false)
+    }
   }
 
   // Function to handle adding parent
@@ -362,13 +334,16 @@ export default function PlayerDetailPage() {
                         <span className="inline-block w-1 h-6 bg-[#BD2427] mr-2"></span>
                         Thông Tin Phụ Huynh
                       </h4>
-                      <div>
+                      {user?.roleCode === "Manager" && <div>
                         {hasParent ? (
                           <Button
                             variant="outline"
                             size="sm"
                             className="text-red-500 border-red-500 hover:bg-red-50"
-                            onClick={handleRemoveParent}
+                            onClick={() => {
+                              setDeletedId(parent.userId);
+                              setIsDeleteDialogOpen(true);
+                            }}
                           >
                             <UserMinus className="w-4 h-4 mr-2" />
                             Gỡ Phụ Huynh
@@ -384,7 +359,7 @@ export default function PlayerDetailPage() {
                             Thêm Phụ Huynh
                           </Button>
                         )}
-                      </div>
+                      </div>}
                     </div>
 
                     {(parent && hasParent) ? (
@@ -416,7 +391,7 @@ export default function PlayerDetailPage() {
                       <div className="pl-3 py-4 text-center text-gray-500 bg-gray-50 rounded-md">
                         <User className="w-8 h-8 mx-auto mb-2 opacity-50" />
                         <p>Chưa có thông tin phụ huynh</p>
-                        <p className="text-sm">Nhấn "Thêm Phụ Huynh" để liên kết phụ huynh với cầu thủ này</p>
+                        {user?.roleCode === "Manager" && <p className="text-sm">Nhấn "Thêm Phụ Huynh" để liên kết phụ huynh với cầu thủ này</p>}
                       </div>
                     )}
                   </div>
@@ -520,6 +495,16 @@ export default function PlayerDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {deletedId && <RemoveConfirmDialog
+        onClose={() => {
+          setDeletedId(null)
+          setIsDeleteDialogOpen(false)
+        }}
+        onConfirm={handleRemoveParent}
+        deleteConfirmOpen={isDeleteDialogOpen}
+        context={`phụ huynh ${parent.fullname}`}
+        deletedId={deletedId} />}
     </div>
   )
 }
