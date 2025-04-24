@@ -1,10 +1,10 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
 import { Badge } from "@/components/ui/Badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/Card"
-import { Separator } from "@/components/ui/separator"
+import { Separator } from "@/components/ui/Seperator"
 import {
   ShoppingBasketIcon as Basketball,
   CalendarIcon,
@@ -18,7 +18,7 @@ import {
   ArrowLeft,
 } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { UserMinus, UserPlus, User } from "lucide-react"
 import {
   Dialog,
@@ -30,11 +30,13 @@ import {
 } from "@/components/ui/Dialog"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/Popover"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
-import { Calendar } from "@/components/ui/Calendar"
 import { cn } from "@/lib/utils"
+import playerApi from "@/api/player"
+import parentApi from "@/api/parent"
+import { useToasts } from "@/hooks/providers/ToastProvider"
+import { DatePicker } from "../ui/DatePicker"
 
 // This would typically come from a database or API
 const player = {
@@ -71,7 +73,62 @@ const parent = {
 }
 
 export default function PlayerDetailPage() {
+  const [player, setPlayer] = useState({
+    userId: "",
+    fullname: "",
+    email: "",
+    phone: "",
+    teamId: "",
+    teamName: "",
+    profileImage: null,
+    address: null,
+    dateOfBirth: null,
+    weight: 0,
+    height: 0,
+    position: "",
+    shirtNumber: null,
+    clubJoinDate: "2025-04-03",
+    parentId: "",
+  })
+  const [parent, setParent] = useState(null)
   const router = useRouter()
+  const {id}= useParams()
+  const { addToast } = useToasts()
+
+
+  useEffect(() => {
+    if (!id) return
+    fetchPlayerData()
+  }, [id])
+
+  const fetchPlayerData = async () => {
+    try {
+      const filter = {
+        OnlyNoTeam: false
+      }
+      const response = await playerApi.getAllPlayerWithTeam()
+      const playerData = response.data.data.items.find((player) => player.userId === id)
+      console.log("Player data:", playerData);
+      
+      if (playerData) {
+        setPlayer(playerData)
+        if (playerData.parentId) {
+          const parentResponse = await parentApi.getParentById(playerData.parentId)
+          const parentData = parentResponse.data.data;
+          if (parentData) {
+            setParent(parentData)
+            setHasParent(true)
+          }
+        }
+      } else {
+        console.error("Player not found")
+        addToast("Cầu thủ không tồn tại", { type: "error" })
+      }
+    } catch (error) {
+      console.error("Error fetching player data:", error)
+      addToast("Lỗi khi tải dữ liệu cầu thủ", { type: "error" })
+    }
+  }
 
   // Format date to be more readable
   const formatDate = (dateString) => {
@@ -83,9 +140,9 @@ export default function PlayerDetailPage() {
     })
   }
 
-  const [hasParent, setHasParent] = useState(!!player.parentId)
+  const [hasParent, setHasParent] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [date, setDate] = useState(undefined)
+  const [date, setDate] = useState(new Date())
 
   // Parent form state
   const [parentForm, setParentForm] = useState({
@@ -128,6 +185,8 @@ export default function PlayerDetailPage() {
     }
 
     console.log("Thêm phụ huynh với dữ liệu:", formData)
+    setParent({ ...parentForm })
+    setHasParent(true)
     setIsModalOpen(false)
     setHasParent(true)
     // This would typically make an API call to create a parent and update the player
@@ -169,7 +228,7 @@ export default function PlayerDetailPage() {
                 <div className="flex flex-col items-center">
                   <Avatar className="w-32 h-32 border-4 border-[#BD2427]">
                     <AvatarImage
-                      src={player.profileImage || "/placeholder.svg?height=128&width=128"}
+                      src={player?.profileImage || "/placeholder.svg?height=128&width=128"}
                       alt={player.fullname}
                     />
                     <AvatarFallback className="bg-[#BD2427] text-white text-3xl">
@@ -181,7 +240,7 @@ export default function PlayerDetailPage() {
                   </Avatar>
                   <h2 className="mt-4 text-2xl font-bold text-center">{player.fullname}</h2>
                   <div className="flex items-center justify-center mt-2 mb-4">
-                    <Badge className="bg-[#BD2427]">{player.position}</Badge>
+                    <Badge className="bg-red-300">{player.position}</Badge>
                   </div>
                 </div>
               </CardHeader>
@@ -328,7 +387,7 @@ export default function PlayerDetailPage() {
                       </div>
                     </div>
 
-                    {hasParent ? (
+                    {(parent && hasParent) ? (
                       <div className="pl-3 space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="flex items-center gap-3">
@@ -385,6 +444,7 @@ export default function PlayerDetailPage() {
                   placeholder="Nhập số CMND/CCCD"
                   value={parentForm.citizenId}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="grid gap-2">
@@ -395,6 +455,7 @@ export default function PlayerDetailPage() {
                   placeholder="Nhập họ và tên"
                   value={parentForm.fullname}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="grid gap-2">
@@ -406,6 +467,7 @@ export default function PlayerDetailPage() {
                   type="email"
                   value={parentForm.username}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="grid gap-2">
@@ -417,6 +479,7 @@ export default function PlayerDetailPage() {
                   type="email"
                   value={parentForm.email}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="grid gap-2">
@@ -427,6 +490,7 @@ export default function PlayerDetailPage() {
                   placeholder="Nhập số điện thoại"
                   value={parentForm.phone}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="grid gap-2">
@@ -437,24 +501,12 @@ export default function PlayerDetailPage() {
                   placeholder="Nhập địa chỉ"
                   value={parentForm.address}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
               <div className="grid gap-2">
                 <Label>Ngày sinh</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP", { locale: vi }) : <span>Chọn ngày</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar mode="single" selected={date} onSelect={setDate} initialFocus locale={vi} />
-                  </PopoverContent>
-                </Popover>
+                <DatePicker value={new Date(date)} onChange={setDate} />
               </div>
             </div>
           </div>
@@ -462,7 +514,7 @@ export default function PlayerDetailPage() {
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>
               Hủy
             </Button>
-            <Button onClick={handleSubmit} className="bg-[#BD2427] hover:bg-[#BD2427]/90">
+            <Button onClick={handleSubmit} className="bg-[#BD2427] hover:bg-[#BD2427]/90" disabled={!parentForm.username || !parentForm.fullname || !parentForm.email || !parentForm.phone || !parentForm.address || !parentForm.citizenId}>
               Thêm Phụ Huynh
             </Button>
           </DialogFooter>

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Button } from "../ui/Button";
 import Link from "next/link";
+import { LuEye } from "react-icons/lu";
 
 export default function CoachList({ coaches, onRemoveMember }) {
   return (
