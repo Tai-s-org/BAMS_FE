@@ -2,6 +2,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Button } from "../ui/Button";
+import { LuEye } from "react-icons/lu";
+import Link from "next/link";
 
 export default function ManagerList({ managers, onRemoveMember }) {
   return (
@@ -43,6 +45,9 @@ export default function ManagerList({ managers, onRemoveMember }) {
                   {manager.bankAccountNumber ? "••••" + manager.bankAccountNumber.slice(-4) : "-"}
                 </TableCell>
                 <TableCell>
+                  <Button className="text-[#BD2427] bg-white hover:bg-gray-200 border border-[#BD2427]" asChild>
+                    <Link href={`/dashboard/manager-management/${manager.userId}`}><LuEye className="mr-2" />Chi tiết</Link>
+                  </Button>
                   <Button className="text-white hover:bg-red-900 ml-2" onClick={() => onRemoveMember(manager.userId, manager.managerName)}>Xóa</Button>
                 </TableCell>
               </TableRow>

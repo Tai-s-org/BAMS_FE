@@ -136,7 +136,7 @@ export default function CourtDetailPage({ params }) {
                   <div className="flex items-start gap-3">
                     <MapPin className="h-5 w-5 text-[#BD2427] mt-0.5" />
                     <div>
-                      <p className="font-medium">Địa Chỉ (Nhấn để mở GoogleMaps)</p>
+                      <p className="font-medium">Địa Chỉ</p>
                       <a
                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentCourt.address)}`}
                         target="_blank"

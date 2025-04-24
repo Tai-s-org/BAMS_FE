@@ -42,7 +42,7 @@ export default function CheckLogin() {
 
     return (
         <div className="flex justify-center items-center min-h-screen">
-            Đang điều hướng, vui lòng chờ một chút...
+            Vui lòng liên hệ với quản lý đội để được hỗ trợ.
         </div>
     );
 }
