@@ -46,10 +46,7 @@ export function UserDropdown() {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [open]);
-
-    console.log(userInfo);
-    
+    }, [open]);    
 
     return (
         <div className="relative">
