@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
@@ -8,38 +8,64 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Checkbox } from "@/components/ui/Checkbox"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
 import { Search } from "lucide-react"
-import matchApi from "@/api/match"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
-export default function PlayerSelector({ team, onSave, onCancel, availablePlayers, matchId }) {
+export default function PlayerSelector({ team, onSave, onCancel, availablePlayers, matchId, startingTotal, currentPlayersTotal }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedPlayers, setSelectedPlayers] = useState([])
-  const [playerList, setPlayerList] = useState(availablePlayers)
+  const { addToast } = useToasts()
 
-  const filteredPlayers = playerList.filter(
+  const handleTogglePlayer = (playerId) => {
+    setSelectedPlayers((prev) =>
+      prev.some((p) => p.playerId === playerId)
+        ? prev.filter((p) => p.playerId !== playerId)
+        : [...prev, { playerId, isStarting: false }]
+    )
+  }
+
+  const handleToggleStarting = (playerId) => {
+    setSelectedPlayers((prev) =>
+      prev.map((p) =>
+        p.playerId === playerId ? { ...p, isStarting: !p.isStarting } : p
+      )
+    )
+  }
+
+  const handleSave = () => {
+    const neededPlayers = 5 - currentPlayersTotal
+    if (selectedPlayers.length < neededPlayers && currentPlayersTotal < 5) {
+      addToast({ message: `Phải chọn ít nhất ${neededPlayers} cầu thủ.`, type: "error" })
+      return
+    }
+
+    const startingCount = selectedPlayers.filter((p) => p.isStarting).length
+    const neededStarting = 5 - startingTotal
+    if (startingCount != neededStarting) {
+      addToast({ message: `Phải chọn ${neededStarting} cầu thủ xuất phát.`, type: "error" })
+      return
+    }
+
+    const playersToSubmit = selectedPlayers.map((p) => ({
+      matchId,
+      playerId: p.playerId,
+      isStarting: p.isStarting
+    }))
+
+    onSave(playersToSubmit, team)
+  }
+
+  const filteredPlayers = availablePlayers.filter(
     (player) =>
       player.playerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       player.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      player.shirtNumber.toString().includes(searchTerm),
+      player.shirtNumber.toString().includes(searchTerm)
   )
 
-  const handleTogglePlayer = (playerId) => {
-    setSelectedPlayers((prev) => (prev.includes(playerId) ? prev.filter((id) => id !== playerId) : [...prev, playerId]))
-  }
+  const isPlayerSelected = (playerId) =>
+    selectedPlayers.some((p) => p.playerId === playerId)
 
-  const handleSave = async () => {
-    const playersToAdd = playerList.filter((player) => selectedPlayers.includes(player.userId))
-    // try {
-    //   const data = {
-    //     matchId: matchId,
-    //     playerId: selectedPlayers,
-    //     isStarting: false,
-    //   }
-    //   const response = await matchApi.callPlayer(data)
-    // } catch (error) {
-    //   console.error("Error adding players:", error)
-    // }
-    onSave(playersToAdd, team)
-  }
+  const isPlayerStarting = (playerId) =>
+    selectedPlayers.find((p) => p.playerId === playerId)?.isStarting || false
 
   return (
     <Card>
@@ -58,11 +84,18 @@ export default function PlayerSelector({ team, onSave, onCancel, availablePlayer
         </div>
 
         <div className="border rounded-md overflow-hidden">
-          <div className="grid grid-cols-[auto_1fr_auto] gap-4 p-3 bg-gray-50 border-b">
-            <div className="w-6"></div>
+          <div className="hidden lg:grid grid-cols-[40px_200px_120px_100px_100px_100px_120px] gap-4 p-3 bg-gray-50 border-b">
+            <div></div>
             <Label>Cầu thủ</Label>
             <Label>Vị trí</Label>
+            <Label>Chiều cao</Label>
+            <Label>Cân nặng</Label>
+            <Label>Ngày gia nhập</Label>
+            <Label>Đội hình chính</Label>
           </div>
+
+
+
           <div className="max-h-[300px] overflow-y-auto">
             {filteredPlayers.length === 0 ? (
               <div className="p-4 text-center text-gray-500">Không tìm thấy cầu thủ</div>
@@ -70,26 +103,54 @@ export default function PlayerSelector({ team, onSave, onCancel, availablePlayer
               filteredPlayers.map((player) => (
                 <div
                   key={player.userId}
-                  className={`grid grid-cols-[auto_1fr_auto] gap-4 p-3 items-center hover:bg-gray-50 border-b last:border-b-0 ${
-                    selectedPlayers.includes(player.userId) ? "bg-[#BD2427]/5" : ""
-                  }`}
+                  className={`border-b p-3 hover:bg-gray-50 last:border-b-0 
+      ${isPlayerSelected(player.userId) ? "bg-[#BD2427]/5" : ""}
+      grid lg:grid-cols-[40px_200px_120px_100px_100px_100px_120px] gap-4 items-center`}
                 >
-                  <Checkbox
-                    checked={selectedPlayers.includes(player.userId)}
-                    onCheckedChange={() => handleTogglePlayer(player.userId)}
-                    className="data-[state=checked]:bg-[#BD2427] data-[state=checked]:border-[#BD2427]"
-                  />
+                  {/* Checkbox */}
+                  <div className="flex lg:block justify-start">
+                    <Checkbox
+                      checked={isPlayerSelected(player.userId)}
+                      onCheckedChange={() => handleTogglePlayer(player.userId)}
+                      className="data-[state=checked]:bg-[#BD2427] data-[state=checked]:border-[#BD2427]"
+                    />
+                  </div>
+
+                  {/* Cầu thủ */}
                   <div className="flex items-center">
                     <Avatar className="h-8 w-8 mr-3">
-                      <AvatarImage src={player.imageUrl || "/placeholder.svg?height=40&width=40"} alt={player.playerName} />
+                      <AvatarImage src={"/placeholder.svg?height=40&width=40"} alt={player.playerName} />
                       <AvatarFallback>{player.playerName}</AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="font-medium">{player.playerName}</div>
-                      <div className="text-sm text-gray-500">#{player.shirtNumber}</div>
+                      <div className="text-sm text-gray-500">#{player.shirtNumber < 0 ? "0" + Math.abs(player.shirtNumber) : player.shirtNumber}</div>
                     </div>
                   </div>
-                  <div className="text-sm">{player.position}</div>
+
+                  {/* Vị trí */}
+                  <div className="text-sm">{player.position || "-"}</div>
+
+                  {/* Chiều cao */}
+                  <div className="text-sm">{player.height ? `${player.height} cm` : "-"}</div>
+
+                  {/* Cân nặng */}
+                  <div className="text-sm">{player.weight ? `${player.weight} kg` : "-"}</div>
+
+                  {/* Ngày gia nhập */}
+                  <div className="text-sm">
+                    {player.clubJoinDate ? new Date(player.clubJoinDate).toLocaleDateString("vi-VN") : "-"}
+                  </div>
+
+                  {/* Checkbox đội hình chính */}
+                  <div className="flex lg:block justify-end lg:justify-start">
+                    <Checkbox
+                      checked={isPlayerStarting(player.userId)}
+                      onCheckedChange={() => handleToggleStarting(player.userId)}
+                      disabled={!isPlayerSelected(player.userId)}
+                      className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                    />
+                  </div>
                 </div>
               ))
             )}
@@ -103,9 +164,9 @@ export default function PlayerSelector({ team, onSave, onCancel, availablePlayer
         <Button
           onClick={handleSave}
           className="bg-[#BD2427] hover:bg-[#9a1e21]"
-          disabled={selectedPlayers.length === 0}
+          disabled={(selectedPlayers.length + currentPlayersTotal < 5) || (selectedPlayers.length === 0) ? true : false}
         >
-          Thêm {selectedPlayers.length} cầu thủ{selectedPlayers.length !== 1 ? "" : ""}
+          Thêm {selectedPlayers.length} cầu thủ
         </Button>
       </CardFooter>
     </Card>
