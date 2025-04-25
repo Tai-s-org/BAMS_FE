@@ -27,8 +27,8 @@ export default function EditMatchPage() {
     awayTeamId: "",
     awayTeamName: "",
     courtId: "",
-    scoreHome: 0,
-    scoreAway: 0,
+    homeTeamScore: 0,
+    awayTeamScore: 0,
   })
   const [match, setMatch] = useState({})
   const [courts, setAvailableCourts] = useState([])
@@ -59,8 +59,8 @@ export default function EditMatchPage() {
         awayTeamId: response?.data.data.awayTeamId || "",
         awayTeamName: response?.data.data.awayTeamName || "",
         courtId: response?.data.data.courtId,
-        scoreHome: response?.data.data.scoreHome,
-        scoreAway: response?.data.data.scoreAway,
+        homeTeamScore: response?.data.data.scoreHome,
+        awayTeamScore: response?.data.data.scoreAway,
       })
     } catch (error) {
       console.error("Error fetching match details:", error.response?.data)
@@ -102,13 +102,14 @@ export default function EditMatchPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // In a real app, you would update the match data in your backend here
     const data = {
       matchName: formData.matchName,
       matchDate: formatDate(formData.scheduledDate) + "T" + formData.scheduledStartTime,
       homeTeamId: match.homeTeamId,
       awayTeamId: match.awayTeamId,
       opponentTeamName: match.homeTeamId ? match.awayTeamName : match.homeTeamName,
+      awayTeamScore: formData.awayTeamScore,
+      homeTeamScore: formData.homeTeamScore,
       courtId: formData.courtId,
     }
     
@@ -195,24 +196,24 @@ export default function EditMatchPage() {
             {match.status === "Đã kết thúc" &&
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="scoreHome">Điểm đội nhà</Label>
+                  <Label htmlFor="homeTeamScore">Điểm đội nhà</Label>
                   <Input
-                    id="scoreHome"
-                    name="scoreHome"
+                    id="homeTeamScore"
+                    name="homeTeamScore"
                     type="number"
                     min="0"
-                    value={formData.scoreHome}
+                    value={formData.homeTeamScore}
                     onChange={handleInputChange}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="scoreAway">Điểm đội khách</Label>
+                  <Label htmlFor="awayTeamScore">Điểm đội khách</Label>
                   <Input
-                    id="scoreAway"
-                    name="scoreAway"
+                    id="awayTeamScore"
+                    name="awayTeamScore"
                     type="number"
                     min="0"
-                    value={formData.scoreAway}
+                    value={formData.awayTeamScore}
                     onChange={handleInputChange}
                   />
                 </div>
