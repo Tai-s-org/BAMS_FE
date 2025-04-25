@@ -396,7 +396,7 @@ export default function MatchDetailPage() {
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
                   <CardTitle>Cầu thủ đội nhà</CardTitle>
-                  {match && match?.homeTeamId && match?.homeTeamId === userInfo?.roleInformation.teamId && userInfo.roleCode === "Coach" && <Button
+                  {match && match?.homeTeamId && match?.homeTeamId === userInfo?.roleInformation.teamId && userInfo.roleCode === "Coach" && match?.status === "Sắp diễn ra" && <Button
                     variant="outline"
                     size="sm"
                     onClick={() => {
