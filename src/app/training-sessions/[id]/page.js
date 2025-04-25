@@ -123,14 +123,13 @@ export default function TrainingSessionDetail() {
             <div className="flex flex-col space-y-8">
                 {/* Header */}
                 <div className="flex items-center">
-                    <Link href={"/schedules"}>
                         <button
                             className="mr-4 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
+                            onClick={() => router.back()}
                         >
                             <ArrowLeft className="h-4 w-4 mr-2" />
-                            Quay Lại Lịch
+                            Quay Lại
                         </button>
-                    </Link>
                 </div>
 
                 {/* Content */}

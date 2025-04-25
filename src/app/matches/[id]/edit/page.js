@@ -127,7 +127,7 @@ export default function EditMatchPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push(`/matches/${params.id}`)} className="mr-2">
+        <Button variant="ghost" onClick={() => router.back()} className="mr-2">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Quay lại
         </Button>

@@ -1,10 +1,10 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { BarChart3, CreditCard, FileText, Grid, Home, LayoutDashboard, Package, Settings, Users, Code, Database, History } from "lucide-react";
-
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
 import Link from "next/link";
+import { TbPlayBasketball } from "react-icons/tb";
 
 export default function PlayerSidebar() {
     const pathname = usePathname(); // Lấy đường dẫn hiện tại
@@ -20,6 +20,7 @@ export default function PlayerSidebar() {
     const menuItems = [
         { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
         { title: "Thanh toán", icon: CreditCard, url: "/dashboard/payment" },
+        { title: "Trận đấu", icon: TbPlayBasketball, url: "/matches" },
         { title: "Lịch tập luyện", icon: BarChart3, url: "/schedules" },
         { title: "Trận đấu", icon: Users, url: "/matches" },
         { title: "Products", icon: Package, url: "/products" },
