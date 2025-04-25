@@ -30,7 +30,7 @@ import { useToasts } from "@/hooks/providers/ToastProvider"
 export default function MatchDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const { userInfo } = useAuth();
+  const { user, userInfo } = useAuth();
   const [match, setMatch] = useState(null)
   const [showArticleForm, setShowArticleForm] = useState(false)
   const [editingArticle, setEditingArticle] = useState(null)
@@ -42,6 +42,7 @@ export default function MatchDetailPage() {
 
   useEffect(() => {
     fetchMatchDetails();
+    if (user?.roleCode === "Coach")
     fetchListPlayers();
   }, [params.id])
 
@@ -126,11 +127,6 @@ export default function MatchDetailPage() {
     setEditingArticle(null)
   }
 
-  // const handleEditArticle = (article) => {
-  //   setEditingArticle(article)
-  //   setShowArticleForm(true)
-  // }
-
   const handleAddPlayers = (players, team) => {
     if (team === "home") {
       setMatch({
@@ -149,7 +145,7 @@ export default function MatchDetailPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push("/matches")} className="mr-2">
+        <Button variant="ghost" onClick={() => router.back()} className="mr-2">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Quay lại
         </Button>
@@ -167,12 +163,12 @@ export default function MatchDetailPage() {
             </Badge>
             <h2 className="text-2xl font-bold">{match?.matchName}</h2>
           </div>
-          <Link href={`/matches/${match?.matchId}/edit`}>
+          {user?.roleCode === "Coach" && <Link href={`/matches/${match?.matchId}/edit`}>
             <Button variant="outline" disabled={match?.status === "Đang diễn ra" || match?.status === "Đã hủy"}>
               <Edit className="mr-2 h-4 w-4" />
               Cập nhật trận đấu
             </Button>
-          </Link>
+          </Link>}
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -275,7 +271,6 @@ export default function MatchDetailPage() {
               onSave={handleSaveArticle}
               onCancel={() => {
                 setShowArticleForm(false)
-                // setEditingArticle(null)
               }}
               matchId={params.id}
             />
@@ -295,10 +290,7 @@ export default function MatchDetailPage() {
                     <div className="flex justify-between items-start">
                       <CardTitle>{article.title}</CardTitle>
                       <div className="flex gap-2">
-                        {/* <Button variant="ghost" size="sm" onClick={() => handleEditArticle(article)}>
-                          <Edit className="h-4 w-4" />
-                        </Button> */}
-                        <AlertDialog>
+                        {user?.roleCode === "Coach" && <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="sm" className="text-red-500">
                               <Trash2 className="h-4 w-4" />
@@ -319,7 +311,7 @@ export default function MatchDetailPage() {
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
-                        </AlertDialog>
+                        </AlertDialog>}
                       </div>
                     </div>
                     <div className="text-sm text-gray-500">

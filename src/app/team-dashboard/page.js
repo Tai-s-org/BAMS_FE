@@ -299,9 +299,11 @@ export default function TeamDashboard() {
                   <div key={match.matchId} className="flex flex-col p-4 border rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-medium">{match.matchName}</h3>
-                      <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">
-                        {match.status}
-                      </Badge>
+                      <Link href={`/matches/${match.matchId}`} className="text-[#BD2427] hover:text-[#9a1e20]">
+                        <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">
+                          <LuEye className="h-4 w-4 mr-1" /> Chi tiết
+                        </Badge>
+                      </Link>
                     </div>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-1">
