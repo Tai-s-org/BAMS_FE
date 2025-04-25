@@ -8,6 +8,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { LuScanFace } from "react-icons/lu";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
 import Link from "next/link";
+import { TbPlayBasketball } from "react-icons/tb";
 
 export default function ManagerSidebar() {
     const pathname = usePathname(); // Lấy đường dẫn hiện tại
@@ -24,6 +25,7 @@ export default function ManagerSidebar() {
         { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
         { title: "Thanh toán", icon: CreditCard, url: "/dashboard/payment" },
         { title: "Balances", icon: BarChart3, url: "/balances" },
+        { title: "Trận đấu", icon: TbPlayBasketball, url: "/matches" },
         { title: "Sân bóng", icon: PiCourtBasketballFill, url: "/courts" },
         { title: "Thời khóa biểu", icon: FaCalendarAlt, url: "/schedules" },
         { title: "Danh sách lịch chờ", icon: AiFillSchedule, url: "/confirm-schedule" },
