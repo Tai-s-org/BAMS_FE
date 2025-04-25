@@ -49,7 +49,7 @@ export default function PlayerList({ players, onRemoveMember }) {
                 <TableCell>{player.weight || "-"} kg</TableCell>
                 <TableCell>{new Date(player.clubJoinDate).toLocaleDateString()}</TableCell>
                 <TableCell>
-                <Button className="text-[#BD2427] bg-white hover:bg-gray-200 border border-[#BD2427]" asChild>
+                  <Button className="text-[#BD2427] bg-white hover:bg-gray-200 border border-[#BD2427]" asChild>
                     <Link href={`/dashboard/player-management/${player.userId}`}><LuEye className="mr-2" />Chi tiết</Link>
                   </Button>
                   <Button className="text-white hover:bg-red-900 ml-2" onClick={() => onRemoveMember(player.userId, player.fullname)}>Xóa</Button>
