@@ -39,6 +39,8 @@ export default function MatchDetailPage() {
   const [availablePlayers, setAvailablePlayers] = useState([])
   const { addToast } = useToasts()
   const [isUpdate, setIsUpdate] = useState(false)
+  const [startingCount, setStartingCount] = useState(0)
+  const [playersCount, setPlayersCount] = useState(0)
 
   useEffect(() => {
     fetchMatchDetails();
@@ -49,6 +51,7 @@ export default function MatchDetailPage() {
   useEffect(() => {
     if (isUpdate) {
       fetchMatchDetails()
+      fetchListPlayers()
       setIsUpdate(false)
     }
   }, [isUpdate])
@@ -56,6 +59,15 @@ export default function MatchDetailPage() {
   const fetchMatchDetails = async () => {
     try {
       const response = await matchApi.getMatchById(params.id);
+      if (userInfo?.roleInformation?.teamId === response?.data.data.homeTeamId) {
+       const count = countStartingPlayers(response?.data.data.homeTeamPlayers)
+       setPlayersCount(response?.data.data.homeTeamPlayers.length)
+       setStartingCount(count)
+      } else if (userInfo?.roleInformation?.teamId === response?.data.data.awayTeamId) {
+       const count = countStartingPlayers(response?.data.data.awayTeamPlayers)
+       setPlayersCount(response?.data.data.awayTeamPlayers.length)
+       setStartingCount(count)
+      }
 
       const matches = response?.data.data.matchArticles?.map((article) => article.url.startsWith("uploads/") ? {
         ...article,
@@ -119,6 +131,11 @@ export default function MatchDetailPage() {
     }
   }
 
+  const countStartingPlayers = (players) => {
+    const startingCount = players.filter((p) => p.isStarting).length
+    return startingCount
+  }
+
   const handleSaveArticle = (isSuccess) => {
     if (isSuccess) {
       setIsUpdate(true)
@@ -127,19 +144,22 @@ export default function MatchDetailPage() {
     setEditingArticle(null)
   }
 
-  const handleAddPlayers = (players, team) => {
-    if (team === "home") {
-      setMatch({
-        ...match,
-        homeTeamPlayers: [...match.homeTeamPlayers, ...players],
-      })
-    } else {
-      setMatch({
-        ...match,
-        awayTeamPlayers: [...match.awayTeamPlayers, ...players],
-      })
+  const handleAddPlayers = async (players, team) => {
+    console.log(players);
+
+    try {
+      await Promise.all(
+        players.map((player) => matchApi.callPlayer(player))
+      );
+      addToast({ message: "Thêm cầu thủ vào đội hình thi đấu thành công", type: "success" });
+      setShowPlayerSelector(false)
+      setIsUpdate(true)
+    } catch (error) {
+      console.error("Error adding players:", error)
+      if (error.status == 401) {
+        addToast({ message: "Phiên đăng nhập của bạn đã hết", type: "error" });
+      }
     }
-    setShowPlayerSelector(false)
   }
 
   return (
@@ -156,8 +176,8 @@ export default function MatchDetailPage() {
         <div className="flex justify-between items-start mb-4">
           <div>
             <Badge
-              variant={match?.status === "Sắp diễn ra" ? "outline" : "default"}
-              className="bg-[#BD2427] text-white mb-2"
+              variant={match?.status === "Sắp diễn ra" ? "warning" : "outline"}
+              className="mb-2"
             >
               {match?.status}
             </Badge>
@@ -396,12 +416,12 @@ export default function MatchDetailPage() {
                   <div className="space-y-2">
                     {match?.homeTeamPlayers.map((player, index) => (
                       <div key={index} className="flex items-center p-2 hover:bg-gray-50 rounded-md">
-                        <Avatar className="h-8 w-8 mr-3">
+                        <Avatar className="h-8 w-8 mr-3 bg-red-700 text-white">
                           <AvatarImage src={player.avatarUrl || "/placeholder.svg"} />
-                          <AvatarFallback>{player.playerName}</AvatarFallback>
+                          <AvatarFallback>{player.playerName.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium">{player.playerName}</div>
+                          <div className="font-medium">{player.playerName} <span className="text-[#BD2427]">{player.isStarting ? "(xuất phát)" : ""}</span></div>
                           <div className="text-sm text-gray-500">#{player.shirtNumber}</div>
                         </div>
                       </div>
@@ -416,7 +436,7 @@ export default function MatchDetailPage() {
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
                   <CardTitle>Cầu thủ đội khách</CardTitle>
-                  {match && match?.awayTeamId && match?.awayTeamId === userInfo?.roleInformation.teamId && userInfo.roleCode === "Coach" && <Button
+                  {match && match?.awayTeamId && match?.awayTeamId === userInfo?.roleInformation.teamId && userInfo.roleCode === "Coach" && match?.status === "Sắp diễn ra" && <Button
                     variant="outline"
                     size="sm"
                     onClick={() => {
@@ -436,12 +456,12 @@ export default function MatchDetailPage() {
                   <div className="space-y-2">
                     {match?.awayTeamPlayers.map((player, index) => (
                       <div key={index} className="flex items-center p-2 hover:bg-gray-50 rounded-md">
-                        <Avatar className="h-8 w-8 mr-3">
+                        <Avatar className="h-8 w-8 mr-3 bg-red-700 text-white">
                           <AvatarImage src={player.avatarUrl || "/placeholder.svg"} />
-                          <AvatarFallback>{player.playerName}</AvatarFallback>
+                          <AvatarFallback>{player.playerName.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium">{player.playerName}</div>
+                          <div className="font-medium">{player.playerName} <span className="text-[#BD2427]">{player.isStarting ? "(xuất phát)" : ""}</span></div>
                           <div className="text-sm text-gray-500">#{player.shirtNumber}</div>
                         </div>
                       </div>
@@ -459,6 +479,8 @@ export default function MatchDetailPage() {
               onCancel={() => setShowPlayerSelector(false)}
               availablePlayers={availablePlayers}
               matchId={params.id}
+              startingTotal={startingCount}
+              currentPlayersTotal={playersCount}
             />
           )}
         </TabsContent>
