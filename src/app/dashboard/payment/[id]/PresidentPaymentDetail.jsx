@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/Seperator"
 import { Badge } from "@/components/ui/Badge"
 import { Textarea } from "@/components/ui/Textarea"
 import Link from "next/link"
-import { ArrowLeft, CheckCircle, FileText, DollarSign, Users } from "lucide-react"
+import { ArrowLeft, CheckCircle, FileText, DollarSign, Users, Coins } from "lucide-react"
 import teamFundApi from "@/api/teamFund"
 
 export default function PresidentReportDetail({ id }) {
@@ -55,6 +55,10 @@ export default function PresidentReportDetail({ id }) {
         setIsApproved(false)
     }
 
+    function formatTienVN(number) {
+        return number != null ? number.toLocaleString('vi-VN') : "";
+    }
+
     return (
         <div className="container mx-auto py-6">
             <div className="flex items-center mb-6">
@@ -76,7 +80,7 @@ export default function PresidentReportDetail({ id }) {
                                 <FileText className="h-5 w-5" />
                                 {teamFund?.teamName} - {teamFund?.description}
                             </CardTitle>
-                            <CardDescription>Hoàn thành bởi {teamFund?.teamId} vào ngày {teamFund?.endDate}</CardDescription>
+                            <CardDescription>Hoàn thành bởi quản lý Hoàng Trung Hiếu vào ngày {teamFund?.endDate}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-6">
@@ -106,9 +110,9 @@ export default function PresidentReportDetail({ id }) {
                                             <div key={index}>
                                                 <div className="grid grid-cols-12 text-sm">
                                                     <div className="col-span-4">{item.name}</div>
-                                                    <div className="text-right col-span-3">{item.amount} VNĐ</div>
+                                                    <div className="text-right col-span-3">{formatTienVN(item.amount)} VNĐ</div>
                                                     <div className="col-span-1"></div>
-                                                    <div className="font-medium">{item.paidDate} </div>
+                                                    <div className="font-medium">{item.payoutDate} </div>
                                                 </div>
                                                 <Separator />
                                             </div>
@@ -117,7 +121,7 @@ export default function PresidentReportDetail({ id }) {
                                         <div className="grid grid-cols-12 text-sm font-medium">
                                             <div className="col-span-4">Tổng</div>
                                             <div className="text-right col-span-3">
-                                                {expenseItems.reduce((total, item) => total + Number(item.amount), 0)} VNĐ
+                                                {formatTienVN(parseInt(teamFund?.totalExpenditure))} VNĐ
                                             </div>
                                         </div>
                                     </div>
@@ -146,7 +150,7 @@ export default function PresidentReportDetail({ id }) {
                                                 <DialogHeader>
                                                     <DialogTitle>Từ chối báo cáo chi phí</DialogTitle>
                                                     <DialogDescription>
-                                                    Bạn có chắc chắn muốn từ chối báo cáo chi phí này không?
+                                                        Bạn có chắc chắn muốn từ chối báo cáo chi phí này không?
                                                     </DialogDescription>
                                                 </DialogHeader>
                                                 <DialogFooter>
@@ -202,7 +206,7 @@ export default function PresidentReportDetail({ id }) {
                 <div>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Team Information</CardTitle>
+                            <CardTitle>Thông tin báo cáo</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
@@ -211,8 +215,8 @@ export default function PresidentReportDetail({ id }) {
                                     <span className="text-sm">{teamFund?.teamName}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm"></span>
+                                    <Coins className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm">{formatTienVN(parseInt(teamFund?.totalExpenditure))} VNĐ</span>
                                 </div>
                                 {teamFund?.status === 1 ? (
                                     <div className="flex items-center gap-2">

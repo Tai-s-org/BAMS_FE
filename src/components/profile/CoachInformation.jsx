@@ -10,7 +10,7 @@ import { formatDate } from "@/utils/format"
 export default function CoachInformation({ roleInformation, isEditing, formData, handleInputChange }) {
     return (
         <Card className="md:col-span-12 border-none shadow-md">
-            <div className="bg-rose-600 py-4 px-6 rounded-t-lg">
+            <div className="bg-[#bd2427] py-4 px-6 rounded-t-lg">
                 <h2 className="text-xl font-semibold text-white flex items-center">
                     <Shield className="h-5 w-5 mr-2" />
                     Thông tin huấn luyện viên
@@ -19,13 +19,6 @@ export default function CoachInformation({ roleInformation, isEditing, formData,
             <CardContent className="p-6">
                 {!isEditing ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="flex items-center gap-3">
-                            <Users className="h-5 w-5 text-red-700" />
-                            <div>
-                                <p className="text-sm text-gray-500">ID Đội</p>
-                                <p className="font-medium text-gray-900">{roleInformation.teamId}</p>
-                            </div>
-                        </div>
                         <div className="flex items-center gap-3 sm:col-span-2">
                             <FileText className="h-5 w-5 text-red-600" />
                             <div>

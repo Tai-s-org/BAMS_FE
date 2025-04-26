@@ -28,7 +28,7 @@ export default function FormLogin({ onSubmit, loading }) {
                     <div className="mx-auto bg-[#BD2427] w-20 h-20 rounded-full flex items-center justify-center mb-2 shadow-lg relative">
                         <Image src={'/assets/logo/logo.png'}  width={'100'} height={'100'} alt="logo"/>
                     </div>
-                    <CardTitle className="text-3xl font-bold text-[#BD2427] tracking-wider">Đăng nhập</CardTitle>
+                    <CardTitle className="text-3xl font-bold text-[#BD2427] tracking-wider">ĐĂNG NHẬP</CardTitle>
                 </CardHeader>
 
                 <CardContent className="space-y-4">

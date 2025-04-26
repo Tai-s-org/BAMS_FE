@@ -11,7 +11,7 @@ import { DatePicker } from "@/components/ui/DatePicker"
 import registerApi from "@/api/register"
 import { useRouter } from "next/navigation"
 
-export default function PlayerRegistrationForm() {
+export default function PlayerRegistrationForm({email}) {
     const [date, setDate] = useState(null)
     const router = useRouter();
     const [storedEmail, setStoredEmail] = useState("");

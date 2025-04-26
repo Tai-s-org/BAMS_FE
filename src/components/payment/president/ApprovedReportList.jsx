@@ -57,7 +57,7 @@ export function ApprovedReportsList({approvedReports}) {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <div className="font-medium">{(report.amount)} VNĐ</div>
+                            <div className="font-medium">{formatTienVN(parseInt(report.totalExpenditure, 10))}</div>
                             <Badge variant="outline" className="bg-green-50 text-green-700">
                                 Đã duyệt
                             </Badge>

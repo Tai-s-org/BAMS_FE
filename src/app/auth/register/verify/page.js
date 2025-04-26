@@ -143,14 +143,14 @@ export default function VerifyPage() {
         <>
             <div className="flex min-h-screen flex-col items-center justify-center p-4">
                 <div className="w-full max-w-md space-y-8 text-center">
-                    <h1 className="text-3xl font-bold">Verification</h1>
+                    <h1 className="text-3xl font-bold">Xác minh</h1>
 
                     <p className="text-gray-600">
-                        If you have an account, we have sent a code to
+                        Check địa chỉ email của bạn, chúng tôi đã gửi mã đến
                         <br />
                         <span className="font-medium text-gray-800">{email}</span>.
                         <br />
-                        Enter it below.
+                        Nhập nó vào bên dưới.
                     </p>
 
                     <div className="flex justify-center gap-2">
@@ -216,8 +216,8 @@ export default function VerifyPage() {
                 onClose={closeModal}
                 title={registrationType === "player" ? "Đăng ký cầu thủ" : "Đăng Ký Quản Lý"}
             >
-                {registrationType === "manager" && <ManagerRegistrationForm />}
-                {registrationType === "player" && <PlayerRegistrationForm />}
+                {registrationType === "manager" && <ManagerRegistrationForm email={email}/>}
+                {registrationType === "player" && <PlayerRegistrationForm email={email}/>}
             </Modal>
         </>
     )

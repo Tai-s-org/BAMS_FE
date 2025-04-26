@@ -37,7 +37,7 @@ export default function CoachSidebar() {
                     </div>
                     <div className="flex flex-col">
                         <span className="text-lg font-semibold text-white">Yên Hòa Storm </span>
-                        <span className="text-xs text-gray-400">HUấn luyện viên</span>
+                        <span className="text-xs text-gray-400">Huấn luyện viên</span>
                     </div>
                 </div>
                 <SidebarMenu>

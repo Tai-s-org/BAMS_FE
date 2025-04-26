@@ -141,7 +141,7 @@ export default function ManagerInformation({ roleInformation, isEditing, formDat
 
     return (
         <Card className="md:col-span-12 border-none shadow-md">
-            <div className="bg-rose-600 py-4 px-6 rounded-t-lg">
+            <div className="bg-[#bd2427] py-4 px-6 rounded-t-lg">
                 <h2 className="text-xl font-semibold text-white flex items-center">
                     <Bank className="h-5 w-5 mr-2" />
                     Thông tin tài khoản ngân hàng

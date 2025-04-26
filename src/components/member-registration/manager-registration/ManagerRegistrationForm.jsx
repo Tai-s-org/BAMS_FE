@@ -10,32 +10,40 @@ import { useToasts } from "@/hooks/providers/ToastProvider"
 import { useRouter } from "next/navigation"
 import { Dialog } from "@/components/ui/Dialog"
 
-export default function ManagerRegistrationForm({ isOpen, onClose }) {
+export default function ManagerRegistrationForm({ isOpen, onClose, email, sessionId, data }) {
     const { addToast } = useToasts();
     const router = useRouter();
     const [storedEmail, setStoredEmail] = useState("");
     const [registrationSessionId, setRegistrationSessionId] = useState("");
-
-    useEffect(() => {
-        const email = localStorage.getItem("userEmail");
-        const sessionId = localStorage.getItem("registrationSessionId");
-        setFormData(prev => ({ ...prev, email: email || "" }));
-        setRegistrationSessionId(sessionId);
-    }, []);
-
     const [formData, setFormData] = useState({
         fullName: "",
         generationAndSchoolName: "",
         phoneNumber: "",
-        email: storedEmail,
+        email: "", // để set sau khi load localStorage
         facebookProfileUrl: "",
         knowledgeAboutAcademy: "",
         reasonToChooseUs: "",
         knowledgeAboutAmanager: "",
         experienceAsAmanager: "",
         strength: "",
-        weaknessAndItSolution: ""
-    })
+        weaknessAndItSolution: "",
+    });
+
+    // Load localStorage và gán vào formData
+    useEffect(() => {
+        setFormData(prev => ({
+            ...prev,
+            email: email || "",
+        }));
+        setRegistrationSessionId(sessionId || "");
+    }, []);
+
+    // Nếu có data (ví dụ khi edit), override formData
+    // useEffect(() => {
+    //     if (data) {
+    //         setFormData(data);
+    //     }
+    // }, [data]);
     //const registrationSessionId = localStorage.getItem("registrationSessionId");
 
     const handleChange = (e) => {
@@ -55,12 +63,11 @@ export default function ManagerRegistrationForm({ isOpen, onClose }) {
                 const response = await registerApi.managerRegister({
                     ...formData,
                     "memberRegistrationSessionId": registrationSessionId,
-
                 })
                 console.log(response.data);
                 addToast({ message: response.data.message, type: "success" });
             } catch (error) {
-                //addToast({ message: response.data.message, type: "error" });
+                addToast({ message: error.data.message, type: "error" });
             }
             router.push("/");
         }

@@ -78,7 +78,7 @@ export function PendingTab({ players, onStatusChange }) {
                 </div>
                 <div className="space-x-2">
                     <Button onClick={() => setIsTryoutModalOpen(true)} disabled={selectedPlayers.length === 0}>
-                        Mời thử việc
+                        Gọi kiểm tra kĩ năng
                     </Button>
                     <Button
                         variant="destructive"

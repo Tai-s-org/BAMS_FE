@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/Badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/Dialog"
 import { Separator } from "@/components/ui/Seperator"
 import { useToasts } from "@/hooks/providers/ToastProvider"
-import Link from "next/link"
 import registrationSessionApi from "@/api/registrationSession"
 
 
@@ -70,13 +69,19 @@ export default function RegistrationSessionDetail({ id }) {
     }
 
     const handlePlayerRegister = () => {
-        router.push("/auth/register")
-        localStorage.setItem("registraionRoleCode", "player");
+        router.push('/register')
+        localStorage.setItem("role", "player");
+        localStorage.setItem("session", id);
+        // router.push("/auth/register")
+        // localStorage.setItem("registraionRoleCode", "player");
     }
 
     const handleManagerRegister = () => {
-        router.push("/auth/register")
-        localStorage.setItem("registraionRoleCode", "manager");
+        router.push('/register')
+        localStorage.setItem("role", "manager");
+        localStorage.setItem("session", id);
+        // router.push("/auth/register")
+        // localStorage.setItem("registraionRoleCode", "manager");
     }
 
     if (!session) {
