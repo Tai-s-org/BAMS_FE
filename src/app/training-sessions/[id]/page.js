@@ -123,13 +123,13 @@ export default function TrainingSessionDetail() {
             <div className="flex flex-col space-y-8">
                 {/* Header */}
                 <div className="flex items-center">
-                        <button
-                            className="mr-4 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
-                            onClick={() => router.back()}
-                        >
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            Quay Lại
-                        </button>
+                    <button
+                        className="mr-4 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
+                        onClick={() => router.back()}
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Quay Lại
+                    </button>
                 </div>
 
                 {/* Content */}
@@ -287,7 +287,10 @@ export default function TrainingSessionDetail() {
                                                             {exercise.duration} phút
                                                         </div>
                                                     </div>
-                                                    <p className="text-sm text-gray-500 mb-2">{exercise.description}</p>
+                                                    <div
+                                                        className="text-sm text-gray-500 mb-2 prose prose-sm max-w-none"
+                                                        dangerouslySetInnerHTML={{ __html: exercise.description }}
+                                                    />
                                                     <div className="text-xs text-gray-500">
                                                         <span className="font-medium">HLV:</span>{" "}
                                                         {exercise.coachUsername}
