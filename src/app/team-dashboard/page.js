@@ -434,25 +434,29 @@ export default function TeamDashboard() {
                       <TableCell className="font-medium">{player.fullname}</TableCell>
                       <TableCell>{player.email || "N/A"}</TableCell>
                       <TableCell>{player.position || "N/A"}</TableCell>
-                      <TableCell>{player.dateOfBirth ? `${player.weight} kg` : "N/A"}</TableCell>
+                      <TableCell>{player.dateOfBirth || "N/A"}</TableCell>
                       <TableCell>{player.phone || "N/A"}</TableCell>
                       <TableCell>{formatDate(player.clubJoinDate)}</TableCell>
                       <TableCell className="text-right">
-                        <Button className="text-[#BD2427] bg-white hover:bg-gray-200 border border-[#BD2427]" asChild>
-                          <Link href={`/dashboard/player-management/${player.userId}`}><LuEye className="mr-2" />Chi tiết</Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setDeletePlayerName(player.fullname)
-                            setDeletePlayerId(player.userId)
-                            setIsDeleteModalOpen(true)
-                          }}
-                          className="text-[#BD2427] hover:text-[#9a1e20] hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {(user?.roleCode === "Manager" || user?.roleCode === "Coach") &&
+                          <div>
+                            <Button className="text-[#BD2427] bg-white hover:bg-gray-200 border border-[#BD2427]" asChild>
+                              <Link href={`/dashboard/player-management/${player.userId}`}><LuEye className="mr-2" />Chi tiết</Link>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setDeletePlayerName(player.fullname)
+                                setDeletePlayerId(player.userId)
+                                setIsDeleteModalOpen(true)
+                              }}
+                              className="text-[#BD2427] hover:text-[#9a1e20] hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        }
                       </TableCell>
                     </TableRow>
                   ))}
