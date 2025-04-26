@@ -4,7 +4,7 @@ import { useState } from "react";
 import ForgotPasswordForm from "../form/ForgotPasswordForm";
 import { Button } from "../ui/Button";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { House } from "lucide-react";
 import authApi from "@/api/auth";
 import { useToasts } from "@/hooks/providers/ToastProvider";
 
@@ -40,7 +40,7 @@ export default function ForgotPassword() {
                 asChild
             >
                 <Link href="/">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    <House className="mr-2 h-4 w-4" />
                     Trang chủ
                 </Link>
             </Button>

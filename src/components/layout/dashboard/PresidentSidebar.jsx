@@ -22,8 +22,8 @@ export default function PresidentSidebar() {
     const menuItems = [
         { title: "Accounts", icon: LayoutDashboard, url: "/dashboard/accounts" },
         { title: "Đội bóng", icon: RiGroup2Fill, url: "/team-management" },
-        { title: "Payments", icon: CreditCard, url: "/payments" },
-        { title: "Huấn luyện viên", icon: GiWhistle, url: "/dashboard/coach-management" },
+        { title: "Thanh toán", icon: CreditCard, url: "/dashboard/payment" },
+        { title: "Huấn luyện viên", icon: GiWhistle, url: "/coach-management" },
         { title: "Cầu thủ", icon: GiBasketballJersey, url: "/dashboard/coach-management" },
         { title: "Quản lý", icon: Users, url: "/dashboard/manager-management" },
         { title: "Quản lý thông tin đội", icon: HiOutlineClipboardDocumentList, url: "/document-management" },

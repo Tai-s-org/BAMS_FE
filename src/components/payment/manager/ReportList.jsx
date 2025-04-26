@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/Button"
 import { FileText, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
-export function ReportsList({reports}) {
-    function formatTienVN(number) {
-        return number != null ? number.toLocaleString('vi-VN') : "";
-    }
+export function ReportsList({ reports }) {
+
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString)
@@ -17,6 +16,10 @@ export function ReportsList({reports}) {
             month: "2-digit",
             year: "numeric",
         })
+    }
+
+    function formatTienVN(number) {
+        return number != null ? number.toLocaleString('vi-VN') : "";
     }
 
     // const reports = [

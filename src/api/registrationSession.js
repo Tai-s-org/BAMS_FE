@@ -16,8 +16,11 @@ const registrationSessionApi = {
     updateRegistrationSession: (id, data) => {
         return api.put(`/member-registraion-session/${id}`, data);
     },
-    validateEmailAndSendOtp: (memberRegistrationSessionId, data) => {
+    validateManagerEmailAndSendOtp: (memberRegistrationSessionId, data) => {
         return api.post(`/manager-registration/validate-email-and-send-otp/${memberRegistrationSessionId}`, data);
+    },
+    validatePlayerEmailAndSendOtp: (data) => {
+        return api.post('/player-registration/validate-and-send-otp-player-registration', data);
     }
 };
 

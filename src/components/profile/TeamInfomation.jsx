@@ -7,7 +7,7 @@ export default function TeamInformation({ user }) {
     const [teamName, setTeamName] = useState("")
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString)
+        const date = new Date(dateString?.split(" ")[0])
         return date.toLocaleDateString("vi-VN", {
             day: "2-digit",
             month: "2-digit",
@@ -49,21 +49,21 @@ export default function TeamInformation({ user }) {
                         <Shield className="h-5 w-5 text-red-600" />
                         <div>
                             <p className="text-sm text-gray-500">Vai trò</p>
-                            <p className="font-medium text-gray-900">{user.roleCode === "Player" ? "Cầu thủ" : user.roleCode === "Manager" ? "Quản lý" : user.roleCode === "President" ? "Chủ tịch" : "Phụ Huynh"}</p>
+                            <p className="font-medium text-gray-900">{user.roleCode === "Player" ? "Cầu thủ" : user.roleCode === "Manager" ? "Quản lý" : user.roleCode === "President" ? "Chủ tịch" : user.roleCode === "Coach"? "Huấn luyện viên" :"Phụ Huynh"}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <Users className="h-5 w-5 text-rose-600" />
                         <div>
                             <p className="text-sm text-gray-500">Đội</p>
-                            <p className="font-medium text-gray-900">{user.teamName}</p>
+                            <p className="font-medium text-gray-900">{user?.roleInformation?.teamName}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <Clock className="h-5 w-5 text-red-800" />
                         <div>
                             <p className="text-sm text-gray-500">Ngày tham gia</p>
-                            <p className="font-medium text-gray-900">{formatDate(user.createdAt)}</p>
+                            <p className="font-medium text-gray-900">{(user.createdAt) || "N/A"}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">

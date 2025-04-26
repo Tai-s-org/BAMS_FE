@@ -8,20 +8,23 @@ const coachApi = {
 
         return api.get('/coach/list', { params: validFilters });
     },
-    getManagerById: (userId) => {
-        return api.get(`/manager/manager-detail/${userId}`);
+    getCoachById: (userId) => {
+        return api.get(`/coach/detail/${userId}`);
     },
-    assignMemberToTeam: (data) => {
-        return api.put('/manager/assign-manager-to-team', data);
+    createNewCoachAccount: (data) => {
+        return api.post('/coach/create', data);
     },
-    disableManager: (userId) => {
-        return api.put(`/manager/disable-manager/${userId}`);
-    },
-    updateManager: (data) => {
-        return api.put('/manager/update-manager', data);
+    updateCoach: (data) => {
+        return api.put('/coach/update', data);
     },
     listCoaches: (data) => {
-        return api.get('/coach/list', {params: data});
+        return api.get('/coach/list', { params: data });
+    },
+    changeCoachStatus: (userId) => {
+        return api.patch(`/coach/change-status/${userId}`);
+    },
+    assignCoachToTeam: (data) => {
+        return api.patch(`/api/coach/assign-to-team`, data);
     },
 };
 

@@ -28,8 +28,13 @@ export default function PresidentPayment() {
         fetchTeamFund()
     }, [])
 
+    function formatTienVN(number) {
+        return number != null ? number.toLocaleString('vi-VN') : "";
+    }
+
     const pendingTeamFundList = teamFundList.filter((item) => item.status === 0)
     const aprrovedTeamFundList = teamFundList.filter((item) => item.status === 1)
+    const totalAmount = teamFundList.reduce((sum, item) => sum + parseInt(item.totalExpenditure, 10), 0)
 
     return (
         <div className="container mx-auto py-6">
@@ -63,10 +68,10 @@ export default function PresidentPayment() {
 
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Monthly Expenses</CardTitle>
+                        <CardTitle className="text-sm font-medium">Tổng số tiền</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">$2,450</div>
+                        <div className="text-2xl font-bold">{formatTienVN(totalAmount)} VNĐ</div>
                     </CardContent>
                 </Card>
 

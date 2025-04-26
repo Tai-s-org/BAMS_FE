@@ -6,10 +6,10 @@ export default function ManagerList({ managers, isDescending, toggleSortDirectio
             <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50 text-xs uppercase">
                     <tr>
-                        <th className="px-6 py-3 font-medium">Username</th>
+                        <th className="px-6 py-3 font-medium">Tên tài khoản</th>
                         <th className="px-6 py-3 font-medium cursor-pointer" onClick={toggleSortDirection}>
                             <div className="flex items-center">
-                                Full Name
+                                Họ và tên
                                 {isDescending === null && <span className="ml-2 text-gray-400">⇅</span>}
                                 {isDescending === true && (
                                     <svg

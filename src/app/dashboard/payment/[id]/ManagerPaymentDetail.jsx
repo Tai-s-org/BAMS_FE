@@ -189,7 +189,6 @@ export default function ManagerReportDetail({ id }) {
                         <ArrowLeft className="h-4 w-4" /> Quay lại danh sách
                     </Button>
                 </Link>
-                <h1 className="text-2xl font-bold ml-4">Expense Report #{teamFund?.teamFundId}</h1>
                 {isApproved && <Badge className="ml-4 bg-green-500">Approved</Badge>}
                 {isPending && <Badge className="ml-4 bg-yellow-500">Pending</Badge>}
                 {isSaved && <Badge className="ml-4 bg-blue-500">Changes Saved</Badge>}
@@ -220,7 +219,7 @@ export default function ManagerReportDetail({ id }) {
                                 <div>
                                     <h3 className="font-medium mb-2">Mô tả</h3>
                                     <p className="text-sm text-muted-foreground">
-                                        Đóng quỹ đội tháng 3 2025 cho team 1. Chi phí bao gồm dụng cụ tập luyện, phí đăng ký thi đấu và chi phí đi tập huấn.
+                                        Đóng quỹ đội tháng 4 2025 cho team 1. Chi phí bao gồm dụng cụ tập luyện, phí đăng ký thi đấu và chi phí đi tập huấn.
                                     </p>
                                 </div>
 
@@ -319,7 +318,7 @@ export default function ManagerReportDetail({ id }) {
                                 <div>
                                     <h3 className="font-medium mb-2">Số thành viên hiện tại (4)</h3>
                                     <p className="text-sm text-muted-foreground">
-                                        Mỗi thành viên sẽ đóng {(calculateTotal() / 4)} VND sau khi được duyệt.
+                                        Mỗi thành viên sẽ đóng {formatTienVN((calculateTotal() / 4))} VNĐ sau khi được duyệt.
                                     </p>
                                 </div>
 

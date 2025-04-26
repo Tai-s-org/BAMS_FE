@@ -73,7 +73,7 @@ export default function ManagerManagement() {
 
     // Handle view details
     const handleViewDetails = (userId) => {
-        router.push(`/dashboard/manager-management/manager/${userId}`)
+        router.push(`/dashboard/manager-management/${userId}`)
     }
 
     // Handle search change
@@ -130,12 +130,12 @@ export default function ManagerManagement() {
                     {/* Error state */}
                     {error && (
                         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-                            <p>Error: {error}</p>
+                            <p>Lỗi: {error}</p>
                             <button
                                 onClick={fetchData}
                                 className="mt-2 px-3 py-1 text-sm border border-red-300 rounded hover:bg-red-100 transition-colors"
                             >
-                                Retry
+                                Tải lại
                             </button>
                         </div>
                     )}
