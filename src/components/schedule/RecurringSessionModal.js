@@ -258,7 +258,7 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                   <MapPin className="h-4 w-4 text-gray-400" />
                                 </div>
-                                <Select  value={daySelections[day.id].court} onValueChange={(court) => updateTimeSlot(day.id, "court", court)} required>
+                                <Select value={daySelections[day.id].court} onValueChange={(court) => updateTimeSlot(day.id, "court", court)} required>
                                   <SelectTrigger className="pl-10">
                                     <SelectValue placeholder="Chọn sân" />
                                   </SelectTrigger>
@@ -285,8 +285,15 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
             <div className="bg-gray-50 px-6 py-4 flex flex-row-reverse">
               <button
                 type="button"
-                className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427]"
+                className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] disabled:opacity-50 disabled:opacity-50"
                 onClick={handleSubmit}
+                disabled={
+                  !daysOfWeek || daysOfWeek.some(
+                    (day) =>
+                      daySelections[day.id]?.selected && !daySelections[day.id]?.timeSlots?.court
+                  )
+                }
+                
               >
                 <Check className="mr-2 h-4 w-4" />
                 Xác nhận
