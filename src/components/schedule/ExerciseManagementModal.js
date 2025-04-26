@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react"
 import { X, Plus, Edit, Trash2, Clock, Save } from "lucide-react"
 import scheduleApi from "@/api/schedule"
+import { Input } from "../ui/Input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
+import { TextEditor } from "@/components/ui/TextEditor"
 
 export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExercises, coaches }) {
   const [exercises, setExercises] = useState(initialExercises || [])
@@ -26,7 +29,7 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
     try {
       const response = await scheduleApi.getTrainingSessionById(sessionId);
       setExercises(response?.data.data.exercises);
-      
+
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu bài tập:", error);
     }
@@ -108,6 +111,20 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
     }
   }
 
+  const handleDescriptionChange = (content, isForNewExercise) => {
+    if (isForNewExercise) {
+      setNewExercise((prev) => ({
+        ...prev,
+        description: content,
+      }));
+    } else if (editingExercise) {
+      setEditingExercise((prev) => ({
+        ...prev,
+        description: content,
+      }));
+    }
+  };
+  
   if (!isOpen) return null
 
   return (
@@ -158,15 +175,14 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                 exercises.map((exercise) => (
                   <div
                     key={exercise.exerciseId}
-                    className={`border rounded-lg p-4 ${
-                      editingExercise?.exerciseId === exercise.exerciseId ? "border-[#BD2427] bg-[#BD2427]/5" : "border-gray-200"
-                    }`}
+                    className={`border rounded-lg p-4 ${editingExercise?.exerciseId === exercise.exerciseId ? "border-[#BD2427] bg-[#BD2427]/5" : "border-gray-200"
+                      }`}
                   >
                     {editingExercise?.exerciseId === exercise.exerciseId ? (
                       <div key={exercise.exerciseId} className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Tên bài tập</label>
-                          <input
+                          <Input
                             type="text"
                             name="exerciseName"
                             className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
@@ -176,18 +192,16 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
-                          <textarea
-                            name="description"
-                            rows={2}
-                            className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                            value={editingExercise?.description}
-                            onChange={(e) => handleInputChange(e, false)}
+                          <TextEditor
+                            content={editingExercise?.description}
+                            onChange={(content) => handleDescriptionChange(content, false)}
+                            placeholder="Mô tả chi tiết bài tập..."
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Thời lượng (phút)</label>
-                            <input
+                            <Input
                               type="number"
                               name="duration"
                               min="1"
@@ -198,18 +212,18 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Huấn luyện viên</label>
-                            <select
-                              name="coachId"
-                              className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                              value={editingExercise?.coachId}
-                              onChange={(e) => handleInputChange(e, false)}
-                            >
-                              {coaches.map((coach) => (
-                                <option key={coach.userId} value={coach.userId}>
-                                  {coach.fullname}
-                                </option>
-                              ))}
-                            </select>
+                            <Select value={editingExercise?.coachId} onValueChange={(value) => handleInputChange({ target: { name: "coachId", value } }, true)} required>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Chọn huấn luyện viên" />
+                              </SelectTrigger>
+                              <SelectContent >
+                                {coaches?.map((coach) => (
+                                  <SelectItem key={coach.userId} value={coach.userId}>
+                                    {coach.fullname}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                         <div className="flex justify-end space-x-2 pt-2">
@@ -251,7 +265,10 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                             </button>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-500 mb-3">{exercise.description}</p>
+                        <div
+                          className="text-sm text-gray-500 mb-3 prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{ __html: exercise.description }}
+                        />
                         <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500">
                           <div className="flex items-center">
                             <Clock className="mr-1 h-3 w-3 text-gray-400" />
@@ -278,7 +295,7 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Tên bài tập</label>
-                    <input
+                    <Input
                       type="text"
                       name="exerciseName"
                       className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
@@ -289,19 +306,16 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
-                    <textarea
-                      name="description"
-                      rows={2}
-                      className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                      value={newExercise.description}
-                      onChange={(e) => handleInputChange(e, true)}
-                      placeholder="Mô tả chi tiết bài tập"
+                    <TextEditor
+                      content={newExercise.description}
+                      onChange={(content) => handleDescriptionChange(content, true)}
+                      placeholder="Mô tả chi tiết bài tập..."
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Thời lượng (phút)</label>
-                      <input
+                      <Input
                         type="number"
                         name="duration"
                         min="1"
@@ -312,18 +326,18 @@ export function ExerciseManagementModal({ isOpen, onClose, sessionId, initialExe
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Huấn luyện viên</label>
-                      <select
-                        name="coachId"
-                        className="focus:ring-[#BD2427] focus:border-[#BD2427] block w-full sm:text-sm border-gray-300 rounded-md"
-                        value={newExercise.coachId}
-                        onChange={(e) => handleInputChange(e, true)}
-                      >
-                        {coaches.map((coach) => (
-                          <option key={coach.userId} value={coach.userId}>
-                            {coach.fullname}
-                          </option>
-                        ))}
-                      </select>
+                      <Select value={newExercise.coachId} onValueChange={(value) => handleInputChange({ target: { name: "coachId", value } }, true)} required>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn huấn luyện viên" />
+                        </SelectTrigger>
+                        <SelectContent >
+                          {coaches?.map((coach) => (
+                            <SelectItem key={coach.userId} value={coach.userId}>
+                              {coach.fullname}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <div className="flex justify-end space-x-2 pt-2">

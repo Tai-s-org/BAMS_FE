@@ -13,7 +13,7 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"))
   const [startTime, setStartTime] = useState("16:00")
   const [endTime, setEndTime] = useState("17:30")
-  const [court, setCourt] = useState(courts[0]?.courtId)
+  const [court, setCourt] = useState(null)
   const { addToast } = useToasts();
 
   const handleSubmit = async () => {
@@ -153,8 +153,9 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified
           <div className="bg-gray-50 px-6 py-4 flex flex-row-reverse">
             <button
               type="button"
-              className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427]"
+              className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#BD2427] hover:bg-[#A61F22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] disabled:cursor-not-allowed disabled:opacity-50"
               onClick={handleSubmit}
+              disabled={!date || !startTime || !endTime || !court}
             >
               <Check className="mr-2 h-4 w-4" />
               Xác nhận

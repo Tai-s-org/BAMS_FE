@@ -185,14 +185,14 @@ export default function SchedulePage() {
                 onClick={() => setRecurringSessionModalOpen(true)}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Tạo Buổi Tập Lặp Lại
+                Tạo Chuỗi Buổi Tập
               </button>
               <button
                 className="inline-flex items-center justify-center px-4 py-2 border border-[#BD2427] text-sm font-medium rounded-md shadow-sm text-[#BD2427] bg-white hover:bg-[#BD2427]/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#BD2427] transition-colors duration-200"
                 onClick={() => setSingleSessionModalOpen(true)}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Tạo Buổi Tập Lẻ
+                Tạo Đơn Buổi Tập
               </button>
             </div>}
           </div>
