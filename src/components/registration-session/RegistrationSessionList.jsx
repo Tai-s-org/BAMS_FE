@@ -28,45 +28,56 @@ export default function RegistrationList() {
   const [isAllowPlayerRecruit, setIsAllowPlayerRecruit] = useState(null)
   const [isAllowManagerRecruit, setIsAllowManagerRecruit] = useState(null)
   const [sortOrder, setSortOrder] = useState("desc") // desc = newest first
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery)
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(6)
   const [totalPages, setTotalPages] = useState(1)
 
-  // Function to check if a campaign is active
-  const isCampaignActive = (endDate) => {
-    const now = new Date()
-    const campaignEndDate = new Date(endDate)
-    return now < campaignEndDate
-  }
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 800)
+
+    return () => clearTimeout(timeout)
+  }, [searchQuery])
 
   // Fetch data from API
   const fetchData = async () => {
-    setLoading(true)
+    //setLoading(true)
 
     try {
       // Build filters object
       const filters = {
-        Name: searchQuery || undefined,
-        StartDate: startDate ? format(startDate, "yyyy-MM-dd") : undefined,
-        EndDate: endDate ? format(endDate, "yyyy-MM-dd") : undefined,
+        Name: debouncedSearchQuery || undefined,
+        StartDate: startDate ? new Date(startDate).toISOString() : undefined,
+        EndDate: endDate ? new Date(endDate).toISOString() : undefined,
         IsEnable: true,
-        IsAllowPlayerRecruit: isAllowPlayerRecruit,
-        IsAllowManagerRecruit: isAllowManagerRecruit,
-        IsDescending: sortOrder === "desc",
         PageNumber: currentPage,
         PageSize: pageSize,
       }
 
       const response = await registrationSessionApi.getRegistrationSessions(filters)
-      console.log(response)
+      console.log("filters", filters)
 
       if (response.data && response.data.status === "Success") {
-        setCampaigns(response.data.data.items || [])
-        // if (response.data.data.items) {
-        //   setCampaigns(response.data.data.items.filter((campaign) => isCampaignActive(campaign.endDate)))
-        // }
+        const filteredCampaigns = response.data.data.items.filter((campaign) => {
+          const campaignEndDate = new Date(campaign.endDate)
+          return campaignEndDate > new Date() // Check if the endDate is greater than the current time
+        })
+
+        const sortedCampaigns = filteredCampaigns.sort((a, b) => {
+          const dateA = new Date(a.createdDate);
+          const dateB = new Date(b.createdDate);
+
+          return sortOrder === "desc"
+            ? dateB - dateA // Newest first (descending)
+            : dateA - dateB; // Oldest first (ascending)
+        });
+
+        setCampaigns(sortedCampaigns)
+        //setCampaigns(response.data.data.items || [])
         setTotalItems(response.data.data.totalItems || 0)
         setTotalPages(response.data.data.totalPages)
       } else {
@@ -89,7 +100,7 @@ export default function RegistrationList() {
   useEffect(() => {
     fetchData()
   }, [
-    searchQuery,
+    debouncedSearchQuery,
     startDate,
     endDate,
     isEnable,
@@ -153,7 +164,7 @@ export default function RegistrationList() {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <Label className="text-sm font-medium mb-1 block">Tuyển dụng</Label>
                 <select
                   value={JSON.stringify({ isAllowPlayerRecruit, isAllowManagerRecruit })}
@@ -169,13 +180,13 @@ export default function RegistrationList() {
                   <option value={JSON.stringify({ isAllowPlayerRecruit: true, isAllowManagerRecruit: false })}>Chỉ cầu thủ</option>
                   <option value={JSON.stringify({ isAllowPlayerRecruit: false, isAllowManagerRecruit: true })}>Chỉ HLV</option>
                 </select>
-              </div>
+              </div> */}
             </div>
 
             <div className="flex flex-col md:flex-row justify-between gap-4">
 
               {/* Sort Order */}
-              <div className="flex items-center space-x-4">
+              {/* <div className="flex items-center space-x-4">
                 <span className="text-sm font-medium">Sắp xếp:</span>
                 <RadioGroup value={sortOrder} onValueChange={setSortOrder} className="flex space-x-4">
                   <div className="flex items-center space-x-2">
@@ -187,7 +198,7 @@ export default function RegistrationList() {
                     <Label htmlFor="sort-oldest">Cũ nhất</Label>
                   </div>
                 </RadioGroup>
-              </div>
+              </div> */}
             </div>
           </div>
         </CardContent>

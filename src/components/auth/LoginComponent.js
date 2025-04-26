@@ -6,7 +6,7 @@ import FormLogin from "../form/LoginForm";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/Button";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { House } from "lucide-react";
 import { useAuth } from "@/hooks/context/AuthContext";
 
 
@@ -41,9 +41,9 @@ export default function LoginComponent() {
                 className="border border-gray-300 text-gray-700 hover:bg-gray-100 transition-all duration-300"
                 asChild
             >
-                <Link href="/team-dashboard">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Quay lại
+                <Link href="/">
+                    <House className="mr-2 h-4 w-4" />
+                    Trang chủ
                 </Link>
             </Button>
             <FormLogin onSubmit={handleLogin} loading={loading}/>

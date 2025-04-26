@@ -76,7 +76,7 @@ export default function PlayerRegistrationPage() {
             <h1 className="text-2xl font-bold mb-6">Quản lý đăng ký cầu thủ</h1>
 
             <Tabs defaultValue="pending" className="w-full">
-                <TabsList className="grid grid-cols-5 mb-8 p-1 bg-white border-2 border-gray-200 rounded-lg">
+                <TabsList className="grid grid-cols-5 mb-8 p-1 bg-white border-2 border-gray-200 rounded-lg gap-1">
                     <TabsTrigger
                         value="pending"
                         className="data-[state=active]:bg-[#bd2427] data-[state=active]:text-white font-medium border border-gray-200 rounded-md py-2"

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import coachApi from "@/services/coachApi"
+import coachApi from "@/api/coach"
+import teamApi from "@/api/team"
 
-export default function CoachDetail({ params }) {
+export default function CoachDetail({ id }) {
     const router = useRouter()
     const [coach, setCoach] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -13,19 +14,23 @@ export default function CoachDetail({ params }) {
     const [showDisableModal, setShowDisableModal] = useState(false)
     const [selectedTeam, setSelectedTeam] = useState("1")
     const [isEnabled, setIsEnabled] = useState(true)
-
+    const [teams, setTeams] = useState([])
     // Mock teams data
-    const teams = [
-        { id: "1", name: "Development Team" },
-        { id: "2", name: "Marketing Team" },
-        { id: "3", name: "Sales Team" },
-        { id: "4", name: "Support Team" },
-    ]
+    // const teams = [
+    //     { id: "1", name: "Development Team" },
+    //     { id: "2", name: "Marketing Team" },
+    //     { id: "3", name: "Sales Team" },
+    //     { id: "4", name: "Support Team" },
+    // ]
 
     // Format date to display in a more readable format
     const formatDate = (dateString) => {
-        if (!dateString) return "N/A"
-        return new Date(dateString).toLocaleDateString()
+        const date = new Date(dateString)
+        return date.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        })
     }
 
     // Fetch coach data
@@ -33,8 +38,10 @@ export default function CoachDetail({ params }) {
         const fetchCoachData = async () => {
             try {
                 setLoading(true)
-                const coachData = await coachApi.getCoachById(params.id)
-                setCoach(coachData.data)
+                const coachData = await coachApi.getCoachById(id);
+                console.log(coachData.data);
+
+                setCoach(coachData.data.data)
                 setSelectedTeam(coachData.data.teamId || "1")
                 setIsEnabled(true)
             } catch (err) {
@@ -45,13 +52,25 @@ export default function CoachDetail({ params }) {
             }
         }
 
+        const fetchTeam = async () => {
+            try {
+                const teamData = await teamApi.listTeams();
+                console.log("Team: ", teamData.data);
+            } catch (err) {
+                console.error("Error fetching team data:", err)
+            }
+        }
+        fetchTeam();
         fetchCoachData()
-    }, [params.id])
+    }, [id])
 
     const handleAssignTeam = async () => {
         try {
             // In a real app, you would call an API to update the team
-            await coachApi.assignCoachToTeam(coach.userId, selectedTeam)
+            await coachApi.assignCoachToTeam({
+                "userId": coach.userId,
+                "teamId": "string"
+            })
 
             // Update local state
             setCoach((prev) => ({
@@ -69,7 +88,7 @@ export default function CoachDetail({ params }) {
     const handleToggleStatus = async () => {
         try {
             // In a real app, you would call an API to toggle the coach's status
-            await coachApi.toggleCoachStatus(coach.userId, !isEnabled)
+            await coachApi.changeCoachStatus(coach.userId)
 
             // Update local state
             setIsEnabled((prev) => !prev)
@@ -105,7 +124,7 @@ export default function CoachDetail({ params }) {
                         onClick={() => router.back()}
                         className="mt-2 px-3 py-1 text-sm border border-red-300 rounded hover:bg-red-100 transition-colors"
                     >
-                        Go Back
+                        Quay lại danh sách huấn luyện viên
                     </button>
                 </div>
             </div>
@@ -137,29 +156,28 @@ export default function CoachDetail({ params }) {
                 >
                     <path d="m15 18-6-6 6-6" />
                 </svg>
-                Back to Coach List
+                Quay lại danh sách huấn luyện viên
             </button>
 
             {/* Coach Profile Header */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6 relative">
                 <div className="bg-gradient-to-r from-[#bd2427] to-[#e74c3c] h-32"></div>
-                <div className="px-6 pb-6 relative">
-                    <div className="absolute -top-16 left-6 bg-white rounded-full p-2 shadow-lg">
+                <div className="px-6 pb-6 ">
+                    <div className="absolute top-12 left-6 bg-white rounded-full p-2 shadow-lg">
                         <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-4xl">
-                            {coach.userId.charAt(0).toUpperCase()}
+                            AAA
                         </div>
                     </div>
                     <div className="mt-12 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold">Coach ID: {coach.userId}</h1>
+                            <h1 className="text-2xl font-bold">@{coach.username}</h1>
                             <div className="flex items-center mt-1">
                                 <span
-                                    className={`px-2 py-1 text-xs font-semibold rounded-full ${isEnabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
+                                    className={`px-2 py-1 text-xs font-semibold rounded-full ${coach.isEnabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
                                 >
-                                    {isEnabled ? "Active" : "Inactive"}
+                                    {coach.isEnabled ? "Đang hoạt động" : "Không hoạt động"}
                                 </span>
                             </div>
-                            <div className="mt-1 text-gray-500">Team ID: {coach.teamId || "Not Assigned"}</div>
                         </div>
                         <div className="mt-4 sm:mt-0 flex flex-wrap gap-2">
                             <button
@@ -183,7 +201,7 @@ export default function CoachDetail({ params }) {
                                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                 </svg>
-                                Assign to Team
+                                Chỉ định vào đội
                             </button>
                             <button
                                 onClick={() => setShowDisableModal(true)}
@@ -207,9 +225,39 @@ export default function CoachDetail({ params }) {
                                         <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12s4.48 10 10 10 10-4.48 10-10z" />
                                     )}
                                 </svg>
-                                {isEnabled ? "Disable Coach" : "Enable Coach"}
+                                {coach.isEnabled ? "Vô hiệu hóa tài khoản" : "Kích hoạt tài khoản"}
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-10">
+                <div className="px-6 py-4 bg-[#bd2427] border-b">
+                    <h2 className="text-xl font-semibold text-white">Thông tin cá nhân</h2>
+                </div>
+                <div className="p-6">
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-sm text-gray-500">Họ và tên</p>
+                                <p className="font-medium">{coach.fullname}</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500">Email</p>
+                                <p className="font-medium">{coach.email}</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500">Số điện thoại</p>
+                                <p className="font-medium">{coach.phone}</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-500">Địa chỉ</p>
+                                <p className="font-medium">{coach.address}</p>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
@@ -219,25 +267,29 @@ export default function CoachDetail({ params }) {
                 {/* Contract Information */}
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="px-6 py-4 bg-gray-50 border-b">
-                        <h2 className="text-xl font-semibold">Contract Information</h2>
+                        <h2 className="text-xl font-semibold">Thông tin hợp đồng</h2>
                     </div>
                     <div className="p-6">
                         <div className="space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-sm text-gray-500">Contract Start Date</p>
-                                    <p className="font-medium">{formatDate(coach.contractStartDate)}</p>
+                                    <p className="text-sm text-gray-500">Ngày bắt đầu hợp đồng</p>
+                                    <p className="font-medium">{(coach.roleInformation.contractStartDate)}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500">Contract End Date</p>
-                                    <p className="font-medium">{formatDate(coach.contractEndDate)}</p>
+                                    <p className="text-sm text-gray-500">Ngày hết hạn hợp đồng</p>
+                                    <p className="font-medium">{formatDate(coach.roleInformation.contractEndDate)}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Tiểu sử</p>
+                                    <p className="font-medium">{coach.roleInformation.bio}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Được kí bởi</p>
+                                    <p className="font-medium">Chủ tịch {coach.roleInformation.createdByPresident}</p>
                                 </div>
                             </div>
 
-                            <div>
-                                <p className="text-sm text-gray-500">Bio</p>
-                                <p className="font-medium">{coach.bio || "Not provided"}</p>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -250,13 +302,13 @@ export default function CoachDetail({ params }) {
                     <div className="p-6">
                         <div className="space-y-4">
                             <div>
-                                <p className="text-sm text-gray-500">Team ID</p>
-                                <p className="font-medium">{coach.teamId || "Not assigned"}</p>
+                                <p className="text-sm text-gray-500">Đội</p>
+                                <p className="font-medium">{coach.roleInformation.teamName}</p>
                             </div>
 
                             <div>
-                                <p className="text-sm text-gray-500">Created By President ID</p>
-                                <p className="font-medium">{coach.createdByPresidentId || "N/A"}</p>
+                                <p className="text-sm text-gray-500">Vai trò</p>
+                                <p className="font-medium">Huấn luyện viên</p>
                             </div>
                         </div>
                     </div>

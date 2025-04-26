@@ -7,7 +7,7 @@ export default function CoachList({ coaches }) {
 
     // Handle view details by navigating to the coach detail page
     const handleViewDetails = (userId) => {
-        router.push(`/coaches/${userId}`)
+        router.push(`/dashboard/coach-management/${userId}`)
     }
 
     // Format date to display in a more readable format
@@ -21,9 +21,9 @@ export default function CoachList({ coaches }) {
             <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50 text-xs uppercase">
                     <tr>
-                        <th className="px-6 py-3 font-medium">User ID</th>
-                        <th className="px-6 py-3 font-medium">Team ID</th>
-                        <th className="px-6 py-3 font-medium">Bio</th>
+                        <th className="px-6 py-3 font-medium">họ và tên</th>
+                        <th className="px-6 py-3 font-medium">Đội</th>
+                        <th className="px-6 py-3 font-medium">Tiểu sử</th>
                         <th className="px-6 py-3 font-medium">Contract Start</th>
                         <th className="px-6 py-3 font-medium">Contract End</th>
                         <th className="px-6 py-3 font-medium text-right">Actions</th>
@@ -33,7 +33,7 @@ export default function CoachList({ coaches }) {
                     {coaches.length > 0 ? (
                         coaches.map((coach) => (
                             <tr key={coach.userId} className="bg-white border-b hover:bg-slate-50">
-                                <td className="px-6 py-4 font-medium">{coach.userId}</td>
+                                <td className="px-6 py-4 font-medium">{coach.fullname}</td>
                                 <td className="px-6 py-4">{coach.teamId || "Not Assigned"}</td>
                                 <td className="px-6 py-4">{coach.bio || "N/A"}</td>
                                 <td className="px-6 py-4">{formatDate(coach.contractStartDate)}</td>
@@ -58,7 +58,7 @@ export default function CoachList({ coaches }) {
                                             <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                                             <circle cx="12" cy="12" r="3" />
                                         </svg>
-                                        Details
+                                        Chi tiết
                                     </button>
                                 </td>
                             </tr>

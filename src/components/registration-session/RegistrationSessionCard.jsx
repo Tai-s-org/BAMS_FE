@@ -75,7 +75,14 @@ export function RegistrationSessionCard({ campaign }) {
                                 </Button>
                             </Link>
 
-                        ) : (
+                        ) : Date.now() < campaign.startDate ? (
+                            <button
+                                className="w-full py-2 px-4 bg-gray-100 text-gray-400 font-medium rounded-md border border-gray-300 cursor-not-allowed"
+                                disabled
+                            >
+                                Chưa đến thời gian đăng ký
+                            </button>
+                        ) :(
                             <button
                                 className="w-full py-2 px-4 bg-gray-100 text-gray-400 font-medium rounded-md border border-gray-300 cursor-not-allowed"
                                 disabled

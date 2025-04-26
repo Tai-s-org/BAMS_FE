@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button"
 import Link from "next/link"
 import { FileText, ArrowRight } from "lucide-react"
 
-export function PendingReportsList ({pendingReports}) {
+export function PendingReportsList({ pendingReports }) {
     // const pendingReports = [
     //     {
     //         id: "123",
@@ -32,6 +32,18 @@ export function PendingReportsList ({pendingReports}) {
     //         status: "pending",
     //     },
     // ]
+    function formatTienVN(number) {
+        return number != null ? number.toLocaleString('vi-VN') : "";
+    }
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        })
+    }
 
     return (
         <div className="space-y-4">
@@ -45,12 +57,12 @@ export function PendingReportsList ({pendingReports}) {
                             <div className="font-medium">
                                 {report.teamName} - {report.description}
                             </div>
-                            <div className="text-sm text-[#94949B]">Hoàn thành ngày: {report.endDate}</div>
+                            <div className="text-sm text-[#94949B]">Hoàn thành ngày: {formatDate(report.endDate)}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <div className="font-medium">{report.amount} VNĐ</div>
+                            <div className="font-medium">{formatTienVN(parseInt(report.totalExpenditure, 10))} VNĐ</div>
                             <Badge variant="outline" className="bg-yellow-50">
                                 Chờ xét duyệt
                             </Badge>

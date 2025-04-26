@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/Button";
 import { House } from "lucide-react";
 import Link from "next/link";
 
-export default function Auth({ children }) {
+export default function Register({ children }) {
     return (
         <div className="bg-white p-6 rounded-lg shadow-lg w-full">
             <Button
