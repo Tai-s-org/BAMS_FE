@@ -14,6 +14,7 @@ import courtApi from "@/api/court";
 import teamApi from "@/api/team";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import { useToasts } from "@/hooks/providers/ToastProvider";
+import attendanceApi from "@/api/attendance";
 
 export default function SchedulePage() {
   const { user, userInfo } = useAuth();
@@ -96,8 +97,36 @@ export default function SchedulePage() {
         const isInTeam = teamFilter ? session.teamId === teamFilter : true;
         return isInWeek && isInTeam;
       });
+      let sessionsWithAttendance
+      if(user?.roleCode === "Coach" || user?.roleCode === "Player") 
+        {sessionsWithAttendance = await Promise.all(
+        filteredSessions.map(async (session) => {
+          try {
+            const attendanceResponse = await attendanceApi.getUserAttendance({
+              trainingSessionId: session.trainingSessionId,
+              userId: user?.userId
+            });
 
-      setFilterSessions(filteredSessions);
+            return {
+              ...session,
+              attendanceStatus: attendanceResponse?.data.data.status === 1 ? 1 :
+                attendanceResponse?.data.data.status === 0 ? 0 : -1
+            };
+          } catch (error) {
+            return {
+              ...session,
+              attendanceStatus: -1
+            };
+          }
+        })
+      )}
+       else {
+        sessionsWithAttendance = filteredSessions.map((session) => ({
+          ...session,
+          attendanceStatus: -1
+        }))
+      }
+      setFilterSessions(sessionsWithAttendance);
       // Take the currentSession base on Date, time is between start time and end time
       const currentSession = filteredSessions.find((session) => {
         const sessionDate = new Date(session.scheduledDate);
@@ -325,17 +354,33 @@ export default function SchedulePage() {
                             {daySessions.map((session) => (
                               <div
                                 key={session.trainingSessionId}
-                                className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
+                                className={
+                                  session.attendanceStatus === 1
+                                    ? "bg-green-600 text-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
+                                    : session.attendanceStatus === 0
+                                      ? "bg-red-500 text-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
+                                      : "bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
+                                }
                               >
                                 <div className="px-4 py-3 border-l-4 border-[#BD2427]">
                                   <Link
                                     href={`/training-sessions/${session.trainingSessionId}`}
-                                    className="text-base font-medium text-[#BD2427] hover:underline block mb-1"
+                                    className={`text-base font-medium ${session.attendanceStatus === 1 || session.attendanceStatus === 0
+                                        ? "text-white"
+                                        : "text-[#BD2427]"
+                                      } hover:underline block mb-1`}
                                   >
-                                    <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-500">
+                                    {session.sessionName}
+                                    <div className={`flex flex-wrap gap-x-6 gap-y-1 text-sm ${session.attendanceStatus === 1 || session.attendanceStatus === 0
+                                        ? "text-gray-200"  // Lighter gray for better contrast on colored backgrounds
+                                        : "text-gray-500"
+                                      }`}>
                                       <div className="flex items-center">
                                         <svg
-                                          className="mr-1.5 h-4 w-4 text-gray-400"
+                                          className={`mr-1.5 h-4 w-4 ${session.attendanceStatus === 1 || session.attendanceStatus === 0
+                                              ? "text-gray-300"
+                                              : "text-gray-400"
+                                            }`}
                                           fill="none"
                                           stroke="currentColor"
                                           viewBox="0 0 24 24"
@@ -352,7 +397,10 @@ export default function SchedulePage() {
                                       </div>
                                       <div className="flex items-center">
                                         <svg
-                                          className="mr-1.5 h-4 w-4 text-gray-400"
+                                          className={`mr-1.5 h-4 w-4 ${session.attendanceStatus === 1 || session.attendanceStatus === 0
+                                              ? "text-gray-300"
+                                              : "text-gray-400"
+                                            }`}
                                           fill="none"
                                           stroke="currentColor"
                                           viewBox="0 0 24 24"
@@ -373,9 +421,12 @@ export default function SchedulePage() {
                                         </svg>
                                         <span>{session.courtName}</span>
                                       </div>
-                                      <div className="flex items-center">
+                                      <div className="flex items-center justify-end ml-auto">
                                         <svg
-                                          className="mr-1.5 h-4 w-4 text-gray-400"
+                                          className={`mr-1.5 h-4 w-4 ${session.attendanceStatus === 1 || session.attendanceStatus === 0
+                                              ? "text-gray-300"
+                                              : "text-gray-400"
+                                            }`}
                                           fill="none"
                                           stroke="currentColor"
                                           viewBox="0 0 24 24"
@@ -394,7 +445,6 @@ export default function SchedulePage() {
                                       </div>
                                     </div>
                                   </Link>
-
                                 </div>
                               </div>
                             ))}
