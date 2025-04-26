@@ -23,7 +23,6 @@ export default function PresidentSidebar() {
         { title: "Accounts", icon: LayoutDashboard, url: "/dashboard/accounts" },
         { title: "Đội bóng", icon: RiGroup2Fill, url: "/team-management" },
         { title: "Payments", icon: CreditCard, url: "/payments" },
-        { title: "Balances", icon: BarChart3, url: "/balances" },
         { title: "Huấn luyện viên", icon: GiWhistle, url: "/dashboard/coach-management" },
         { title: "Cầu thủ", icon: GiBasketballJersey, url: "/dashboard/coach-management" },
         { title: "Quản lý", icon: Users, url: "/dashboard/manager-management" },

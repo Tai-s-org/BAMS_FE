@@ -21,10 +21,7 @@ export default function PlayerSidebar() {
         { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
         { title: "Thanh toán", icon: CreditCard, url: "/dashboard/payment" },
         { title: "Trận đấu", icon: TbPlayBasketball, url: "/matches" },
-        { title: "Lịch tập luyện", icon: BarChart3, url: "/schedules" },
-        { title: "Trận đấu", icon: Users, url: "/matches" },
-        { title: "Products", icon: Package, url: "/products" },
-        { title: "Reports", icon: FileText, url: "/reports" },
+        { title: "Lịch tập luyện", icon: BarChart3, url: "/schedules" }
     ];
 
     return (

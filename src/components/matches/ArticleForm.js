@@ -133,7 +133,7 @@ export default function ArticleForm({ article, onSave, onCancel, matchId }) {
                   onChange={() => setarticleType("IMAGE")}
                   className="h-4 w-4 text-[#BD2427] focus:ring-[#BD2427]"
                 />
-                <Label htmlFor="file-type" className="cursor-pointer">
+                <Label htmlFor="image-type" className="cursor-pointer">
                   Ảnh
                 </Label>
               </div>
@@ -147,7 +147,7 @@ export default function ArticleForm({ article, onSave, onCancel, matchId }) {
                   onChange={() => setarticleType("VIDEO")}
                   className="h-4 w-4 text-[#BD2427] focus:ring-[#BD2427]"
                 />
-                <Label htmlFor="url-type" className="cursor-pointer">
+                <Label htmlFor="video-type" className="cursor-pointer">
                   Video
                 </Label>
               </div>
@@ -161,7 +161,7 @@ export default function ArticleForm({ article, onSave, onCancel, matchId }) {
                   onChange={() => setarticleType("DOCUMENT")}
                   className="h-4 w-4 text-[#BD2427] focus:ring-[#BD2427]"
                 />
-                <Label htmlFor="url-type" className="cursor-pointer">
+                <Label htmlFor="document-type" className="cursor-pointer">
                   Tài liệu
                 </Label>
               </div>
@@ -250,7 +250,7 @@ export default function ArticleForm({ article, onSave, onCancel, matchId }) {
           <Button type="button" variant="outline" onClick={onCancel}>
             Hủy
           </Button>
-          <Button type="submit" className="bg-[#BD2427] hover:bg-[#9a1e21]">
+          <Button type="submit" className="bg-[#BD2427] hover:bg-[#9a1e21]" disabled={!title || (uploadType === "file" && !file) || (uploadType === "url" && !url)}>
             {article ? "Cập nhật" : "Lưu"}
           </Button>
         </CardFooter>
