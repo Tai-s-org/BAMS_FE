@@ -61,7 +61,7 @@ export function ReportsList({ reports }) {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <div className="font-medium">{formatTienVN(report.totalExpenditure)} VNĐ</div>
+                            <div className="font-medium">{formatTienVN(parseInt(report.totalExpenditure,10))} VNĐ</div>
                             <Badge
                                 variant="outline"
                                 className={report.status === 1 ? "bg-green-50 text-green-700" : "bg-yellow-50"}

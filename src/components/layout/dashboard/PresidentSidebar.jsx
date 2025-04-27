@@ -27,16 +27,8 @@ export default function PresidentSidebar() {
         { title: "Cầu thủ", icon: GiBasketballJersey, url: "/dashboard/coach-management" },
         { title: "Quản lý", icon: Users, url: "/dashboard/manager-management" },
         { title: "Quản lý thông tin đội", icon: HiOutlineClipboardDocumentList, url: "/document-management" },
-        { title: "Đơn đăng kí", icon: FileText, url: "registration-session-management" },
+        { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
     ];
-
-    const generalItems = [
-        { title: "Developers", icon: Code, url: "/developers" },
-        { title: "View Test Data", icon: Database, url: "/test-data" },
-        { title: "Settings", icon: Settings, url: "/settings", highlight: true },
-    ];
-
-    const updatesItems = [{ title: "Changelog", icon: History, url: "/changelog" }];
 
     return (
         <Sidebar className="border-r border-sidebar-border bg-[#1F2937]">

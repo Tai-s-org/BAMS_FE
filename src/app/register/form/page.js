@@ -17,22 +17,25 @@ export default function Form() {
         const storedEmail = localStorage.getItem("email")
         const storedRole = localStorage.getItem("role")
         const sessionId = localStorage.getItem("session")
-        const formData = localStorage.getItem("formData")
+        if (localStorage.getItem("formData") && localStorage.getItem("formData") !== "undefined") {
+            const formData = JSON.parse(localStorage.getItem("formData"))
+            setData(formData)
+        }
 
         if (!storedEmail || !storedRole) {
             router.push("/")
             return
         }
-        
+
         setEmail(storedEmail)
         setRole(storedRole)
         setSessionId(sessionId)
-        setData(formData)
+        
     }, [router])
 
     return (
         <div>
-            
+
             {role === "manager" ? (
                 <ManagerRegistrationForm data={data} email={email} sessionId={sessionId} />
             ) : (

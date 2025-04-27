@@ -21,11 +21,11 @@ export default function CoachList({ coaches }) {
             <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50 text-xs uppercase">
                     <tr>
-                        <th className="px-6 py-3 font-medium">họ và tên</th>
+                        <th className="px-6 py-3 font-medium">Họ và tên</th>
                         <th className="px-6 py-3 font-medium">Đội</th>
                         <th className="px-6 py-3 font-medium">Tiểu sử</th>
-                        <th className="px-6 py-3 font-medium">Contract Start</th>
-                        <th className="px-6 py-3 font-medium">Contract End</th>
+                        <th className="px-6 py-3 font-medium">Ngày kí hợp đồng</th>
+                        <th className="px-6 py-3 font-medium">Ngày hết hạn hợp đồng</th>
                         <th className="px-6 py-3 font-medium text-right">Actions</th>
                     </tr>
                 </thead>
