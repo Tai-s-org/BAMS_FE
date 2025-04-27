@@ -18,8 +18,7 @@ export default function ManagerReportDetail({ id }) {
     // In a real app, this would come from your database
     const isApproved = id === "120" || id === "117"
     const isPending = id === "123"
-    console.log(id);
-    const [initialExpenseItems, setInitialExpenseItems] = useState([])
+    const [idCounter, setIdCounter] = useState(1);
 
 
 
@@ -92,24 +91,31 @@ export default function ManagerReportDetail({ id }) {
     }
 
     const updateNewItem = (id, field, value) => {
+        // Cập nhật newItems
         setNewItems((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+        );
+
+        // Đồng bộ với expenseItems
+        setExpenseItems((prev) =>
             prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
         );
     };
 
     // Function to add a new item
     const addNewItem = () => {
-        const newId = Math.max(...expenseItems.map((item) => item.id), 0) + 1
         const newItem = {
-            id: newId,
-            name: "",
-            amount: "",
+            id: `temp-${idCounter}`,
+            name: "", // Khởi tạo giá trị rỗng
+            amount: "", // Khởi tạo giá trị rỗng
+            date: null, // Khởi tạo giá trị null
             isEditing: true,
             isNew: true,
-        }
-        setExpenseItems([...expenseItems, newItem])
-        setNewItems([...newItems, newItem])
-    }
+        };
+        setExpenseItems([...expenseItems, newItem]);
+        setNewItems([...newItems, newItem]);
+        setIdCounter(idCounter + 1);
+    };
 
     // Function to remove an item
     const removeItem = (id) => {
@@ -144,17 +150,17 @@ export default function ManagerReportDetail({ id }) {
         console.log("Updated items to send to API:", updatedItems)
         console.log("New items to send to API:", newItems)
         try {
-            if(updatedItems.length > 0) {
+            if (updatedItems.length > 0) {
                 const response = await teamFundApi.updateExpenditure(id, updatedItems);
                 console.log("update: ", response.data.data);
-                
+
             }
-            if(newItems.length > 0) {
+            if (newItems.length > 0) {
                 const response = await teamFundApi.addExpenditure(id, newItems);
                 console.log("update: ", response.data.data);
-                
+
             }
-        } catch(err) {
+        } catch (err) {
 
         }
 
@@ -173,7 +179,7 @@ export default function ManagerReportDetail({ id }) {
     // Calculate total
     const calculateTotal = () => {
         return expenseItems.reduce((total, item) => {
-            return total + (item.amount || 0)
+            return total + parseInt((item.amount || 0), 10)
         }, 0)
     }
 
@@ -244,8 +250,8 @@ export default function ManagerReportDetail({ id }) {
                                                             <Label htmlFor={`item-name-${item.id}`}>Danh mục</Label>
                                                             <Input
                                                                 id={`item-name-${item.id}`}
-                                                                value={item.name}
-                                                                onChange={(e) => updateItem(item.id, "name", e.target.value)
+                                                                value={item.name || ""}
+                                                                onChange={(e) => item.isNew ? updateNewItem(item.id, "name", e.target.value) : updateItem(item.id, "name", e.target.value)
                                                                 }
                                                             />
                                                         </div>
@@ -254,7 +260,7 @@ export default function ManagerReportDetail({ id }) {
                                                             <Input
                                                                 id={`item-amount-${item.id}`}
                                                                 type="number"
-                                                                value={item.amount}
+                                                                value={item.amount || ""}
                                                                 onChange={(e) => updateItem(item.id, "amount", e.target.value)
                                                                 }
                                                                 placeholder="0.00"
@@ -457,7 +463,7 @@ export default function ManagerReportDetail({ id }) {
                         {newItems.filter((item) => expenseItems.some((e) => e.id === item.id)).length > 0 && (
                             <p>{newItems.filter((item) => expenseItems.some((e) => e.id === item.id)).length} new item(s) added</p>
                         )}
-                        <p className="mt-2">New Total: ${calculateTotal().toFixed(2)}</p>
+                        <p className="mt-2">New Total: ${calculateTotal()}</p>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setShowSaveDialog(false)}>

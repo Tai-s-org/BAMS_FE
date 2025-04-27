@@ -61,10 +61,9 @@ export default function PlayerRegistrationForm({email}) {
             console.log(formData, " memberRegistrationSessionId:", registrationSessionId,);
 
             try {
-                const response = await registerApi.rejectPlayer({
+                const response = await registerApi.playerRegister({
                     ...formData,
                     "memberRegistrationSessionId": registrationSessionId,
-
                 })
                 console.log(response.data);
                 addToast({ message: response.data.message, type: "success" });

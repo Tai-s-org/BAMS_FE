@@ -13,7 +13,6 @@ import { Dialog } from "@/components/ui/Dialog"
 export default function ManagerRegistrationForm({ isOpen, onClose, email, sessionId, data }) {
     const { addToast } = useToasts();
     const router = useRouter();
-    const [storedEmail, setStoredEmail] = useState("");
     const [registrationSessionId, setRegistrationSessionId] = useState("");
     const [formData, setFormData] = useState({
         fullName: "",
@@ -29,22 +28,28 @@ export default function ManagerRegistrationForm({ isOpen, onClose, email, sessio
         weaknessAndItSolution: "",
     });
 
+    if (data) {
+        console.log("data from localStorage", data);
+
+    }
     // Load localStorage và gán vào formData
     useEffect(() => {
-        setFormData(prev => ({
-            ...prev,
-            email: email || "",
-        }));
+        if (data) {
+            // Nếu có data => set vào form luôn
+            setFormData(prev => ({
+                ...prev,
+                ...data,
+                email: email || "", // vẫn ưu tiên email từ props
+            }));
+        } else {
+            // Nếu không có data => chỉ set email và session
+            setFormData(prev => ({
+                ...prev,
+                email: email || "",
+            }));
+        }
         setRegistrationSessionId(sessionId || "");
-    }, []);
-
-    // Nếu có data (ví dụ khi edit), override formData
-    // useEffect(() => {
-    //     if (data) {
-    //         setFormData(data);
-    //     }
-    // }, [data]);
-    //const registrationSessionId = localStorage.getItem("registrationSessionId");
+    }, [data, email, sessionId]);
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -104,7 +109,7 @@ export default function ManagerRegistrationForm({ isOpen, onClose, email, sessio
 
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>
-                                <Input id="email" name="email" type="email" value={storedEmail} onChange={handleChange} disabled />
+                                <Input id="email" name="email" type="email" value={email} onChange={handleChange} disabled />
                             </div>
                         </div>
 
