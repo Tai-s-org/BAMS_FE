@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/Dialog"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { ArrowLeft } from "lucide-react"
@@ -21,6 +22,8 @@ export default function VerifyOTP() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [timeLeft, setTimeLeft] = useState(60)
     const [canResend, setCanResend] = useState(false)
+    const [data, setData] = useState("")
+    const [showSaveDialog, setShowSaveDialog] = useState(false)
     const { addToast } = useToasts();
 
     // 🧠 Lấy email + role từ localStorage khi component mount
@@ -135,7 +138,15 @@ export default function VerifyOTP() {
             addToast({ message: response.data.message, type: "success" });
             console.log(response.data);
             
-            router.push("/register/form")
+            if (response.data.data.items[0]) {
+                setData(response.data.data.items[0])
+                setShowSaveDialog(true);
+            } else {
+                localStorage.removeItem("formData");
+                router.push("/register/form")
+            }
+
+
         } catch (err) {
             console.error(err)
         }
@@ -174,6 +185,19 @@ export default function VerifyOTP() {
         } catch (err) {
             console.error("Resend OTP error:", err)
         }
+    }
+
+
+    const handleUpdate = async () => {
+        localStorage.setItem("formData", JSON.stringify(data))
+        router.push("/register/form");
+        setShowSaveDialog(false)
+    }
+
+    const handleCreate = async () => {
+        localStorage.removeItem("formData");
+        router.push("/register/form");
+        setShowSaveDialog(false)
     }
 
     return (
@@ -232,6 +256,21 @@ export default function VerifyOTP() {
                     </CardFooter> */}
                 </form>
             </Card>
+
+            <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Thông báo</DialogTitle>
+                        <DialogDescription>Chúng tôi ghi nhận trong đợt tuyển quân này đã có đơn đăng kí của bạn. Bạn muốn điền đơn mới hay chỉnh sửa đơn đã tồn tại ?</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={handleCreate}>
+                            Tạo mới
+                        </Button>
+                        <Button onClick={handleUpdate}>Cập nhật đơn</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </main>
     )
 }

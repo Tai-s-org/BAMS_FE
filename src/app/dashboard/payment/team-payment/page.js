@@ -151,7 +151,7 @@ export default function ManagerPayments() {
                                 </Badge>
                             </div>
                             <div className="flex gap-2">
-                                {(payment.stauts === 1 || payment.status === 3) && (
+                                {(payment.status == 1 || payment.status == 3 ) && (
                                     <Button variant="outline" size="sm" onClick={() => viewReceipt(payment.paymentId)}>
                                         <Eye className="h-4 w-4" />
                                     </Button>

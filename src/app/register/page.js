@@ -3,14 +3,12 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/Dialog"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import Link from "next/link"
 import registrationSessionApi from "@/api/registrationSession"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Mail } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 
 export default function Register() {
@@ -21,10 +19,7 @@ export default function Register() {
     const [role, setRole] = useState("")
     const [error, setError] = useState("")
     const { addToast } = useToasts()
-    const [isLoading, setIsLoading] = useState(false)
-    const [showSaveDialog, setShowSaveDialog] = useState(false)
-    const [message, setMessage] = useState("")
-    const [data, setData] = useState("")
+
 
     useEffect(() => {
         const sessionId = localStorage.getItem("session")
@@ -54,38 +49,24 @@ export default function Register() {
                 response = await registrationSessionApi.validateManagerEmailAndSendOtp(sessionId, email);
             } else {
                 response = await registrationSessionApi.validatePlayerEmailAndSendOtp({
-                    "email":email,
+                    "email": email,
                     "memberSessionId": sessionId,
                 });
             }
 
             const resData = response.data;
-            console.log(resData);
-
+            console.log(response);
             localStorage.setItem("email", email);
-
-            // if (resData.data) {
-            //     setData(resData.data)
-            //     setMessage(resData.message);
-            //     setShowSaveDialog(true);
-                
-            // } else {
-                addToast({ message: resData.message, type: "success" });
-                router.push("/register/verify");
-            // }
-
+            addToast({ message: resData.message, type: "success" });
+            router.push("/register/verify");
         } catch (error) {
-            addToast({ message: error.data.message, type: "error" });
+            addToast({ message: error.response.data.errors.errorEmail, type: "error" });
         } finally {
             setIsSubmitting(false)
         }
     }
 
-    const handleUpdate = async () => {
-        localStorage.setItem("formData", JSON.stringify(data)); 
-        router.push("/register/form");     
-        setShowSaveDialog(false)
-    }
+    
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50">
@@ -109,7 +90,7 @@ export default function Register() {
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="your.email@example.com"
+                                    placeholder="yenhoastorm@gmail.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
@@ -128,22 +109,6 @@ export default function Register() {
                     </CardFooter>
                 </form>
             </Card>
-
-
-            <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Thông báo</DialogTitle>
-                        <DialogDescription>{message}</DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
-                            Hủy
-                        </Button>
-                        <Button onClick={handleUpdate}>Cập nhật đơn</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </main>
 
     )
