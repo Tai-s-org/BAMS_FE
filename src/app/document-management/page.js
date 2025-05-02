@@ -221,7 +221,7 @@ export default function DocumentManagement() {
                                     </Button>
                                 )}
                             </div>
-                            <p className="text-xs text-gray-500">Hỗ trợ các định dạng: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT</p>
+                            <p className="text-xs text-gray-500">Hỗ trợ các định dạng: DOCX</p>
                             <p className="text-xs text-amber-600">Lưu ý: Tài liệu mới sẽ thay thế tài liệu hiện tại.</p>
                         </div>
                     </div>

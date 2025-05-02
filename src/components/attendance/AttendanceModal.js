@@ -6,6 +6,7 @@ import attendanceApi from "@/api/attendance";
 import CameraCapture from "./Capture";
 import { Button } from "../ui/Button";
 import { useToasts } from "@/hooks/providers/ToastProvider";
+import { FaceDetectionPreview } from "./FaceDetectionPreview";
 
 export function AttendanceModal({ isOpen, onClose, session }) {
   const [coachAttendance, setCoachAttendance] = useState([]);
@@ -15,6 +16,8 @@ export function AttendanceModal({ isOpen, onClose, session }) {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const [isAttend, setIsAttend] = useState(false);
+  const [detectionResult, setDetectionResult] = useState(null)
+  const [showFacePreview, setShowFacePreview] = useState(false)
   const { addToast } = useToasts()
 
   // Initialize attendance data
@@ -35,7 +38,6 @@ export function AttendanceModal({ isOpen, onClose, session }) {
         trainingSessionId: session.trainingSessionId,
       }
       const response = await attendanceApi.getPlayerAttendance(data);
-      console.log("Player attendance data:", response?.data.data);
       setPlayerAttendance(response?.data.data);
     } catch (error) {
       console.error("Error fetching player attendance:", error);
@@ -123,8 +125,6 @@ export function AttendanceModal({ isOpen, onClose, session }) {
         }, 3000);
       }, 1000);
     }
-
-
   };
 
   // Count attendance status
@@ -132,12 +132,22 @@ export function AttendanceModal({ isOpen, onClose, session }) {
     return records.filter((record) => record.status === status).length;
   };
 
-  // Handle camera capture returned list userId
-  const handleCapture = (userFoundList) => {
-    const userIdList = userFoundList.map(u => u.userId); // Trích xuất userId từ object
+  // After capture
+  const handleCapture = (result) => {
+    setDetectionResult(result)
+    setShowFacePreview(true)
+  }
+
+  const handleFaceConfirm = (playerIds) => {
+    setShowFacePreview(false)
+    handleFillAttendance(playerIds)
+  }
+
+  // After capture and customize face
+  const handleFillAttendance = (ListFacesDetected) => {
     setPlayerAttendance((prev) =>
       prev.map((record) => {
-        if (userIdList.includes(record.userId)) {
+        if (ListFacesDetected.includes(record.userId)) {
           return { ...record, status: 1 };
         }
         return record;
@@ -146,7 +156,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
 
     setCoachAttendance((prev) =>
       prev.map((record) => {
-        if (userIdList.includes(record.userId)) {
+        if (ListFacesDetected.includes(record.userId)) {
           return { ...record, status: 1 };
         }
         return record;
@@ -287,76 +297,76 @@ export function AttendanceModal({ isOpen, onClose, session }) {
                 {/* Attendance List */}
                 {activeTab === "coaches" ? (
                   <div className="w-full overflow-x-auto rounded-lg border border-gray-200">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Huấn Luyện Viên
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Tên Đăng Nhập
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Trạng Thái
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {coachAttendance.map((coach) => {
-                        return (
-                          <tr key={coach.userId}>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center">
-                                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                  <span className="font-medium text-gray-600">{coach.fullName.charAt(0)}</span>
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Huấn Luyện Viên
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Tên Đăng Nhập
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Trạng Thái
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {coachAttendance.map((coach) => {
+                          return (
+                            <tr key={coach.userId}>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <span className="font-medium text-gray-600">{coach.fullName.charAt(0)}</span>
+                                  </div>
+                                  <div className="ml-4">
+                                    <div className="text-sm font-medium text-gray-900">{coach.fullName}</div>
+                                  </div>
                                 </div>
-                                <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">{coach.fullName}</div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{coach.username}</td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex space-x-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => updateCoachStatus(coach.userId, 1)}
+                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 1
+                                      ? "bg-green-100 text-green-800 ring-2 ring-green-500"
+                                      : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
+                                      }`}
+                                  >
+                                    <Check className="mr-1 h-4 w-4" />
+                                    Có mặt
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateCoachStatus(coach.userId, 0)}
+                                    className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 0
+                                      ? "bg-red-100 text-red-800 ring-2 ring-red-500"
+                                      : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
+                                      }`}
+                                  >
+                                    <X className="mr-1 h-4 w-4" />
+                                    Vắng mặt
+                                  </button>
                                 </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{coach.username}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex space-x-2">
-                                <button
-                                  type="button"
-                                  onClick={() => updateCoachStatus(coach.userId, 1)}
-                                  className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 1
-                                    ? "bg-green-100 text-green-800 ring-2 ring-green-500"
-                                    : "bg-gray-100 text-gray-800 hover:bg-green-50 hover:text-green-700"
-                                    }`}
-                                >
-                                  <Check className="mr-1 h-4 w-4" />
-                                  Có mặt
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => updateCoachStatus(coach.userId, 0)}
-                                  className={`inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded ${coach.status === 0
-                                    ? "bg-red-100 text-red-800 ring-2 ring-red-500"
-                                    : "bg-gray-100 text-gray-800 hover:bg-red-50 hover:text-red-700"
-                                    }`}
-                                >
-                                  <X className="mr-1 h-4 w-4" />
-                                  Vắng mặt
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>                
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 ) : (
                   <div className="w-full overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
                     <table className="min-w-[800px] w-full divide-y divide-gray-200">
@@ -497,6 +507,16 @@ export function AttendanceModal({ isOpen, onClose, session }) {
           )}
         </div>
       </div>
+
+      {/* Face detection preview modal */}
+      {showFacePreview && detectionResult && (
+        <FaceDetectionPreview
+          detectionResult={detectionResult}
+          onConfirm={handleFaceConfirm}
+          players={playerAttendance}
+          onClose={() => setShowFacePreview(false)}
+        />
+      )}
     </div>
   );
 }

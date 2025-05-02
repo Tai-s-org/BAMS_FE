@@ -25,6 +25,8 @@ import ArticleForm from "@/components/matches/ArticleForm"
 import PlayerSelector from "@/components/matches/PlayerSelector"
 import matchApi from "@/api/match"
 import { useAuth } from "@/hooks/context/AuthContext"
+import { Fancybox } from "@fancyapps/ui";
+import "@fancyapps/ui/dist/fancybox/fancybox.css";
 import { useToasts } from "@/hooks/providers/ToastProvider"
 
 export default function MatchDetailPage() {
@@ -45,7 +47,7 @@ export default function MatchDetailPage() {
   useEffect(() => {
     fetchMatchDetails();
     if (user?.roleCode === "Coach")
-    fetchListPlayers();
+      fetchListPlayers();
   }, [params.id])
 
   useEffect(() => {
@@ -56,20 +58,39 @@ export default function MatchDetailPage() {
     }
   }, [isUpdate])
 
+  useEffect(() => {
+    Fancybox.bind("[data-fancybox]", {
+      // Các tùy chọn fancyBox có thể thêm ở đây
+      Thumbs: false,
+      Toolbar: true,
+      closeButton: "auto",
+      Image: {
+        zoom: true,
+      },
+      Video: {
+        autoStart: false,
+      },
+    });
+
+    return () => {
+      Fancybox.destroy();
+    };
+  }, [match?.matchArticles]); // Khi danh sách bài viết thay đổi
+
   const fetchMatchDetails = async () => {
     try {
       const response = await matchApi.getMatchById(params.id);
       if (userInfo?.roleInformation?.teamId === response?.data.data.homeTeamId) {
-       const count = countStartingPlayers(response?.data.data.homeTeamPlayers)
-       setPlayersCount(response?.data.data.homeTeamPlayers.length)
-       setStartingCount(count)
+        const count = countStartingPlayers(response?.data.data.homeTeamPlayers)
+        setPlayersCount(response?.data.data.homeTeamPlayers.length)
+        setStartingCount(count)
       } else if (userInfo?.roleInformation?.teamId === response?.data.data.awayTeamId) {
-       const count = countStartingPlayers(response?.data.data.awayTeamPlayers)
-       setPlayersCount(response?.data.data.awayTeamPlayers.length)
-       setStartingCount(count)
+        const count = countStartingPlayers(response?.data.data.awayTeamPlayers)
+        setPlayersCount(response?.data.data.awayTeamPlayers.length)
+        setStartingCount(count)
       }
 
-      const matches = response?.data.data.matchArticles?.map((article) => article.url.startsWith("uploads/") ? {
+      const matches = response?.data.data.matchArticles?.map((article) => article.url.startsWith(process.env.NEXT_PUBLIC_IMAGE_API_URL + "uploads/") ? {
         ...article,
         uploadType: "file",
       } : {
@@ -102,7 +123,8 @@ export default function MatchDetailPage() {
 
   const handleDeleteArticle = async (articleId, filePath) => {
     try {
-      if (filePath.startsWith("uploads/")) {
+      if (filePath.startsWith(process.env.NEXT_PUBLIC_IMAGE_API_URL + "uploads/")) {
+        filePath = filePath.replace(process.env.NEXT_PUBLIC_IMAGE_API_URL + "", "")
         const response = await matchApi.deleteArticleFile(filePath)
       }
 
@@ -356,23 +378,44 @@ export default function MatchDetailPage() {
                     {article.uploadType === "file" && article.url && (
                       <div className="mt-4 p-3 border rounded-md">
                         {article.url.match(/\.(jpeg|jpg|gif|png)$/) ? (
-                          // Display image
-                          <img
-                            src={process.env.NEXT_PUBLIC_IMAGE_API_URL + article.url}
-                            alt="Article content"
-                            className="max-w-full h-auto rounded-md"
-                          />
+                          // Hiển thị ảnh với kích thước giới hạn
+                          <div className="flex justify-center">
+                            <a
+                              href={article.url}
+                              data-fancybox="gallery"
+                              data-caption={article.title}
+                              className="block max-w-full overflow-hidden"
+                            >
+                              <img
+                                src={article.url}
+                                alt="Article content"
+                                className="max-h-80 object-contain rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                              />
+                            </a>
+                          </div>
                         ) : article.url.match(/\.(mp4|webm|ogg)$/) ? (
-                          // Display video
-                          <video
-                            controls
-                            className="max-w-full rounded-md"
-                          >
-                            <source src={process.env.NEXT_PUBLIC_IMAGE_API_URL + article.url} type={`video/${article.url.split('.').pop().toLowerCase()}`} />
-                            Trình duyệt của bạn không hỗ trợ video này
-                          </video>
+                          // Hiển thị video với kích thước giới hạn
+                          <div className="flex justify-center">
+                            <a
+                              href={article.url}
+                              data-fancybox="gallery"
+                              data-caption={article.title}
+                              className="block w-full max-w-2xl"
+                            >
+                              <video
+                                controls
+                                className="w-full max-h-80 object-contain rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                              >
+                                <source
+                                  src={article.url}
+                                  type={`video/${article.url.split('.').pop().toLowerCase()}`}
+                                />
+                                Trình duyệt của bạn không hỗ trợ video này
+                              </video>
+                            </a>
+                          </div>
                         ) : (
-                          // Default file display
+                          // Hiển thị file thông thường
                           <div className="flex items-center">
                             <FileText className="h-5 w-5 mr-2 text-[#BD2427]" />
                             <a href={article.url} target="_blank" rel="noopener noreferrer">

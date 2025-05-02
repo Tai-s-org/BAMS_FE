@@ -26,8 +26,8 @@ const plus = (id) => {
 }
 
 export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
-  const [startDate, setStartDate] = useState(new Date())
-  const [endDate, setEndDate] = useState(addDays(new Date(), 1))
+  const [startDate, setStartDate] = useState(addDays(new Date(), 1))
+  const [endDate, setEndDate] = useState(addDays(new Date(), 2))
   const [daySelections, setDaySelections] = useState(
     daysOfWeek.reduce(
       (acc, day) => ({
@@ -121,7 +121,15 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
       }
     } catch (error) {
       console.error("Error creating training session:", error)
-      addToast({ message: "Thêm lịch tập thất bại", type: "error" })
+      if (error.response && error.response.data) {
+        // Lặp qua tất cả các giá trị lỗi trong object
+        Object.values(error.response.data.errors).forEach(message => {
+          addToast({
+            message: message,
+            type: "error"
+          });
+        });
+      }
     }
   }
 
@@ -141,6 +149,15 @@ export function RecurringSessionModal({ isOpen, onClose, teamId, courts }) {
     } catch (error) {
       console.error("Error creating training session:", error)
       addToast({ message: "Thêm lịch tập thất bại", type: "error" });
+      if (error.response && error.response.data) {
+        // Lặp qua tất cả các giá trị lỗi trong object
+        Object.values(error.response.data.errors).forEach(message => {
+          addToast({
+            message: message,
+            type: "error"
+          });
+        });
+      }
     }
   }
 

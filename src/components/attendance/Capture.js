@@ -81,7 +81,7 @@ const CameraCapture = ({ handleAICapture }) => {
 
     try {
         const response = await attendanceApi.getFaceId(formData);
-        handleAICapture(response?.data.data.detectedFaces)
+        handleAICapture(response?.data.data)
         addToast({type: response?.data.status, message: response?.data.message})
     } catch (error) {
       console.error("Error uploading image:", error);
