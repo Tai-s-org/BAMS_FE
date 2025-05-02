@@ -13,6 +13,8 @@ import courtApi from "@/api/court";
 import coachApi from "@/api/coach";
 import { AttendanceReviewModal } from "@/components/attendance/AttendanceReviewModal";
 import CancelModal from "@/components/schedule/CancelModal";
+import { Fancybox } from "@fancyapps/ui";
+import "@fancyapps/ui/dist/fancybox/fancybox.css";
 import { useToasts } from "@/hooks/providers/ToastProvider";
 
 export default function TrainingSessionDetail() {
@@ -51,6 +53,18 @@ export default function TrainingSessionDetail() {
             console.error("Error fetching courts:", error)
         }
     }
+
+    useEffect(() => {
+        Fancybox.bind("[data-fancybox]", {
+            // Các tùy chọn có thể thêm ở đây
+            Thumbs: false,
+            Toolbar: true,
+        });
+
+        return () => {
+            Fancybox.destroy();
+        };
+    }, []);
 
     useEffect(() => {
         fetchCourts()
@@ -252,14 +266,21 @@ export default function TrainingSessionDetail() {
                                     </div>
                                 </div>
                                 <div className="px-6 py-5 border-t border-gray-200 w-full">
-                                    <div className="relative w-full h-64">
-                                        <Image
-                                            src={process.env.NEXT_PUBLIC_IMAGE_API_URL + session.court.imageUrl}
-                                            alt="Court Image"
-                                            layout="fill"
-                                            objectFit="cover"
-                                            className="rounded-md"
-                                        />
+                                    <div className="max-w-3xl mx-auto"> {/* Giới hạn chiều rộng tối đa */}
+                                        <a
+                                            href={process.env.NEXT_PUBLIC_IMAGE_API_URL + session.court.imageUrl}
+                                            data-fancybox="court-gallery"
+                                            data-caption="Court Image"
+                                            className="block relative w-full h-64 cursor-pointer"
+                                        >
+                                            <Image
+                                                src={process.env.NEXT_PUBLIC_IMAGE_API_URL + session.court.imageUrl}
+                                                alt="Court Image"
+                                                layout="fill"
+                                                objectFit="cover"
+                                                className="rounded-md hover:opacity-90 transition-opacity"
+                                            />
+                                        </a>
                                     </div>
                                 </div>
 

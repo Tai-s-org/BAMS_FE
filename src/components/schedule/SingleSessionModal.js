@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { format } from "date-fns"
+import { addDays, format } from "date-fns"
 import { X, MapPin, Check } from "lucide-react"
 import scheduleApi from "@/api/schedule"
 import { useToasts } from "@/hooks/providers/ToastProvider"
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TimePicker } from "../ui/TimePicker"
 
 export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified }) {
-  const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"))
+  const [date, setDate] = useState(addDays(new Date(), 1))
   const [startTime, setStartTime] = useState("16:00")
   const [endTime, setEndTime] = useState("17:30")
   const [court, setCourt] = useState(null)
@@ -35,7 +35,15 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified
       if (error.response.status === 401) {
         addToast({ message: error.response.data.Message, type: "error" });
       }
-      addToast({ message: error.response.data.errors.TeamId, type: "error" });
+      if (error.response && error.response.data) {
+        // Lặp qua tất cả các giá trị lỗi trong object
+        Object.values(error.response.data.errors).forEach(message => {
+          addToast({
+            message: message,
+            type: "error"
+          });
+        });
+      }
     }
 
     // Đóng modal sau khi xử lý
@@ -92,7 +100,7 @@ export function SingleSessionModal({ isOpen, onClose, teamId, courts, isModified
                   Ngày tập
                 </label>
                 <DatePicker
-                  value={new Date(date)}
+                  value={date}
                   onChange={(date) => setDate(date)}
                   minDate={new Date()}
                 />

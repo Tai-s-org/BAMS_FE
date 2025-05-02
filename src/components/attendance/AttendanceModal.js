@@ -38,7 +38,6 @@ export function AttendanceModal({ isOpen, onClose, session }) {
         trainingSessionId: session.trainingSessionId,
       }
       const response = await attendanceApi.getPlayerAttendance(data);
-      console.log("Player attendance data:", response?.data.data);
       setPlayerAttendance(response?.data.data);
     } catch (error) {
       console.error("Error fetching player attendance:", error);
@@ -146,8 +145,6 @@ export function AttendanceModal({ isOpen, onClose, session }) {
 
   // After capture and customize face
   const handleFillAttendance = (ListFacesDetected) => {
-    console.log("ListFacesDetected", ListFacesDetected);
-    
     setPlayerAttendance((prev) =>
       prev.map((record) => {
         if (ListFacesDetected.includes(record.userId)) {

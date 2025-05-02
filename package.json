@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fancyapps/ui": "^5.0.36",
     "@headlessui/react": "^2.2.2",
     "@radix-ui/themes": "^3.2.1",
     "@tiptap/core": "^2.11.7",
