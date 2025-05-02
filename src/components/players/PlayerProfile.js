@@ -171,12 +171,6 @@ export default function PlayerDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-[#BD2427] text-white p-6 shadow-md">
-        <div className="container mx-auto">
-          <h1 className="text-2xl font-bold">Câu Lạc Bộ Bóng Rổ</h1>
-        </div>
-      </div>
 
       {/* Back Button */}
       <div className="container mx-auto pt-4 px-4">
@@ -312,11 +306,11 @@ export default function PlayerDetailPage() {
                       Thông Tin Đội
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3">
-                      <div className="flex items-center gap-3">
+                      {/* <div className="flex items-center gap-3">
                         <Users className="w-5 h-5 text-[#BD2427]" />
                         <span className="font-medium">Mã đội:</span>
                         <span>{player.teamId}</span>
-                      </div>
+                      </div> */}
                       <div className="flex items-center gap-3">
                         <Users className="w-5 h-5 text-[#BD2427]" />
                         <span className="font-medium">Tên đội:</span>
