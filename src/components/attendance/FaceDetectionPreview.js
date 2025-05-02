@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/Button'
-import { X, Check, ChevronDown, ChevronUp, Search } from 'lucide-react'
+import { X, Check, Search } from 'lucide-react'
 import faceIdApi from '@/api/faceId'
 import { useToasts } from '@/hooks/providers/ToastProvider'
 

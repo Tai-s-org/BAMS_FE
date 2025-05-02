@@ -10,6 +10,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -20,10 +21,10 @@ import ManagerList from "./ManagerList";
 import CoachList from "./CoachList";
 import teamApi from "@/api/team";
 import { useToasts } from "@/hooks/providers/ToastProvider";
-import RemoveConfirmDialog from "../ui/RemoveConfirmDialog";
 import matchApi from "@/api/match";
 import { Badge } from "../ui/Badge";
 import { Label } from "../ui/Label";
+import RemoveMemberConfirmDialog from "./RemoveConfirm";
 
 export default function TeamDetails() {
   const [teams, setTeams] = useState([]);
@@ -45,6 +46,7 @@ export default function TeamDetails() {
   const [selectedFundManager, setSelectedFundManager] = useState(
     selectedTeam.fundManagerId ? selectedTeam.fundManagerId : null,
   )
+  const [selectedFundManagerError, setSelectedFundManagerError] = useState(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [matches, setMatches] = useState([])
   const {addToast} = useToasts();
@@ -169,8 +171,10 @@ export default function TeamDetails() {
 
   const handleChangeFundManager = async () => {
     if (!selectedFundManager) {
-      addToast({ message: "Vui lòng chọn người quản lý quỹ", type: "error" })
+      setSelectedFundManagerError("Vui lòng chọn người quản lý quỹ")
       return
+    } else {
+      setSelectedFundManagerError(null)
     }
 
     const selectedManager = selectedTeam.managers.find((manager) => manager.userId === selectedFundManager)
@@ -196,19 +200,19 @@ export default function TeamDetails() {
     }
   }
 
-  const handleRemoveMember = async (userId) => {
+  const handleRemoveMember = async (userId, date) => {
     if (!deletedId) return;
     if (!context) return;
     
     try {
       if (context.startsWith("cầu thủ")) {
-        await teamApi.removePlayer(selectedTeam.teamId, [userId]);
+        await teamApi.removePlayer(selectedTeam.teamId, [userId], {leftDate: format(new Date(date), "yyyy-MM-dd")});
       }
       else if (context.startsWith("quản lý")) {
-        await teamApi.removeManager(selectedTeam.teamId, [userId]);
+        await teamApi.removeManager(selectedTeam.teamId, [userId], {leftDate: format(new Date(date), "yyyy-MM-dd")});
       }
       else if (context.startsWith("huấn luyện viên")) {
-        await teamApi.removeCoach(selectedTeam.teamId, [userId]);
+        await teamApi.removeCoach(selectedTeam.teamId, [userId], {leftDate: format(new Date(date), "yyyy-MM-dd")});
       }
     } catch (error) {
       console.error("Error removing member:", error);
@@ -431,6 +435,9 @@ export default function TeamDetails() {
                                 ))}
                               </RadioGroup>
                             </div>
+                            <DialogFooter>
+                              {selectedFundManagerError && <p className="text-red-500">{selectedFundManagerError}</p>}
+                            </DialogFooter>
                             <div className="flex justify-end">
                               <Button onClick={handleChangeFundManager} className="bg-[#BD2427] hover:bg-[#9a1e21]">
                                 Xác nhận
@@ -566,7 +573,7 @@ export default function TeamDetails() {
         ))}
       </Tabs>}
 
-      {deletedId && <RemoveConfirmDialog onClose={() => {
+      {deletedId && <RemoveMemberConfirmDialog onClose={() => {
         setDeletedId(null);
         setContext(null);
         setRemoveDialogOpen(false)}} 
