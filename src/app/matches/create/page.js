@@ -31,24 +31,13 @@ export default function CreateMatchPage() {
     awayTeamName: "",
     courtId: "",
   })
-  const [clubTeams, setTeams] = useState([]) // Danh sách đội bóng
-  const [allTeams, setAllTeams] = useState([]) // Danh sách tất cả đội bóng
-  const [courts, setAvailableCourt] = useState([]) // Danh sách sân thi đấu có sẵn
+  const [clubTeams, setTeams] = useState([]) 
+  const [allTeams, setAllTeams] = useState([]) 
+  const [courts, setAvailableCourt] = useState([]) 
 
-  // Các loại trận đấu
   const [matchType, setMatchType] = useState(null)
 
-  // Chỉ hiển thị khi chọn "Đội ngoài"
   const [venueType, setVenueType] = useState(null)
-
-  // Sample data for dropdowns
-  // const clubTeams = [
-  //   { id: "T001", name: "U11 Nam" },
-  //   { id: "T002", name: "U13 Nam" },
-  //   { id: "T003", name: "U15 Nam" },
-  //   { id: "T004", name: "U17 Nam" },
-  //   { id: "T005", name: "U19 Nam" },
-  // ]
 
   useEffect(() => {
     fetchTeams()
@@ -183,17 +172,15 @@ export default function CreateMatchPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     const data = {
       matchName: formData.matchName,
       matchDate: formatDate(formData.scheduledDate) + "T" + formatTime(formData.scheduledStartTime),
       homeTeamId: formData.homeTeamId === "" ? null : formData.homeTeamId,
       awayTeamId: formData.awayTeamId === "" ? null : formData.awayTeamId,
-      opponentTeamName: formData.awayTeamName === "" ? formData.homeTeamName : formData.awayTeamName,
+      opponentTeamName: (matchType === "external" && venueType === "away") ? formData.homeTeamName : formData.awayTeamName,
       courtId: formData.courtId,
     }
     
-    // In a real app, you would save the match data to your backend here
     try {
       const response = await matchApi.createMatch(data);
       addToast({ message: response.data.message, type: response.data.status });
