@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/Button'
 import { X, Check, ChevronDown, ChevronUp, Search } from 'lucide-react'
 import faceIdApi from '@/api/faceId'
+import { useToasts } from '@/hooks/providers/ToastProvider'
 
 export function FaceDetectionPreview({
     players,
@@ -11,20 +12,42 @@ export function FaceDetectionPreview({
     onClose
 }) {
     const imgRef = useRef(null)
+    const [selectedFace, setSelectedFace] = useState(null)
     const [expandedFace, setExpandedFace] = useState(null)
     const [assignedPlayers, setAssignedPlayers] = useState({})
     const [searchTerm, setSearchTerm] = useState('')
+    const { addToast } = useToasts()
 
-    // Danh sách player đã được detect tự động (đã điểm danh)
+    // Hàm tạo faceKey từ tọa độ boundingBox
+    const getFaceKey = (face) => {
+        const { top, left, width, height } = face.boundingBox;
+        return `${top.toFixed(4)}-${left.toFixed(4)}-${width.toFixed(4)}-${height.toFixed(4)}`;
+    };
+
+    // Xử lý detectedFaces để đảm bảo mỗi face có faceId duy nhất
+    const processedFaces = useMemo(() => {
+        return detectionResult.detectedFaces.map(face => {
+            // Nếu là face chưa xác định và không có faceId, tạo faceId từ tọa độ
+            if (face.userId === "Không xác định" && face.faceId === "Không xác định") {
+                return {
+                    ...face,
+                    faceId: `unidentified_${getFaceKey(face)}`
+                }
+            }
+            return face
+        })
+    }, [detectionResult.detectedFaces])
+
+    // Danh sách player đã được detect tự động
     const autoDetectedPlayers = useMemo(() => {
-        return detectionResult.detectedFaces
+        return processedFaces
             .filter(face => face.userId !== "Không xác định")
             .map(face => face.userId)
-    }, [detectionResult])
+    }, [processedFaces])
 
-    // Danh sách player có thể gán (chưa được detect tự động và chưa gán thủ công)
+    // Danh sách player có thể gán
     const availablePlayers = useMemo(() => {
-        return players.filter(player => 
+        return players.filter(player =>
             !autoDetectedPlayers.includes(player.userId) &&
             !Object.values(assignedPlayers).some(p => p.userId === player.userId)
         )
@@ -39,11 +62,29 @@ export function FaceDetectionPreview({
         )
     }, [availablePlayers, searchTerm])
 
-    const assignPlayerToFace = (faceId, player) => {
+    // Chỉ chọn 1 khuôn mặt duy nhất
+    const handleSelectFace = (face) => {
+        if (face.userId !== "Không xác định") {
+            return
+        }
+
+        if (selectedFace?.faceId === face.faceId) {
+            setSelectedFace(null)
+            setExpandedFace(null)
+        } else {
+            setSelectedFace(face)
+            setExpandedFace(face.faceId)
+        }
+    }
+
+    const assignPlayerToFace = (player) => {
+        if (!selectedFace) return
+
         setAssignedPlayers(prev => ({
             ...prev,
-            [faceId]: player
+            [selectedFace.faceId]: player
         }))
+        setSelectedFace(null)
         setExpandedFace(null)
         setSearchTerm('')
     }
@@ -57,6 +98,7 @@ export function FaceDetectionPreview({
     }
 
     const registerFaceId = async (userId, croppedImage) => {
+        const memberName = players?.find(p => p.userId == userId)?.fullName
         try {
             const blob = await fetch(croppedImage).then(res => res.blob())
             const randomString = Math.random().toString(36).substring(2, 8)
@@ -67,18 +109,22 @@ export function FaceDetectionPreview({
             data.append("UserId", userId)
             data.append("Image", file)
             await faceIdApi.registerFaceId(data)
+            addToast({ message: `Đăng ký Face ID cho: ${memberName} thành công`, type: "success" })
         } catch (error) {
-            console.error("Lỗi khi đăng ký Face ID:", error)
+            console.error(`Lỗi khi đăng ký Face ID cho: ${memberName}`, error)
+            addToast({
+                message: `Không thành công đăng ký Face ID cho: ${memberName}. Vui lòng chọn ảnh khác!`,
+                type: "error"
+            })
             throw error
         }
     }
 
     const handleConfirm = async () => {
         try {
-            // Đăng ký khuôn mặt mới cho các face được gán thủ công
             await Promise.all(
                 Object.entries(assignedPlayers).map(async ([faceId, player]) => {
-                    const face = detectionResult.detectedFaces.find(f => f.faceId === faceId)
+                    const face = processedFaces.find(f => f.faceId === faceId)
                     if (!face || !imgRef.current) return
 
                     const img = imgRef.current
@@ -106,9 +152,6 @@ export function FaceDetectionPreview({
                 })
             )
 
-            // Danh sách cuối cùng bao gồm:
-            // 1. Player đã được detect tự động (autoDetectedPlayers)
-            // 2. Player được gán thủ công (assignedPlayers)
             const allAttendedPlayers = [
                 ...autoDetectedPlayers,
                 ...Object.values(assignedPlayers).map(p => p.userId)
@@ -148,20 +191,23 @@ export function FaceDetectionPreview({
                         />
 
                         {/* Bounding boxes */}
-                        {detectionResult.detectedFaces.map((face) => {
+                        {processedFaces.map((face) => {
                             const isIdentified = face.userId !== "Không xác định"
                             const isAssigned = isFaceAssigned(face.faceId)
+                            const isSelected = selectedFace?.faceId === face.faceId
                             const assignedPlayer = assignedPlayers[face.faceId]
 
                             return (
                                 <div key={face.faceId}>
                                     {/* Bounding box */}
                                     <div
-                                        className={`absolute border-2 ${isIdentified
+                                        className={`absolute border-2 cursor-pointer ${isIdentified
                                             ? 'border-green-500 bg-green-500/20'
                                             : isAssigned
                                                 ? 'border-blue-500 bg-blue-500/20'
-                                                : 'border-red-500'
+                                                : isSelected
+                                                    ? 'border-yellow-500 bg-yellow-500/20'
+                                                    : 'border-red-500'
                                             }`}
                                         style={{
                                             left: `${face.boundingBox.left * 100}%`,
@@ -169,6 +215,7 @@ export function FaceDetectionPreview({
                                             width: `${face.boundingBox.width * 100}%`,
                                             height: `${face.boundingBox.height * 100}%`,
                                         }}
+                                        onClick={() => handleSelectFace(face)}
                                     />
 
                                     {/* Face label */}
@@ -177,7 +224,9 @@ export function FaceDetectionPreview({
                                             ? 'bg-green-100 text-green-800'
                                             : isAssigned
                                                 ? 'bg-blue-100 text-blue-800'
-                                                : 'bg-red-100 text-red-800'
+                                                : isSelected
+                                                    ? 'bg-yellow-100 text-yellow-800'
+                                                    : 'bg-red-100 text-red-800'
                                             }`}
                                         style={{
                                             left: `${face.boundingBox.left * 100}%`,
@@ -202,28 +251,13 @@ export function FaceDetectionPreview({
                                             </>
                                         ) : (
                                             <>
-                                                Chưa xác định
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        setExpandedFace(
-                                                            expandedFace === face.faceId ? null : face.faceId
-                                                        )
-                                                    }}
-                                                    className="ml-2"
-                                                >
-                                                    {expandedFace === face.faceId ? (
-                                                        <ChevronUp className="h-4 w-4" />
-                                                    ) : (
-                                                        <ChevronDown className="h-4 w-4" />
-                                                    )}
-                                                </button>
+                                                {isSelected ? "Đang chọn..." : "Chưa xác định"}
                                             </>
                                         )}
                                     </div>
 
                                     {/* Player selection dropdown */}
-                                    {!isIdentified && !isAssigned && expandedFace === face.faceId && (
+                                    {!isIdentified && !isAssigned && isSelected && (
                                         <div
                                             className="absolute z-10 mt-1 w-64 rounded-md bg-white shadow-lg"
                                             style={{
@@ -251,7 +285,7 @@ export function FaceDetectionPreview({
                                                         <div
                                                             key={player.userId}
                                                             className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                                                            onClick={() => assignPlayerToFace(face.faceId, player)}
+                                                            onClick={() => assignPlayerToFace(player)}
                                                         >
                                                             {player.fullName} ({player.username})
                                                         </div>
@@ -272,7 +306,8 @@ export function FaceDetectionPreview({
                     <div className="mt-4 text-sm text-gray-600">
                         <p>• <span className="text-green-600">Khung xanh</span>: Đã xác định tự động</p>
                         <p>• <span className="text-blue-600">Khung xanh dương</span>: Đã gán thủ công</p>
-                        <p>• <span className="text-red-600">Khung đỏ</span>: Chưa xác định (click để chọn cầu thủ)</p>
+                        <p>• <span className="text-yellow-600">Khung vàng</span>: Đang được chọn</p>
+                        <p>• <span className="text-red-600">Khung đỏ</span>: Chưa xác định</p>
                     </div>
 
                     {/* Assigned players summary */}
