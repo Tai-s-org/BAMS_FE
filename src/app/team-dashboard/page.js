@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { format, set } from "date-fns"
+import { format } from "date-fns"
 import { CalendarDays, Plus, Trash2, Users, BellIcon as Whistle, Clock, MapPin, Trophy, AlertCircle, CheckCircle2, Eye } from "lucide-react"
 
 import { Button } from "@/components/ui/Button"
@@ -29,6 +29,7 @@ import RemoveConfirmDialog from "@/components/ui/RemoveConfirmDialog"
 import Link from "next/link"
 import { LuEye } from "react-icons/lu"
 import { useRouter } from "next/navigation"
+import RemoveMemberConfirmDialog from "@/components/team-management/RemoveConfirm"
 
 export default function TeamDashboard() {
   const [team, setTeam] = useState({
@@ -196,9 +197,9 @@ export default function TeamDashboard() {
   }
 
   // Remove player from team
-  const handleRemovePlayer = async (userId) => {
+  const handleRemovePlayer = async (userId, date) => {
     try {
-      const response = await teamApi.removePlayer(userInfo?.roleInformation.teamId, [userId]);
+      const response = await teamApi.removePlayer(userInfo?.roleInformation.teamId, [userId], {leftDate: format(new Date(date), "yyyy-MM-dd")});
       addToast({ message: response?.data.message, type: response?.data.status });
       setTeam({
         ...team,
@@ -591,7 +592,7 @@ export default function TeamDashboard() {
       </Dialog>
 
       {deletePlayerId && deletePlayerName
-        && <RemoveConfirmDialog deleteConfirmOpen={isDeleteModalOpen}
+        && <RemoveMemberConfirmDialog deleteConfirmOpen={isDeleteModalOpen}
           onClose={() => {
             setDeletePlayerId(null)
             setDeletePlayerName(null)
