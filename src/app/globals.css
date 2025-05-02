@@ -30,3 +30,15 @@ body {
   margin: 0.5rem 0;
 }
 
+.fancybox__toolbar, .fancybox__nav {
+  --f-button-border-radius: 50%;
+  --f-button-bg: rgba(189, 36, 39, 0.8);
+  --f-button-hover-bg: rgba(154, 30, 33, 0.9);
+  --f-button-active-bg: rgba(154, 30, 33, 1);
+}
+
+.fancybox__caption {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.7);
+}
+
