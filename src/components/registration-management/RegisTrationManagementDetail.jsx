@@ -161,7 +161,7 @@ export default function RegistrationManagementDetail({ id }) {
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                            <Link href={'/dashboard/registration-session-management/player-registration-list'}>
+                            <Link href={'/registration-session-management/player-registration-list'}>
                                 <Button
                                     disabled={!isActive() || !session.isAllowPlayerRecruit}
                                     className="h-auto py-4 bg-[#BD2427] hover:bg-[#9a1e1f]"
@@ -170,7 +170,7 @@ export default function RegistrationManagementDetail({ id }) {
                                     Danh sách cầu thủ đăng ký
                                 </Button>
                             </Link>
-                            <Link href={'/dashboard/registration-session-management/manager-registration-list'}>
+                            <Link href={'/registration-session-management/manager-registration-list'}>
                                 <Button
                                     disabled={!isActive() || !session.isAllowManagerRecruit}
                                     variant="outline"

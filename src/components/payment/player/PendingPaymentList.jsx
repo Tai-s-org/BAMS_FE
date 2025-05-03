@@ -70,7 +70,7 @@ export function PendingPaymentsList({ pendingPayments }) {
                                     {payment.isOverdue ? "Hết hạn" : "Chưa thanh toán"}
                                 </Badge>
                             </div>
-                            <Link href={`/dashboard/payment/${payment.paymentId}`}>
+                            <Link href={`/payment/${payment.paymentId}`}>
                                 <Button variant="ghost" size="icon">
                                     <ArrowRight className="h-4 w-4" />
                                 </Button>

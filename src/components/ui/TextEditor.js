@@ -16,6 +16,7 @@ import {
   AlignCenter,
   AlignRight,
 } from "lucide-react";
+import { useEffect } from "react";
 
 export function TextEditor({ content, onChange, placeholder = "Nhập nội dung..." }) {
   const editor = useEditor({
@@ -56,6 +57,15 @@ export function TextEditor({ content, onChange, placeholder = "Nhập nội dung
       },
     },
   });
+
+  useEffect(() => {
+    if (editor && content !== undefined) {
+      // Chỉ cập nhật nếu nội dung khác với nội dung hiện tại
+      if (editor.getHTML() !== content) {
+        editor.commands.setContent(content);
+      }
+    }
+  }, [editor, content]);
 
   if (!editor) {
     return null;

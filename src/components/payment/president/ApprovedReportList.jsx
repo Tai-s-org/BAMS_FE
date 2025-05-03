@@ -62,7 +62,7 @@ export function ApprovedReportsList({approvedReports}) {
                                 Đã duyệt
                             </Badge>
                         </div>
-                        <Link href={`/dashboard/payment/${report.teamFundId}`}>
+                        <Link href={`/payment/${report.teamFundId}`}>
                             <Button variant="ghost" size="icon">
                                 <ArrowRight className="h-4 w-4" />
                             </Button>
