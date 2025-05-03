@@ -16,7 +16,6 @@ export function FaceDetectionPreview({
     const [expandedFace, setExpandedFace] = useState(null)
     const [assignedPlayers, setAssignedPlayers] = useState({})
     const [searchTerm, setSearchTerm] = useState('')
-    const { addToast } = useToasts()
 
     // Hàm tạo faceKey từ tọa độ boundingBox
     const getFaceKey = (face) => {
@@ -24,10 +23,8 @@ export function FaceDetectionPreview({
         return `${top.toFixed(4)}-${left.toFixed(4)}-${width.toFixed(4)}-${height.toFixed(4)}`;
     };
 
-    // Xử lý detectedFaces để đảm bảo mỗi face có faceId duy nhất
-    const processedFaces = useMemo(() => {
+    const [processedFaces, setProcessedFaces] = useState(() => {
         return detectionResult.detectedFaces.map(face => {
-            // Nếu là face chưa xác định và không có faceId, tạo faceId từ tọa độ
             if (face.userId === "Không xác định" && face.faceId === "Không xác định") {
                 return {
                     ...face,
@@ -36,10 +33,27 @@ export function FaceDetectionPreview({
             }
             return face
         })
-    }, [detectionResult.detectedFaces])
+    })
+    const { addToast } = useToasts()
+
+
+
+    // Xử lý detectedFaces để đảm bảo mỗi face có faceId duy nhất
+    // let processedFaces = useMemo(() => {
+    //     return detectionResult.detectedFaces.map(face => {
+    //         // Nếu là face chưa xác định và không có faceId, tạo faceId từ tọa độ
+    //         if (face.userId === "Không xác định" && face.faceId === "Không xác định") {
+    //             return {
+    //                 ...face,
+    //                 faceId: `unidentified_${getFaceKey(face)}`
+    //             }
+    //         }
+    //         return face
+    //     })
+    // }, [detectionResult.detectedFaces])
 
     // Danh sách player đã được detect tự động
-    const autoDetectedPlayers = useMemo(() => {
+    let autoDetectedPlayers = useMemo(() => {
         return processedFaces
             .filter(face => face.userId !== "Không xác định")
             .map(face => face.userId)
@@ -61,6 +75,10 @@ export function FaceDetectionPreview({
             player.username.toLowerCase().includes(searchTerm.toLowerCase())
         )
     }, [availablePlayers, searchTerm])
+
+    useEffect(() => {
+        // Re-render khi assignedPlayers thay đổi
+    }, [assignedPlayers])
 
     // Chỉ chọn 1 khuôn mặt duy nhất
     const handleSelectFace = (face) => {
@@ -108,10 +126,10 @@ export function FaceDetectionPreview({
             const data = new FormData()
             data.append("UserId", userId)
             data.append("Image", file)
-            await faceIdApi.registerFaceId(data)
+            const response = await faceIdApi.registerFaceId(data)
             addToast({ message: `Đăng ký Face ID cho: ${memberName} thành công`, type: "success" })
+            return response?.data.data.registeredFaces[0]
         } catch (error) {
-            console.error(`Lỗi khi đăng ký Face ID cho: ${memberName}`, error)
             addToast({
                 message: `Không thành công đăng ký Face ID cho: ${memberName}. Vui lòng chọn ảnh khác!`,
                 type: "error"
@@ -122,46 +140,109 @@ export function FaceDetectionPreview({
 
     const handleConfirm = async () => {
         try {
-            await Promise.all(
-                Object.entries(assignedPlayers).map(async ([faceId, player]) => {
-                    const face = processedFaces.find(f => f.faceId === faceId)
-                    if (!face || !imgRef.current) return
+            // Tạo bản sao tạm thời
+            const tempProcessedFaces = [...processedFaces];
+            const tempAssignedPlayers = { ...assignedPlayers };
+            const tempAutoDetectedPlayers = [...autoDetectedPlayers];
 
-                    const img = imgRef.current
-                    const canvas = document.createElement('canvas')
-                    const ctx = canvas.getContext('2d')
-                    const { width, height } = img
+            // Sử dụng Promise.allSettled để xử lý cả thành công và thất bại
+            const results = await Promise.allSettled(
+                Object.entries(tempAssignedPlayers).map(async ([faceId, player]) => {
+                    try {
+                        const faceIndex = tempProcessedFaces.findIndex(f => f.faceId === faceId);
+                        if (faceIndex === -1 || !imgRef.current) {
+                            throw new Error(`Face ${faceId} not found or image missing`);
+                        }
 
-                    const { boundingBox: bb } = face
-                    canvas.width = bb.width * width
-                    canvas.height = bb.height * height
-                    ctx.drawImage(
-                        img,
-                        bb.left * width,
-                        bb.top * height,
-                        bb.width * width,
-                        bb.height * height,
-                        0,
-                        0,
-                        canvas.width,
-                        canvas.height
-                    )
+                        const face = tempProcessedFaces[faceIndex];
+                        const img = imgRef.current;
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const { width, height } = img;
 
-                    const croppedImage = canvas.toDataURL('image/jpeg')
-                    await registerFaceId(player.userId, croppedImage)
+                        const { boundingBox: originalBB } = face;
+                        const paddingRatio = 0.35;
+
+                        const expandedBB = {
+                            left: Math.max(0, originalBB.left - originalBB.width * paddingRatio),
+                            top: Math.max(0, originalBB.top - originalBB.height * paddingRatio * 1.5),
+                            width: Math.min(1, originalBB.width * (1 + 2 * paddingRatio)),
+                            height: Math.min(1, originalBB.height * (1 + 2 * paddingRatio * 1.2))
+                        };
+
+                        canvas.width = expandedBB.width * width;
+                        canvas.height = expandedBB.height * height;
+                        ctx.drawImage(
+                            img,
+                            expandedBB.left * width,
+                            expandedBB.top * height,
+                            expandedBB.width * width,
+                            expandedBB.height * height,
+                            0,
+                            0,
+                            canvas.width,
+                            canvas.height
+                        );
+
+                        const croppedImage = canvas.toDataURL('image/jpeg');
+                        const registeredFace = await registerFaceId(player.userId, croppedImage);
+
+                        if (!registeredFace) {
+                            throw new Error(`Registration failed for face ${faceId}`);
+                        }
+
+                        return { faceId, player, faceIndex };
+                    } catch (error) {
+                        console.error(`Error processing face ${faceId}:`, error);
+                        throw error; // Re-throw để có thể xử lý ở phần results
+                    }
                 })
-            )
+            );
+
+            const hasErrors = results.some(result => result.status === 'rejected');
+
+            if (hasErrors) {
+                return;
+            }
+
+            // Xử lý kết quả sau khi tất cả hoàn thành
+            results.forEach(result => {
+                if (result.status === 'fulfilled') {
+                    const { faceId, player, faceIndex } = result.value;
+
+                    // 1. Cập nhật processedFaces
+                    tempProcessedFaces[faceIndex] = {
+                        ...tempProcessedFaces[faceIndex],
+                        userId: player.userId,
+                        username: player.username,
+                    };
+
+                    // 2. Thêm vào autoDetectedPlayers
+                    if (!tempAutoDetectedPlayers.includes(player.userId)) {
+                        tempAutoDetectedPlayers.push(player.userId);
+                    }
+
+                    // 3. Xóa khỏi assignedPlayers
+                    delete tempAssignedPlayers[faceId];
+
+                    console.log(`Successfully processed face ${faceId}`);
+                }
+            });
+
+            // Cập nhật các biến gốc một lần duy nhất sau cùng
+            setProcessedFaces(tempProcessedFaces);
+            setAssignedPlayers(tempAssignedPlayers);;
 
             const allAttendedPlayers = [
-                ...autoDetectedPlayers,
+                ...tempAutoDetectedPlayers,
                 ...Object.values(assignedPlayers).map(p => p.userId)
-            ]
+            ];
 
-            onConfirm(allAttendedPlayers)
+            onConfirm(allAttendedPlayers);
         } catch (error) {
-            console.error("Error confirming:", error)
+            console.error("Unexpected error in handleConfirm:", error);
         }
-    }
+    };
 
     const isFaceAssigned = (faceId) => {
         return !!assignedPlayers[faceId]
