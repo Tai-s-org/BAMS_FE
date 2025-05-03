@@ -9,6 +9,7 @@ import { SidebarProvider } from "@/hooks/context/SidebarContext";
 import SidebarInset from "../ui/sidebar/SidebarInset";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import ParentSidebar from "./dashboard/ParentSidebar";
 
 const DashboardLayout = ({ children }) => {
     const { user, userInfo } = useAuth();
@@ -29,6 +30,7 @@ const DashboardLayout = ({ children }) => {
                     {user.roleCode == "Manager" && userInfo?.roleInformation?.teamId && <ManagerSidebar />}
                     {user.roleCode == "Player" && userInfo?.roleInformation?.teamId && <PlayerSidebar />}
                     {user.roleCode == "Coach" && userInfo?.roleInformation?.teamId && <CoachSidebar />}
+                    {user.roleCode == "Parent" && <ParentSidebar />}
                     <SidebarInset className="flex flex-col">
                         <HeaderDashboard />
                         <main className="flex-1 overflow-auto p-4">{children}</main>
