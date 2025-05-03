@@ -262,138 +262,145 @@ export function FaceDetectionPreview({
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                    <div className="relative inline-block mb-4">
-                        <img
-                            ref={imgRef}
-                            src={detectionResult.originalImageUrl}
-                            alt="Detected faces"
-                            className="max-w-full rounded-lg border"
-                        />
+                <div className="p-6 space-y-6">
+                    {/* Ảnh và chú thích */}
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:space-x-6 space-y-4 lg:space-y-0">
+                        {/* Ảnh và bounding boxes */}
+                        <div className="w-full lg:w-auto flex justify-center">
+                            <div className="relative inline-block">
+                                <img
+                                    ref={imgRef}
+                                    src={detectionResult.originalImageUrl}
+                                    alt="Detected faces"
+                                    className="max-w-full rounded-lg border"
+                                />
 
-                        {/* Bounding boxes */}
-                        {processedFaces.map((face) => {
-                            const isIdentified = face.userId !== "Không xác định"
-                            const isAssigned = isFaceAssigned(face.faceId)
-                            const isSelected = selectedFace?.faceId === face.faceId
-                            const assignedPlayer = assignedPlayers[face.faceId]
+                                {/* Bounding boxes */}
+                                {processedFaces.map((face) => {
+                                    const isIdentified = face.userId !== "Không xác định"
+                                    const isAssigned = isFaceAssigned(face.faceId)
+                                    const isSelected = selectedFace?.faceId === face.faceId
+                                    const assignedPlayer = assignedPlayers[face.faceId]
 
-                            return (
-                                <div key={face.faceId}>
-                                    {/* Bounding box */}
-                                    <div
-                                        className={`absolute border-2 cursor-pointer ${isIdentified
-                                            ? 'border-green-500 bg-green-500/20'
-                                            : isAssigned
-                                                ? 'border-blue-500 bg-blue-500/20'
-                                                : isSelected
-                                                    ? 'border-yellow-500 bg-yellow-500/20'
-                                                    : 'border-red-500'
-                                            }`}
-                                        style={{
-                                            left: `${face.boundingBox.left * 100}%`,
-                                            top: `${face.boundingBox.top * 100}%`,
-                                            width: `${face.boundingBox.width * 100}%`,
-                                            height: `${face.boundingBox.height * 100}%`,
-                                        }}
-                                        onClick={() => handleSelectFace(face)}
-                                    />
+                                    return (
+                                        <div key={face.faceId}>
+                                            {/* Bounding box */}
+                                            <div
+                                                className={`absolute border-2 cursor-pointer ${isIdentified
+                                                    ? 'border-green-500 bg-green-500/20'
+                                                    : isAssigned
+                                                        ? 'border-blue-500 bg-blue-500/20'
+                                                        : isSelected
+                                                            ? 'border-yellow-500 bg-yellow-500/20'
+                                                            : 'border-red-500'
+                                                    }`}
+                                                style={{
+                                                    left: `${face.boundingBox.left * 100}%`,
+                                                    top: `${face.boundingBox.top * 100}%`,
+                                                    width: `${face.boundingBox.width * 100}%`,
+                                                    height: `${face.boundingBox.height * 100}%`,
+                                                }}
+                                                onClick={() => handleSelectFace(face)}
+                                            />
 
-                                    {/* Face label */}
-                                    <div
-                                        className={`absolute px-2 py-1 rounded text-sm flex items-center ${isIdentified
-                                            ? 'bg-green-100 text-green-800'
-                                            : isAssigned
-                                                ? 'bg-blue-100 text-blue-800'
-                                                : isSelected
-                                                    ? 'bg-yellow-100 text-yellow-800'
-                                                    : 'bg-red-100 text-red-800'
-                                            }`}
-                                        style={{
-                                            left: `${face.boundingBox.left * 100}%`,
-                                            top: `${(face.boundingBox.top + face.boundingBox.height) * 100}%`,
-                                            transform: 'translateY(0.25rem)'
-                                        }}
-                                    >
-                                        {isIdentified ? (
-                                            face.username
-                                        ) : isAssigned ? (
-                                            <>
-                                                {assignedPlayer.fullName}
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        removeAssignment(face.faceId)
-                                                    }}
-                                                    className="ml-2"
-                                                >
-                                                    <X className="h-4 w-4 text-red-600" />
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                {isSelected ? "Đang chọn..." : "Chưa xác định"}
-                                            </>
-                                        )}
-                                    </div>
-
-                                    {/* Player selection dropdown */}
-                                    {!isIdentified && !isAssigned && isSelected && (
-                                        <div
-                                            className="absolute z-10 mt-1 w-64 rounded-md bg-white shadow-lg"
-                                            style={{
-                                                left: `${face.boundingBox.left * 100}%`,
-                                                top: `${(face.boundingBox.top + face.boundingBox.height) * 100}%`,
-                                                transform: 'translateY(0.5rem)'
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            <div className="p-2 border-b">
-                                                <div className="relative">
-                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Tìm kiếm cầu thủ..."
-                                                        className="pl-10 pr-4 py-2 w-full text-sm border-none focus:ring-0"
-                                                        value={searchTerm}
-                                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="py-1 max-h-60 overflow-auto">
-                                                {filteredPlayers.length > 0 ? (
-                                                    filteredPlayers.map(player => (
-                                                        <div
-                                                            key={player.userId}
-                                                            className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                                                            onClick={() => assignPlayerToFace(player)}
+                                            {/* Face label */}
+                                            <div
+                                                className={`absolute px-2 py-1 rounded text-sm flex items-center ${isIdentified
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : isAssigned
+                                                        ? 'bg-blue-100 text-blue-800'
+                                                        : isSelected
+                                                            ? 'bg-yellow-100 text-yellow-800'
+                                                            : 'bg-red-100 text-red-800'
+                                                    }`}
+                                                style={{
+                                                    left: `${face.boundingBox.left * 100}%`,
+                                                    top: `${(face.boundingBox.top + face.boundingBox.height) * 100}%`,
+                                                    transform: 'translateY(0.25rem)'
+                                                }}
+                                            >
+                                                {isIdentified ? (
+                                                    face.username
+                                                ) : isAssigned ? (
+                                                    <>
+                                                        {assignedPlayer.fullName}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                removeAssignment(face.faceId)
+                                                            }}
+                                                            className="ml-2"
                                                         >
-                                                            {player.fullName} ({player.username})
-                                                        </div>
-                                                    ))
+                                                            <X className="h-4 w-4 text-red-600" />
+                                                        </button>
+                                                    </>
                                                 ) : (
-                                                    <div className="px-4 py-2 text-sm text-gray-500">
-                                                        Không tìm thấy cầu thủ phù hợp
-                                                    </div>
+                                                    <>
+                                                        {isSelected ? "Đang chọn..." : "Chưa xác định"}
+                                                    </>
                                                 )}
                                             </div>
+
+                                            {/* Player selection dropdown */}
+                                            {!isIdentified && !isAssigned && isSelected && (
+                                                <div
+                                                    className="absolute z-10 mt-1 w-64 rounded-md bg-white shadow-lg"
+                                                    style={{
+                                                        left: `${face.boundingBox.left * 100}%`,
+                                                        top: `${(face.boundingBox.top + face.boundingBox.height) * 100}%`,
+                                                        transform: 'translateY(0.5rem)'
+                                                    }}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <div className="p-2 border-b">
+                                                        <div className="relative">
+                                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Tìm kiếm cầu thủ..."
+                                                                className="pl-10 pr-4 py-2 w-full text-sm border-none focus:ring-0"
+                                                                value={searchTerm}
+                                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="py-1 max-h-60 overflow-auto">
+                                                        {filteredPlayers.length > 0 ? (
+                                                            filteredPlayers.map(player => (
+                                                                <div
+                                                                    key={player.userId}
+                                                                    className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                                                                    onClick={() => assignPlayerToFace(player)}
+                                                                >
+                                                                    {player.fullName} ({player.username})
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div className="px-4 py-2 text-sm text-gray-500">
+                                                                Không tìm thấy cầu thủ phù hợp
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-                            )
-                        })}
+                                    )
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Chú thích khung màu */}
+                        <div className="text-sm text-gray-600 w-full lg:w-72">
+                            <p>• <span className="text-green-600">Khung xanh</span>: Đã xác định tự động</p>
+                            <p>• <span className="text-blue-600">Khung xanh dương</span>: Đã gán thủ công</p>
+                            <p>• <span className="text-yellow-600">Khung vàng</span>: Đang được chọn</p>
+                            <p>• <span className="text-red-600">Khung đỏ</span>: Chưa xác định</p>
+                        </div>
                     </div>
 
-                    <div className="mt-4 text-sm text-gray-600">
-                        <p>• <span className="text-green-600">Khung xanh</span>: Đã xác định tự động</p>
-                        <p>• <span className="text-blue-600">Khung xanh dương</span>: Đã gán thủ công</p>
-                        <p>• <span className="text-yellow-600">Khung vàng</span>: Đang được chọn</p>
-                        <p>• <span className="text-red-600">Khung đỏ</span>: Chưa xác định</p>
-                    </div>
-
-                    {/* Assigned players summary */}
+                    {/* Danh sách cầu thủ đã gán */}
                     {Object.keys(assignedPlayers).length > 0 && (
-                        <div className="mt-6 border-t pt-4">
+                        <div className="border-t pt-4">
                             <h4 className="font-medium mb-2">Cầu thủ đã gán thủ công:</h4>
                             <div className="space-y-2">
                                 {Object.entries(assignedPlayers).map(([faceId, player]) => (

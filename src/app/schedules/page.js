@@ -465,10 +465,10 @@ export default function SchedulePage() {
                                         </svg>
                                         <span>{session.courtName}</span>
                                       </div>
-                                      <div className="flex items-center">
+                                      {user?.roleCode === "Parent" && <div className="flex items-center">
                                         <FaChild className="mr-1.5 h-4 w-4" />
                                         <span>{session.playerName}</span>
-                                      </div>
+                                      </div>}
                                       <div className="flex items-center justify-end ml-auto">
                                         <svg
                                           className={`mr-1.5 h-4 w-4 ${session.attendanceStatus === 1 || session.attendanceStatus === 0

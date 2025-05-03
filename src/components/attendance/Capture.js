@@ -86,6 +86,9 @@ const CameraCapture = ({ handleAICapture }) => {
     } catch (error) {
       console.error("Error uploading image:", error);
       addToast({type: "error", message: error?.response?.data?.errors[0] || "Có lỗi xảy ra trong quá trình gửi ảnh"})
+      if(error?.response?.data?.errors[0] === "Crop rectangle should be smaller than the source bounds. (Parameter 'cropRectangle')") {
+        addToast({type: "error", message: "Vui lòng không đứng quá gần mép ảnh"})
+      }
     } finally {
       setShowModal(false)
       setCapturedImage(null)
