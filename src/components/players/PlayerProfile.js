@@ -37,6 +37,7 @@ import { useToasts } from "@/hooks/providers/ToastProvider"
 import { DatePicker } from "../ui/DatePicker"
 import { useAuth } from "@/hooks/context/AuthContext"
 import RemoveConfirmDialog from "../ui/RemoveConfirmDialog"
+import { ParentListModal } from "./ParentModal"
 
 export default function PlayerDetailPage() {
   const [player, setPlayer] = useState({
@@ -62,13 +63,18 @@ export default function PlayerDetailPage() {
   const { addToast } = useToasts()
   const [deletedId, setDeletedId] = useState(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [parents, setParents] = useState([]);
+  const [isParentModalOpen, setIsParentModalOpen] = useState(false);
+  const [isUpdatingParent, setUpdatingParent] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth()
-
 
   useEffect(() => {
     if (!id) return
-    fetchPlayerData()
-  }, [id])
+      fetchPlayerData()
+      fetchParent()
+      setUpdatingParent(false)
+  }, [id, isUpdatingParent])
 
   const fetchPlayerData = async () => {
     try {
@@ -95,6 +101,15 @@ export default function PlayerDetailPage() {
     }
   }
 
+  const fetchParent = async () => {
+    try {
+      const response = await parentApi.getParentList({})
+      setParents(response?.data.data)
+    } catch (error) {
+      console.error("Error fetching parent data:", error)
+    }
+  }
+
   const formatDate = (dateString) => {
     if (!dateString) return "Không có thông tin"
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -111,12 +126,13 @@ export default function PlayerDetailPage() {
   // Parent form state
   const [parentForm, setParentForm] = useState({
     citizenId: "",
-    username: "",
     fullname: "",
     email: "",
     phone: "",
     address: "",
     dateOfBirth: null,
+    playerId: player.userId,
+    profileImage: null,
   })
 
   // Function to handle form input changes
@@ -149,14 +165,23 @@ export default function PlayerDetailPage() {
   }
 
   // Function to handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Format the date if it exists
     const formData = {
       ...parentForm,
       dateOfBirth: date ? format(date, "yyyy-MM-dd") : null,
+      playerId: player.userId,
+      profileImage: null
     }
 
-    console.log("Thêm phụ huynh với dữ liệu:", formData)
+    try {
+      const response = await parentApi.createParent(formData)
+      setLoading(false)
+      addToast({ message: response.data.message, type: "success" })
+    } catch (error) {
+      console.error("Error adding parent:", error)
+      addToast({ message: error?.response?.data.message, type: "error" })
+    }
     setParent({ ...parentForm })
     setHasParent(true)
     setIsModalOpen(false)
@@ -168,6 +193,19 @@ export default function PlayerDetailPage() {
   const handleGoBack = () => {
     router.back()
   }
+
+  const handleSelectParent = async (parent) => {
+    setIsParentModalOpen(false);
+    // Thực hiện logic gán phụ huynh ở đây
+    try {
+      const response = await parentApi.addParent(player.userId, parent?.userId);
+      setHasParent(true)
+      setUpdatingParent(!isUpdatingParent)
+      addToast({ message: response.data.message, type: "success" });
+    } catch (error) {
+      console.error("Error selecting parent:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -306,11 +344,6 @@ export default function PlayerDetailPage() {
                       Thông Tin Đội
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3">
-                      {/* <div className="flex items-center gap-3">
-                        <Users className="w-5 h-5 text-[#BD2427]" />
-                        <span className="font-medium">Mã đội:</span>
-                        <span>{player.teamId}</span>
-                      </div> */}
                       <div className="flex items-center gap-3">
                         <Users className="w-5 h-5 text-[#BD2427]" />
                         <span className="font-medium">Tên đội:</span>
@@ -343,15 +376,26 @@ export default function PlayerDetailPage() {
                             Gỡ Phụ Huynh
                           </Button>
                         ) : (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-[#BD2427] border-[#BD2427] hover:bg-[#BD2427]/10"
-                            onClick={handleAddParent}
-                          >
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Thêm Phụ Huynh
-                          </Button>
+                          <div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-[#BD2427] border-[#BD2427] hover:bg-[#BD2427]/10 mr-2"
+                            onClick={() => setIsParentModalOpen(true)}
+                            >
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Gán phụ huynh
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-[#BD2427] border-[#BD2427] hover:bg-[#BD2427]/10"
+                              onClick={handleAddParent}
+                            >
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Thêm Phụ Huynh
+                            </Button>
+                          </div>
                         )}
                       </div>}
                     </div>
@@ -428,18 +472,6 @@ export default function PlayerDetailPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="username">Tên đăng nhập</Label>
-                <Input
-                  id="username"
-                  name="username"
-                  placeholder="Nhập tên đăng nhập (email)"
-                  type="email"
-                  value={parentForm.username}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -483,7 +515,7 @@ export default function PlayerDetailPage() {
             <Button variant="outline" onClick={() => setIsModalOpen(false)}>
               Hủy
             </Button>
-            <Button onClick={handleSubmit} className="bg-[#BD2427] hover:bg-[#BD2427]/90" disabled={!parentForm.username || !parentForm.fullname || !parentForm.email || !parentForm.phone || !parentForm.address || !parentForm.citizenId}>
+            <Button onClick={handleSubmit} className="bg-[#BD2427] hover:bg-[#BD2427]/90" disabled={loading || !parentForm.fullname || !parentForm.email || !parentForm.phone || !parentForm.address || !parentForm.citizenId}>
               Thêm Phụ Huynh
             </Button>
           </DialogFooter>
@@ -499,6 +531,14 @@ export default function PlayerDetailPage() {
         deleteConfirmOpen={isDeleteDialogOpen}
         context={`phụ huynh ${parent.fullname}`}
         deletedId={deletedId} />}
+
+      {isParentModalOpen && (
+        <ParentListModal
+          parents={parents}
+          onSelectParent={handleSelectParent}
+          onClose={() => setIsParentModalOpen(false)}
+        />
+      )}
     </div>
   )
 }
