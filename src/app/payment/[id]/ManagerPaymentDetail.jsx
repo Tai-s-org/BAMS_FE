@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/Badge"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/Dialog"
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import Link from "next/link"
-import { ArrowLeft, FileText, DollarSign, Users, Clock, Plus, Pencil, Save, Trash2, Check } from "lucide-react"
+import { ArrowLeft, FileText, Users, Clock, Plus, Pencil, Save, Trash2, Check, CheckCircle, BanknoteIcon, Calendar } from "lucide-react"
 import { DatePicker } from "@/components/ui/DatePicker"
 import teamFundApi from "@/api/teamFund"
 
@@ -51,22 +52,22 @@ export default function ManagerReportDetail({ id }) {
     const [showSaveDialog, setShowSaveDialog] = useState(false)
     const [isSaved, setIsSaved] = useState(false)
 
-    useEffect(() => {
-        const fetchExpenseItems = async () => {
-            try {
-                const response = await teamFundApi.listExpenditure(id);
-                console.log("Fetched expense items:", response.data);
+    const fetchExpenseItems = async () => {
+        try {
+            const response = await teamFundApi.listExpenditure(id);
+            console.log("Fetched expense items:", response.data);
 
-                setExpenseItems(response.data.data.items)
+            setExpenseItems(response.data.data.items)
 
-                const teamFundResponse = await teamFundApi.teamFundById(id);
-                console.log("Fetched teamFund:", teamFundResponse.data.data);
-                setTeamFund(teamFundResponse.data.data[0])
-            } catch (error) {
-                console.error("Error fetching expense items:", error)
-            }
+            const teamFundResponse = await teamFundApi.teamFundById(id);
+            console.log("Fetched teamFund:", teamFundResponse.data.data);
+            setTeamFund(teamFundResponse.data.data[0])
+        } catch (error) {
+            console.error("Error fetching expense items:", error)
         }
+    }
 
+    useEffect(() => {
         fetchExpenseItems();
     }, [id])
 
@@ -147,24 +148,21 @@ export default function ManagerReportDetail({ id }) {
     const saveChanges = async () => {
         const newItems = expenseItems.filter((item) => item.isNew)
         // In a real app, you would call your APIs here
-        console.log("Updated items to send to API:", updatedItems)
-        console.log("New items to send to API:", newItems)
+        console.log("Updated items to send to API:", updatedItems.length)
+        console.log("New items to send to API:", newItems.length)
         try {
             if (updatedItems.length > 0) {
                 const response = await teamFundApi.updateExpenditure(id, updatedItems);
-                console.log("update: ", response.data.data);
-
+                console.log("update: ", response.data);
             }
             if (newItems.length > 0) {
                 const response = await teamFundApi.addExpenditure(id, newItems);
-                console.log("update: ", response.data.data);
-
+                console.log("new: ", response.data);
             }
         } catch (err) {
 
         }
-
-
+        fetchExpenseItems();
         setIsSaved(true)
         setShowSaveDialog(false)
 
@@ -190,14 +188,15 @@ export default function ManagerReportDetail({ id }) {
     return (
         <div className="container mx-auto py-6">
             <div className="flex items-center mb-6">
-                <Link href="/dashboard/payment">
-                    <Button variant="ghost" size="sm" className="gap-1">
-                        <ArrowLeft className="h-4 w-4" /> Quay lại danh sách
+                <Link href="/payment">
+                    <Button variant="ghost" size="sm" className="gap-1 hover:bg-[#F4F4F5]">
+                        <ArrowLeft className="h-4 w-4" /> Quay lại
                     </Button>
                 </Link>
-                {isApproved && <Badge className="ml-4 bg-green-500">Approved</Badge>}
-                {isPending && <Badge className="ml-4 bg-yellow-500">Pending</Badge>}
-                {isSaved && <Badge className="ml-4 bg-blue-500">Changes Saved</Badge>}
+                <h1 className="text-2xl font-bold ml-4">Báo cáo quỹ đội #{id}</h1>
+                {(teamFund?.status === 1) && <Badge className="ml-4 bg-green-500 text-white">Đã duyệt</Badge>}
+                {(teamFund?.status === 0) && <Badge className="ml-4 bg-yellow-500 text-white">Chưa duyệt</Badge>}
+                {isSaved && <Badge className="ml-4 bg-blue-500 text-white">Đã lưu thay đổi</Badge>}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -214,7 +213,7 @@ export default function ManagerReportDetail({ id }) {
                                     {formatDate(teamFund?.endDate)}
                                 </CardDescription>
                             </div>
-                            {!isApproved && (
+                            {teamFund?.status === 0 && (
                                 <Button onClick={() => setShowSaveDialog(true)} className="gap-1">
                                     <Save className="h-4 w-4" /> Lưu thay đổi
                                 </Button>
@@ -235,14 +234,14 @@ export default function ManagerReportDetail({ id }) {
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="font-medium">Danh mục chi tiêu</h3>
                                         {!isApproved && (
-                                            <Button variant="outline" size="sm" onClick={addNewItem} className="gap-1">
+                                            <Button variant="outline" size="sm" onClick={addNewItem} className="gap-1 hover:bg-[#F4F4F5]">
                                                 <Plus className="h-4 w-4" /> Thêm danh mục
                                             </Button>
                                         )}
                                     </div>
 
                                     <div className="space-y-4">
-                                        {expenseItems.map((item) => (
+                                        {/* {expenseItems.map((item) => (
                                             <div key={item.id} className="border rounded-md p-4">
                                                 {item.isEditing ? (
                                                     <div className="grid grid-cols-12 gap-1">
@@ -315,51 +314,143 @@ export default function ManagerReportDetail({ id }) {
 
                                         <div className="flex justify-end mt-4">
                                             <div className="text-lg font-medium">Tổng: {formatTienVN(calculateTotal())} VNĐ</div>
+                                        </div> */}
+
+                                        <div className="rounded-lg border overflow-hidden">
+                                            <Table>
+                                                <TableHeader className="bg-slate-50">
+                                                    <TableRow>
+                                                        <TableHead className="w-5/12">Danh mục</TableHead>
+                                                        <TableHead className="w-3/12 text-right">Số tiền</TableHead>
+                                                        <TableHead className="w-2/12">Ngày chi tiêu</TableHead>
+                                                        <TableHead className="w-2/12 text-right">Thao tác</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {expenseItems.map((item) => (
+                                                        <TableRow key={item.id} className="hover:bg-slate-50">
+                                                            {item.isEditing ? (
+                                                                <>
+                                                                    <TableCell>
+                                                                        <Input
+                                                                            id={`item-name-${item.id}`}
+                                                                            value={item.name || ""}
+                                                                            onChange={(e) =>
+                                                                                item.isNew
+                                                                                    ? updateNewItem(item.id, "name", e.target.value)
+                                                                                    : updateItem(item.id, "name", e.target.value)
+                                                                            }
+                                                                            className="w-full"
+                                                                        />
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <Input
+                                                                            id={`item-amount-${item.id}`}
+                                                                            type="number"
+                                                                            value={item.amount || ""}
+                                                                            onChange={(e) => updateItem(item.id, "amount", e.target.value)}
+                                                                            placeholder="0"
+                                                                            className="w-full text-right"
+                                                                        />
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <DatePicker
+                                                                            value={item.date ? new Date(item.date) : null}
+                                                                            onChange={(date) => updateItem(item.id, "date", date)}
+                                                                            placeholder="Chọn ngày"
+                                                                        />
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <div className="flex justify-end gap-1">
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                onClick={() => toggleEditMode(item.id)}
+                                                                                className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                                            >
+                                                                                <Check className="h-4 w-4" />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                onClick={() => removeItem(item.id)}
+                                                                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                                            >
+                                                                                <Trash2 className="h-4 w-4" />
+                                                                            </Button>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <TableCell className="font-medium">{item.name}</TableCell>
+                                                                    <TableCell className="text-right font-medium">
+                                                                        {formatTienVN(item.amount)} VNĐ
+                                                                    </TableCell>
+                                                                    <TableCell>{formatDate(item.date)}</TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        {!isApproved && (
+                                                                            <div className="flex justify-end gap-1">
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    onClick={() => toggleEditMode(item.id)}
+                                                                                    className="h-8 w-8 text-slate-600 hover:text-slate-700 hover:bg-slate-100"
+                                                                                >
+                                                                                    <Pencil className="h-4 w-4" />
+                                                                                </Button>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    onClick={() => removeItem(item.id)}
+                                                                                    className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                                                >
+                                                                                    <Trash2 className="h-4 w-4" />
+                                                                                </Button>
+                                                                            </div>
+                                                                        )}
+                                                                    </TableCell>
+                                                                </>
+                                                            )}
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                                <TableFooter>
+                                                    <TableRow className="bg-slate-50">
+                                                        <TableCell className="font-bold">Tổng</TableCell>
+                                                        <TableCell className="text-right font-bold">{formatTienVN(calculateTotal())} VNĐ</TableCell>
+                                                        <TableCell></TableCell>
+                                                        <TableCell></TableCell>
+                                                    </TableRow>
+                                                </TableFooter>
+                                            </Table>
                                         </div>
                                     </div>
                                 </div>
-
-                                <Separator />
-
-                                <div>
-                                    <h3 className="font-medium mb-2">Số thành viên hiện tại (4)</h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        Mỗi thành viên sẽ đóng {formatTienVN((calculateTotal() / 4))} VNĐ sau khi được duyệt.
-                                    </p>
-                                </div>
-
-                                <Separator />
-
-                                {isApproved && (
-                                    <>
-                                        <Separator />
-                                        <div>
-                                            <h3 className="font-medium mb-2">President Comment</h3>
-                                            <p className="text-sm text-muted-foreground">
-                                                Approved. All expenses are valid and within budget.
-                                            </p>
-                                        </div>
-                                    </>
-                                )}
+                                {/* <Separator />
+                                <Separator /> */}
                             </div>
                         </CardContent>
-                        <CardFooter className="flex justify-end">
-                            {isPending ? (
+                        <CardFooter className="flex justify-end gap-2 bg-slate-50 border-t p-4">
+                            {teamFund?.status === 0 ? (
                                 <div className="flex items-center text-yellow-500 gap-1">
                                     <Clock className="h-4 w-4" />
-                                    <span>Waiting for President Approval</span>
+                                    <span>Đang chờ chủ tịch phê duyệt</span>
                                 </div>
                             ) : (
-                                <div className="flex items-center text-green-500 gap-1">
-                                    <Badge className="bg-green-500">Approved</Badge>
-                                </div>
+                                teamFund?.status === 1 && (
+                                    <div className="flex items-center text-green-500 gap-1">
+                                        <CheckCircle className="h-4 w-4 text-green-600" />
+                                        <span>Đã duyệt</span>
+                                    </div>
+                                )
                             )}
                         </CardFooter>
                     </Card>
                 </div>
 
                 <div>
-                    <Card>
+                    {/* <Card>
                         <CardHeader>
                             <CardTitle>Report Status</CardTitle>
                         </CardHeader>
@@ -370,7 +461,6 @@ export default function ManagerReportDetail({ id }) {
                                     <span className="text-sm">{teamFund?.teamName}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    {/* <DollarSign className="h-4 w-4 text-muted-foreground" /> */}
                                     <span className="text-sm">Tổng: {formatTienVN(calculateTotal())} VNĐ</span>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -430,7 +520,7 @@ export default function ManagerReportDetail({ id }) {
                                     </div>
                                 )}
 
-                                {isPending && (
+                                {teamFund?.status === 0 && (
                                     <div>
                                         <h3 className="text-sm font-medium mb-2">Approval Timeline</h3>
                                         <div className="space-y-2 text-sm">
@@ -447,29 +537,100 @@ export default function ManagerReportDetail({ id }) {
                                 )}
                             </div>
                         </CardContent>
+                    </Card> */}
+                    <Card className="shadow-sm">
+                        <CardHeader className="bg-slate-50 border-b">
+                            <CardTitle>Trạng thái báo cáo</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-md border">
+                                    <div className="bg-blue-100 p-2 rounded-full">
+                                        <Users className="h-4 w-4 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-medium">Đội</div>
+                                        <div className="font-medium">{teamFund?.teamName}</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-md border">
+                                    <div className="bg-green-100 p-2 rounded-full">
+                                        <BanknoteIcon className="h-4 w-4 text-green-600" />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-medium">Tổng chi phí</div>
+                                        <div className="text-lg font-bold">{formatTienVN(calculateTotal())} VNĐ</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3 p-3 rounded-md border">
+                                    <div className="bg-slate-100 p-2 rounded-full">
+                                        <Calendar className="h-4 w-4 text-slate-600" />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-medium">Ngày hoàn thành</div>
+                                        <div className="font-medium">{formatDate(teamFund?.endDate)}</div>
+                                    </div>
+                                </div>
+                                {teamFund?.status === 1 && (
+                                    <div className="flex items-center gap-3 p-3 rounded-md border">
+                                        <div className="bg-green-100 p-2 rounded-full">
+                                            <Clock className="h-4 w-4 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-medium">Được duyệt ngày</div>
+                                            <div className="font-medium text-green-600">{formatDate(teamFund?.endDate)}</div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <Separator />
+
+                                {teamFund?.status === 0 && (
+                                    <div>
+                                        <h3 className="text-sm font-medium mb-3 text-slate-800">Thời gian phê duyệt</h3>
+                                        <div className="space-y-2 text-sm">
+                                            <div className="grid grid-cols-2 p-2 bg-slate-50 rounded-md">
+                                                <div className="text-muted-foreground">Hoàn tất:</div>
+                                                <div className="font-medium">{formatDate(teamFund?.endDate)}</div>
+                                            </div>
+                                            <div className="grid grid-cols-2 p-2 bg-slate-50 rounded-md">
+                                                <div className="text-muted-foreground">Dự kiến duyệt:</div>
+                                                <div className="font-medium">
+                                                    {formatDate(new Date(new Date(teamFund?.endDate).getTime() + 10 * 24 * 60 * 60 * 1000))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
                     </Card>
                 </div>
             </div>
 
             <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-                <DialogContent>
+                <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Save Changes</DialogTitle>
-                        <DialogDescription>Are you sure you want to save these changes to the expense report?</DialogDescription>
+                        <DialogTitle>Lưu thay đổi</DialogTitle>
+                        <DialogDescription>Bạn có chắc chắn muốn lưu những thay đổi này cho báo cáo chi phí?</DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
-                        <p className="font-medium">Summary of Changes:</p>
-                        {updatedItems.length > 0 && <p>{updatedItems.length} item(s) updated</p>}
+                        <p className="font-medium">Tóm tắt thay đổi:</p>
+                        {updatedItems.length > 0 && <p>{updatedItems.length} mục đã cập nhật</p>}
                         {newItems.filter((item) => expenseItems.some((e) => e.id === item.id)).length > 0 && (
-                            <p>{newItems.filter((item) => expenseItems.some((e) => e.id === item.id)).length} new item(s) added</p>
+                            <p>{newItems.filter((item) => expenseItems.some((e) => e.id === item.id)).length} mục mới đã thêm</p>
                         )}
-                        <p className="mt-2">New Total: ${calculateTotal()}</p>
+                        <p className="mt-2">Tổng mới: {formatTienVN(calculateTotal())} VNĐ</p>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
-                            Cancel
+                            Hủy
                         </Button>
-                        <Button onClick={saveChanges}>Save Changes</Button>
+                        <Button onClick={saveChanges} className="bg-green-600 hover:bg-green-700">
+                            Lưu thay đổi
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

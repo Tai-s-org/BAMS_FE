@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Label } from "@/components/ui/Label"
@@ -9,11 +9,12 @@ import registerApi from "@/api/register"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 import { useRouter } from "next/navigation"
 import { Dialog } from "@/components/ui/Dialog"
+import { TextEditor } from "@/components/ui/TextEditor"
 
 export default function ManagerRegistrationForm({ isOpen, onClose, email, sessionId, data }) {
-    const { addToast } = useToasts();
-    const router = useRouter();
-    const [registrationSessionId, setRegistrationSessionId] = useState("");
+    const { addToast } = useToasts()
+    const router = useRouter()
+    const [registrationSessionId, setRegistrationSessionId] = useState("")
     const [formData, setFormData] = useState({
         fullName: "",
         generationAndSchoolName: "",
@@ -26,58 +27,73 @@ export default function ManagerRegistrationForm({ isOpen, onClose, email, sessio
         experienceAsAmanager: "",
         strength: "",
         weaknessAndItSolution: "",
-    });
+    })
 
-    if (data) {
-        console.log("data from localStorage", data);
-
-    }
     // Load localStorage và gán vào formData
     useEffect(() => {
         if (data) {
             // Nếu có data => set vào form luôn
-            setFormData(prev => ({
+            setFormData((prev) => ({
                 ...prev,
                 ...data,
                 email: email || "", // vẫn ưu tiên email từ props
-            }));
+                memberRegistrationSessionId: sessionId || "",
+            }))
         } else {
             // Nếu không có data => chỉ set email và session
-            setFormData(prev => ({
+            setFormData((prev) => ({
                 ...prev,
                 email: email || "",
-            }));
+                memberRegistrationSessionId: sessionId || "",
+            }))
         }
-        setRegistrationSessionId(sessionId || "");
-    }, [data, email, sessionId]);
+        setRegistrationSessionId(sessionId || "")
+    }, [data, email, sessionId])
 
     const handleChange = (e) => {
         const { name, value } = e.target
         setFormData((prevData) => ({
             ...prevData,
-            [name]: value
+            [name]: value,
+        }))
+    }
+
+    const handleDescriptionChange = (name, content) => {
+        setFormData((prev) => ({
+            ...prev,
+            [name]: content,
         }))
     }
 
     const handleSubmit = async (e) => {
         if (registrationSessionId) {
             e.preventDefault()
-            console.log(formData, " memberRegistrationSessionId:", registrationSessionId,);
-
             try {
-                const response = await registerApi.managerRegister({
-                    ...formData,
-                    "memberRegistrationSessionId": registrationSessionId,
-                })
-                console.log(response.data);
-                addToast({ message: response.data.message, type: "success" });
+                const response = data
+                    ? await registerApi.updateManagerForm({
+                        ...formData,
+                        memberRegistrationSessionId: registrationSessionId,
+                    })
+                    : await registerApi.managerRegister({
+                        ...formData,
+                        memberRegistrationSessionId: registrationSessionId,
+                    })
+                addToast({ message: response.data.message, type: "success" })
+                setTimeout(() => {
+                    router.push("/");
+                }, 1500);
             } catch (error) {
-                addToast({ message: error.data.message, type: "error" });
+                if (error.response.data?.message === null) {
+                    Object.entries(error.response.data?.errors).forEach(([key, value]) => {
+                        const msg = String(`${key}: ${value}`).split(":")[1]?.trim();
+                        addToast({ message: value, type: "error" });
+                    });
+                } else {
+                    addToast({ message: error.response.data?.message, type: "error" });
+                }
             }
-            router.push("/");
         }
     }
-
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -91,20 +107,32 @@ export default function ManagerRegistrationForm({ isOpen, onClose, email, sessio
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="fullName">Họ và Tên</Label>
+                                <Label htmlFor="fullName">Họ và Tên<span className="text-red-600">*</span></Label>
                                 <Input id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} required />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="generationAndSchoolName">Khóa và Tên Trường</Label>
-                                <Input id="generationAndSchoolName" name="generationAndSchoolName" value={formData.generationAndSchoolName} onChange={handleChange} required />
+                                <Label htmlFor="generationAndSchoolName">Khóa và Tên Trường<span className="text-red-600">*</span></Label>
+                                <Input
+                                    id="generationAndSchoolName"
+                                    name="generationAndSchoolName"
+                                    value={formData.generationAndSchoolName}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="phoneNumber">Số Điện Thoại</Label>
-                                <Input id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
+                                <Label htmlFor="phoneNumber">Số Điện Thoại<span className="text-red-600">*</span></Label>
+                                <Input
+                                    id="phoneNumber"
+                                    name="phoneNumber"
+                                    value={formData.phoneNumber}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </div>
 
                             <div className="space-y-2">
@@ -115,7 +143,12 @@ export default function ManagerRegistrationForm({ isOpen, onClose, email, sessio
 
                         <div className="space-y-2">
                             <Label htmlFor="facebookProfileUrl">URL Facebook</Label>
-                            <Input id="facebookProfileUrl" name="facebookProfileUrl" value={formData.facebookProfileUrl} onChange={handleChange} />
+                            <Input
+                                id="facebookProfileUrl"
+                                name="facebookProfileUrl"
+                                value={formData.facebookProfileUrl}
+                                onChange={handleChange}
+                            />
                         </div>
                     </div>
 
@@ -127,12 +160,20 @@ export default function ManagerRegistrationForm({ isOpen, onClose, email, sessio
 
                         <div className="space-y-2">
                             <Label htmlFor="knowledgeAboutAcademy">Bạn biết về học viện của chúng tôi như thế nào?</Label>
-                            <Textarea id="knowledgeAboutAcademy" name="knowledgeAboutAcademy" value={formData.knowledgeAboutAcademy} onChange={handleChange} required />
+                            <TextEditor
+                                content={formData.knowledgeAboutAcademy}
+                                onChange={(content) => handleDescriptionChange("knowledgeAboutAcademy", content)}
+                                placeholder="Bạn biết về học viện của chúng tôi như thế nào?"
+                            />
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="reasonToChooseUs">Tại sao bạn chọn chúng tôi?</Label>
-                            <Textarea id="reasonToChooseUs" name="reasonToChooseUs" value={formData.reasonToChooseUs} onChange={handleChange} required />
+                            <TextEditor
+                                content={formData.reasonToChooseUs}
+                                onChange={(content) => handleDescriptionChange("reasonToChooseUs", content)}
+                                placeholder="Tại sao bạn chọn chúng tôi?"
+                            />
                         </div>
                     </div>
 
@@ -143,32 +184,56 @@ export default function ManagerRegistrationForm({ isOpen, onClose, email, sessio
                         </h3>
 
                         <div className="space-y-2">
-                            <Label htmlFor="knowledgeAboutAmanager">Kiến thức về việc làm quản lý</Label>
-                            <Textarea id="knowledgeAboutAmanager" name="knowledgeAboutAmanager" value={formData.knowledgeAboutAmanager} onChange={handleChange} required />
+                            <Label htmlFor="knowledgeAboutAmanager">Kiến thức về việc làm quản lý<span className="text-red-600">*</span></Label>
+                            <TextEditor
+                                content={formData.knowledgeAboutAmanager}
+                                onChange={(content) => handleDescriptionChange("knowledgeAboutAmanager", content)}
+                                placeholder="Kiến thức về việc làm quản lý"
+                                required
+                            />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="experienceAsAmanager">Kinh nghiệm làm quản lý</Label>
-                            <Textarea id="experienceAsAmanager" name="experienceAsAmanager" value={formData.experienceAsAmanager} onChange={handleChange} required />
+                            <Label htmlFor="experienceAsAmanager">Kinh nghiệm làm quản lý<span className="text-red-600">*</span></Label>
+                            <TextEditor
+                                content={formData.experienceAsAmanager}
+                                onChange={(content) => handleDescriptionChange("experienceAsAmanager", content)}
+                                placeholder="Kinh nghiệm làm quản lý"
+                                required
+                            />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="strength">Điểm mạnh</Label>
-                            <Textarea id="strength" name="strength" value={formData.strength} onChange={handleChange} required />
+                            <Label htmlFor="strength">Điểm mạnh<span className="text-red-600">*</span></Label>
+                            <TextEditor
+                                content={formData.strength}
+                                onChange={(content) => handleDescriptionChange("strength", content)}
+                                placeholder="Điểm mạnh"
+                                required
+                            />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="weaknessAndItSolution">Điểm yếu và giải pháp</Label>
-                            <Textarea id="weaknessAndItSolution" name="weaknessAndItSolution" value={formData.weaknessAndItSolution} onChange={handleChange} required />
+                            <Label htmlFor="weaknessAndItSolution">Điểm yếu và giải pháp<span className="text-red-600">*</span></Label>
+                            <TextEditor
+                                content={formData.weaknessAndItSolution}
+                                onChange={(content) => handleDescriptionChange("weaknessAndItSolution", content)}
+                                placeholder="Điểm yếu và giải pháp"
+                                required
+                            />
                         </div>
                     </div>
-
-                    <Button type="submit" className="w-full bg-[#bd2427] hover:bg-[#a01e21]">
-                        Gửi Đăng Ký
-                    </Button>
+                    {data ? (
+                        <Button type="submit" className="w-full bg-[#bd2427] hover:bg-[#a01e21]">
+                            Cập nhật đơn đăng kí
+                        </Button>
+                    ) : (
+                        <Button type="submit" className="w-full bg-[#bd2427] hover:bg-[#a01e21]">
+                            Gửi Đăng Ký
+                        </Button>
+                    )}
                 </form>
             </div>
         </Dialog>
-
     )
 }

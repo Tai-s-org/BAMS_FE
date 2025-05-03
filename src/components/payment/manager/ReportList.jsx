@@ -69,7 +69,7 @@ export function ReportsList({ reports }) {
                                 {report.status === 1 ? "Đã duyệt" : "Chưa duyệt"}
                             </Badge>
                         </div>
-                        <Link href={`/dashboard/payment/${report.teamFundId}`} className="text-blue-500 hover:underline">
+                        <Link href={`/payment/${report.teamFundId}`} className="text-blue-500 hover:underline">
                             <Button variant="ghost" size="icon">
                                 <ArrowRight className="h-4 w-4" />
                             </Button>

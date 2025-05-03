@@ -19,7 +19,7 @@ export default function PlayerSidebar() {
 
     const menuItems = [
         { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
-        { title: "Thanh toán", icon: CreditCard, url: "/dashboard/payment" },
+        { title: "Thanh toán", icon: CreditCard, url: "/payment" },
         { title: "Trận đấu", icon: TbPlayBasketball, url: "/matches" },
         { title: "Lịch tập luyện", icon: BarChart3, url: "/schedules" }
     ];

@@ -25,7 +25,7 @@ export default function CoachSidebar() {
         { title: "Thời khóa biểu", icon: FaCalendarAlt, url: "/schedules" },
         { title: "Danh sách lịch chờ", icon: AiFillSchedule, url: "/confirm-schedule" },
 
-        { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
+        { title: "Đơn đăng kí", icon: FileText, url: "/registration-session-management" },
     ];
 
     return (

@@ -1,7 +1,7 @@
 "use client"
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
-import { ScoreButton } from "../../../demo/score-button"
+import { ScoreButton } from "../../demo/score-button"
 
 export function ScoringTab({ players, onStatusChange }) {
     return (

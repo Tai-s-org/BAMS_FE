@@ -7,7 +7,7 @@ export default function CoachList({ coaches }) {
 
     // Handle view details by navigating to the coach detail page
     const handleViewDetails = (userId) => {
-        router.push(`/dashboard/coach-management/${userId}`)
+        router.push(`/coach-management/${userId}`)
     }
 
     // Format date to display in a more readable format

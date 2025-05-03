@@ -23,13 +23,13 @@ export default function ManagerSidebar() {
 
     const menuItems = [
         { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
-        { title: "Thanh toán", icon: CreditCard, url: "/dashboard/payment" },
+        { title: "Thanh toán", icon: CreditCard, url: "/payment" },
         { title: "Trận đấu", icon: TbPlayBasketball, url: "/matches" },
         { title: "Sân bóng", icon: PiCourtBasketballFill, url: "/courts" },
         { title: "Thời khóa biểu", icon: FaCalendarAlt, url: "/schedules" },
         { title: "Danh sách lịch chờ", icon: AiFillSchedule, url: "/confirm-schedule" },
         { title: "Quản lí khuôn mặt", icon: LuScanFace, url: "/face-id-management" },
-        { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
+        { title: "Đơn đăng kí", icon: FileText, url: "/registration-session-management" },
     ];
 
     return (

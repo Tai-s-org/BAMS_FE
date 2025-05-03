@@ -2,12 +2,12 @@ import React from "react";
 
 const GallerySection = () => {
     const images = [
-        { src: "", alt: "Trận đấu gay cấn" },
-        { src: "", alt: "Khoảnh khắc chiến thắng" },
-        { src: "", alt: "Đội tuyển Yên Hòa Storm" },
-        { src: "", alt: "Huấn luyện viên và cầu thủ" },
-        { src: "", alt: "Khoảnh khắc ăn mừng" },
-        { src: "", alt: "Sân tập Yên Hòa Storm" },
+        { src: "/assets/gallery/gall2.jpg", alt: "Trận đấu gay cấn" },
+        { src: "/assets/gallery/winner1.jpg", alt: "Khoảnh khắc chiến thắng" },
+        { src: "/assets/gallery/gall4.jpg", alt: "Đội tuyển nữ Yên Hòa Storm" },
+        { src: "/assets/gallery/gall1.jpg", alt: "Huấn luyện viên và cầu thủ" },
+        { src: "/assets/gallery/winner2.jpg", alt: "Khoảnh khắc ăn mừng" },
+        { src: "/assets/gallery/gall3.jpg", alt: "Thành viên Yên Hòa Storm" },
     ];
 
     return (
@@ -18,7 +18,7 @@ const GallerySection = () => {
                     {images.map((image, index) => (
                         <div
                             key={index}
-                            className={`relative overflow-hidden ${index % 3 === 0 ? "rounded-tl-3xl rounded-br-3xl" : index % 3 === 1 ? "rounded-full" : "rounded-tr-3xl rounded-bl-3xl"} shadow-lg transform transition-all hover:scale-105`}
+                            className={`relative overflow-hidden ${index === 0 ? "rounded-tl-3xl" : index  === 2 ? "rounded-tr-3xl" : index  === 3 ? "rounded-bl-3xl" : index  === 5 ? "rounded-br-3xl" : ""} shadow-lg transform transition-all hover:scale-105`}
                         >
                             <img
                                 src={image.src || "/placeholder.svg"}

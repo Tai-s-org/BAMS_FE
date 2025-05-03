@@ -16,7 +16,7 @@ export function RegistrationManagementCard({ campaign }) {
     const router = useRouter();
 
     const handleDetailButtonClick = (campaignId) => {
-        router.push(`/dashboard/registration-session-management/${campaignId}`);
+        router.push(`/registration-session-management/${campaignId}`);
         localStorage.setItem("memberRegistrationSessionId", campaignId);
     }
     return (

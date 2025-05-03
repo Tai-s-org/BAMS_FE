@@ -66,6 +66,13 @@ export function setupAxiosInterceptors() {
             //         window.location.href = "/login";
             //     }
             // }
+            
+            console.log(error);
+            
+            if (error.response?.status === 401) {
+                // Nếu token đã hết hạn, redirect về trang đăng nhập
+                window.location.href = "/login";
+            }
 
             return Promise.reject(error);
         }
