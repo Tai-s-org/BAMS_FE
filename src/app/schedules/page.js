@@ -395,9 +395,9 @@ export default function SchedulePage() {
                       <td className="px-6 py-4 text-sm text-gray-500">
                         {daySessions.length > 0 ? (
                           <div className="space-y-4">
-                            {daySessions.map((session) => (
+                            {daySessions.map((session, index) => (
                               <div
-                                key={session.trainingSessionId}
+                                key={index}
                                 className={
                                   session.attendanceStatus === 1
                                     ? "bg-green-600 text-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
