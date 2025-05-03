@@ -15,11 +15,14 @@ import teamApi from "@/api/team";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import { useToasts } from "@/hooks/providers/ToastProvider";
 import attendanceApi from "@/api/attendance";
+import parentApi from "@/api/parent";
+import { FaChild } from "react-icons/fa";
 
 export default function SchedulePage() {
   const { user, userInfo } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [teamFilter, setTeamFilter] = useState(null);
+  const [childFilter, setChildFilter] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [attendanceModalOpen, setAttendanceModalOpen] = useState(false)
   const [selectedSession, setSelectedSession] = useState(null)
@@ -29,12 +32,13 @@ export default function SchedulePage() {
   const [filteredSessions, setFilterSessions] = useState([]);
   const [courts, setCourts] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [children, setChildren] = useState([]);
   const [isModified, setIsModified] = useState(false)
   const { addToast } = useToasts()
 
   useEffect(() => {
     fetchTrainingSessions();
-  }, [currentDate, teamFilter, isModified]);
+  }, [currentDate, teamFilter, isModified, childFilter]);
 
   useEffect(() => {
     setTeamFilter(userInfo?.roleInformation.teamId);
@@ -42,7 +46,12 @@ export default function SchedulePage() {
     if (user?.roleCode === "Coach") {
       fetchTeams();
     }
-    fetchCourts();
+    if (user?.roleCode === "Parent") {
+      fetchChild();
+    }
+    if (user?.roleCode === "Coach") {
+      fetchCourts();
+    }
   }, [userInfo?.roleInformation.teamId]);
 
   const fetchCourts = async () => {
@@ -72,6 +81,19 @@ export default function SchedulePage() {
     }
   }
 
+  const fetchChild = async () => {
+    try {
+      const response = await parentApi.getChildList(user?.userId);
+      console.log(response?.data);
+      setChildren(response?.data.data);
+    } catch (error) {
+      console.error("Error fetching child:", error);
+      if (error.status == 401) {
+        addToast({ message: error?.response?.data.Message, type: "error" });
+      }
+    }
+  }
+
   // Fetch schedule
   const fetchTrainingSessions = async () => {
     try {
@@ -93,34 +115,39 @@ export default function SchedulePage() {
       // Filter sessions for the current week
       const filteredSessions = response?.data.data?.filter((session) => {
         const sessionDate = new Date(session.scheduledDate);
+        let isChild = true
+        if (user?.roleCode === "Parent") {
+          isChild = childFilter ? session?.playerId === childFilter : true
+        }
         const isInWeek = sessionDate >= weekStart && sessionDate <= weekEnd;
         const isInTeam = teamFilter ? session.teamId === teamFilter : true;
-        return isInWeek && isInTeam;
+        return isInWeek && isInTeam && isChild;
       });
       let sessionsWithAttendance
-      if(user?.roleCode === "Coach" || user?.roleCode === "Player") 
-        {sessionsWithAttendance = await Promise.all(
-        filteredSessions.map(async (session) => {
-          try {
-            const attendanceResponse = await attendanceApi.getUserAttendance({
-              trainingSessionId: session.trainingSessionId,
-              userId: user?.userId
-            });
+      if (user?.roleCode === "Coach" || user?.roleCode === "Player") {
+        sessionsWithAttendance = await Promise.all(
+          filteredSessions.map(async (session) => {
+            try {
+              const attendanceResponse = await attendanceApi.getUserAttendance({
+                trainingSessionId: session.trainingSessionId,
+                userId: user?.userId
+              });
 
-            return {
-              ...session,
-              attendanceStatus: attendanceResponse?.data.data.status === 1 ? 1 :
-                attendanceResponse?.data.data.status === 0 ? 0 : -1
-            };
-          } catch (error) {
-            return {
-              ...session,
-              attendanceStatus: -1
-            };
-          }
-        })
-      )}
-       else {
+              return {
+                ...session,
+                attendanceStatus: attendanceResponse?.data.data.status === 1 ? 1 :
+                  attendanceResponse?.data.data.status === 0 ? 0 : -1
+              };
+            } catch (error) {
+              return {
+                ...session,
+                attendanceStatus: -1
+              };
+            }
+          })
+        )
+      }
+      else {
         sessionsWithAttendance = filteredSessions.map((session) => ({
           ...session,
           attendanceStatus: -1
@@ -253,7 +280,7 @@ export default function SchedulePage() {
 
           {/* Filters */}
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            {user?.roleCode === "Coach" && <div className="flex flex-col sm:flex-row gap-4">
+            {(user?.roleCode === "Coach" || user?.roleCode === "Parent") && <div className="flex flex-col sm:flex-row gap-4">
               <div>
                 <button
                   type="button"
@@ -272,7 +299,7 @@ export default function SchedulePage() {
             {/* Filter Options */}
             {showFilters && (
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+                {user?.roleCode === "Coach" && <div>
                   <label htmlFor="team-filter" className="block text-sm font-medium text-gray-700 mb-1">
                     Đội
                   </label>
@@ -288,7 +315,24 @@ export default function SchedulePage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </div>}
+                {user?.roleCode === "Parent" && <div>
+                  <label htmlFor="team-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                    Con cái
+                  </label>
+                  <Select value={childFilter} onValueChange={(value) => setChildFilter(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn con" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {children?.map((child) => (
+                        <SelectItem key={child.userId} value={child.userId}>
+                          {child.fullname}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>}
               </div>
             )}
 
@@ -366,20 +410,20 @@ export default function SchedulePage() {
                                   <Link
                                     href={`/training-sessions/${session.trainingSessionId}`}
                                     className={`text-base font-medium ${session.attendanceStatus === 1 || session.attendanceStatus === 0
-                                        ? "text-white"
-                                        : "text-[#BD2427]"
+                                      ? "text-white"
+                                      : "text-[#BD2427]"
                                       } hover:underline block mb-1`}
                                   >
                                     {session.sessionName}
                                     <div className={`flex flex-wrap gap-x-6 gap-y-1 text-sm ${session.attendanceStatus === 1 || session.attendanceStatus === 0
-                                        ? "text-gray-200"  // Lighter gray for better contrast on colored backgrounds
-                                        : "text-gray-500"
+                                      ? "text-gray-200"  // Lighter gray for better contrast on colored backgrounds
+                                      : "text-gray-500"
                                       }`}>
                                       <div className="flex items-center">
                                         <svg
                                           className={`mr-1.5 h-4 w-4 ${session.attendanceStatus === 1 || session.attendanceStatus === 0
-                                              ? "text-gray-300"
-                                              : "text-gray-400"
+                                            ? "text-gray-300"
+                                            : "text-gray-400"
                                             }`}
                                           fill="none"
                                           stroke="currentColor"
@@ -398,8 +442,8 @@ export default function SchedulePage() {
                                       <div className="flex items-center">
                                         <svg
                                           className={`mr-1.5 h-4 w-4 ${session.attendanceStatus === 1 || session.attendanceStatus === 0
-                                              ? "text-gray-300"
-                                              : "text-gray-400"
+                                            ? "text-gray-300"
+                                            : "text-gray-400"
                                             }`}
                                           fill="none"
                                           stroke="currentColor"
@@ -421,11 +465,15 @@ export default function SchedulePage() {
                                         </svg>
                                         <span>{session.courtName}</span>
                                       </div>
+                                      <div className="flex items-center">
+                                        <FaChild className="mr-1.5 h-4 w-4" />
+                                        <span>{session.playerName}</span>
+                                      </div>
                                       <div className="flex items-center justify-end ml-auto">
                                         <svg
                                           className={`mr-1.5 h-4 w-4 ${session.attendanceStatus === 1 || session.attendanceStatus === 0
-                                              ? "text-gray-300"
-                                              : "text-gray-400"
+                                            ? "text-gray-300"
+                                            : "text-gray-400"
                                             }`}
                                           fill="none"
                                           stroke="currentColor"
