@@ -73,7 +73,7 @@ export default function ManagerManagement() {
 
     // Handle view details
     const handleViewDetails = (userId) => {
-        router.push(`/dashboard/manager-management/${userId}`)
+        router.push(`/manager-management/${userId}`)
     }
 
     // Handle search change

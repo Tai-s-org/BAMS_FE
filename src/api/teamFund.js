@@ -5,7 +5,7 @@ const teamFundApi = {
         return api.post(`/team-fund/add-expenditure?teamFundId=${teamFundId}`, data);
     },
     updateExpenditure: (teamFundId, data) => {
-        return api.post(`/team-fund/edit-expenditure?teamFundId=${teamFundId}`, data);
+        return api.put(`/team-fund/edit-expenditure?teamFundId=${teamFundId}`, data);
     },
     listExpenditure: (teamFundId) => {
         return api.get(`/team-fund/list-expenditure?teamFundId=${teamFundId}`);

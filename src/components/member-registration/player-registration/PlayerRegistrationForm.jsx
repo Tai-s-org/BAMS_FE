@@ -10,30 +10,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DatePicker } from "@/components/ui/DatePicker"
 import registerApi from "@/api/register"
 import { useRouter } from "next/navigation"
+import { useToasts } from "@/hooks/providers/ToastProvider"
+import { TextEditor } from "@/components/ui/TextEditor"
 
-export default function PlayerRegistrationForm({email}) {
+export default function PlayerRegistrationForm({ email, sessionId, data }) {
     const [date, setDate] = useState(null)
     const router = useRouter();
-    const [storedEmail, setStoredEmail] = useState("");
-        const [registrationSessionId, setRegistrationSessionId] = useState("");
-    
-        useEffect(() => {
-            const email = localStorage.getItem("userEmail");
-            const sessionId = localStorage.getItem("registrationSessionId");
-            setFormData(prev => ({ ...prev, email: email || "" }));
-            setRegistrationSessionId(sessionId);
-        }, []);
+    const [registrationSessionId, setRegistrationSessionId] = useState("");
+    const { addToast } = useToasts();
+
 
     const [formData, setFormData] = useState({
         fullName: "",
         generationAndSchoolName: "",
         phoneNumber: "",
-        email: storedEmail,
+        email: "",
         gender: true,
         dateOfBirth: date,
         height: "",
         weight: "",
-        facebookProfileURL: "",
+        facebookProfileUrl: "",
         knowledgeAboutAcademy: "",
         reasonToChooseUs: "",
         position: "",
@@ -46,6 +42,27 @@ export default function PlayerRegistrationForm({email}) {
         parentCitizenId: "",
     })
     //const registrationSessionId = localStorage.getItem("registrationSessionId");
+    useEffect(() => {
+        if (data) {
+            // Nếu có data => set vào form luôn
+            setFormData(prev => ({
+                ...prev,
+                ...data,
+                email: email || "", // vẫn ưu tiên email từ props
+                memberRegistrationSessionId: sessionId || "",
+                dateOfBirth: date ? date.toISOString().split('T')[0] : null,
+            }));
+        } else {
+            // Nếu không có data => chỉ set email và session
+            setFormData(prev => ({
+                ...prev,
+                email: email || "",
+                memberRegistrationSessionId: sessionId || "",
+                dateOfBirth: date ? date.toISOString().split('T')[0] : null,
+            }));
+        }
+        setRegistrationSessionId(sessionId || "");
+    }, [data, email, sessionId, date]);
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -55,23 +72,42 @@ export default function PlayerRegistrationForm({email}) {
         }))
     }
 
+    const handleDescriptionChange = (name, content) => {
+        setFormData((prev) => ({
+            ...prev,
+            [name]: content,
+        }))
+    }
+
     const handleSubmit = async (e) => {
         if (registrationSessionId) {
             e.preventDefault()
             console.log(formData, " memberRegistrationSessionId:", registrationSessionId,);
 
             try {
-                const response = await registerApi.playerRegister({
+                const response = (data ? await registerApi.updatePlayerForm({
                     ...formData,
                     "memberRegistrationSessionId": registrationSessionId,
-                })
-                console.log(response.data);
+                }) : await registerApi.playerRegister({
+                    ...formData,
+                    "memberRegistrationSessionId": registrationSessionId,
+                }))
                 addToast({ message: response.data.message, type: "success" });
+                setTimeout(() => {
+                    router.push("/");
+                }, 1500);
             } catch (error) {
-                //addToast({ message: response.data.message, type: "error" });
+                if (error.response.data?.message === null) {
+                    Object.entries(error.response.data?.errors).forEach(([key, value]) => {
+                        const msg = String(`${key}: ${value}`).split(":")[1]?.trim();
+                        addToast({ message: value, type: "error" });
+                    });
+                } else {
+                    addToast({ message: error.response.data?.message, type: "error" });
+                }
             }
-            router.push("/");
         }
+        
     }
 
     return (
@@ -103,7 +139,7 @@ export default function PlayerRegistrationForm({email}) {
 
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" name="email" type="email" value={storedEmail} onChange={handleChange} disabled />
+                            <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} disabled />
                         </div>
                     </div>
 
@@ -144,8 +180,8 @@ export default function PlayerRegistrationForm({email}) {
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="facebookProfileURL">URL Facebook</Label>
-                        <Input id="facebookProfileURL" name="facebookProfileURL" value={formData.facebookProfileURL} onChange={handleChange} required />
+                        <Label htmlFor="facebookProfileUrl">URL Facebook</Label>
+                        <Input id="facebookProfileUrl" name="facebookProfileUrl" value={formData.facebookProfileUrl} onChange={handleChange} />
                     </div>
                 </div>
 
@@ -158,11 +194,19 @@ export default function PlayerRegistrationForm({email}) {
                     <div className="space-y-2">
                         <Label htmlFor="knowledgeAboutAcademy">Bạn biết về học viện của chúng tôi như thế nào?</Label>
                         <Textarea id="knowledgeAboutAcademy" name="knowledgeAboutAcademy" value={formData.knowledgeAboutAcademy} onChange={handleChange} required />
+                        <TextEditor
+                            content={formData.knowledgeAboutAcademy}
+                            onChange={(content) => handleDescriptionChange("knowledgeAboutAcademy", content)}
+                        />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="reasonToChooseUs">Tại sao bạn chọn chúng tôi?</Label>
                         <Textarea id="reasonToChooseUs" name="reasonToChooseUs" value={formData.reasonToChooseUs} onChange={handleChange} required />
+                        <TextEditor
+                            content={formData.reasonToChooseUs}
+                            onChange={(content) => handleDescriptionChange("reasonToChooseUs", content)}
+                        />
                     </div>
                 </div>
 
@@ -180,10 +224,10 @@ export default function PlayerRegistrationForm({email}) {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="PG">Hậu vệ dẫn bóng (PG)</SelectItem>
-                                <SelectItem value="SG">hậu vệ ghi điểm (SG)</SelectItem>
-                                <SelectItem value="SF">tiền phong phụ (SF)</SelectItem>
-                                <SelectItem value="PF">tiền phong chính (PF)</SelectItem>
-                                <SelectItem value="C">trung phong (C)</SelectItem>
+                                <SelectItem value="SG">Hậu vệ ghi điểm (SG)</SelectItem>
+                                <SelectItem value="SF">Tiền phong phụ (SF)</SelectItem>
+                                <SelectItem value="PF">Tiền phong chính (PF)</SelectItem>
+                                <SelectItem value="C">Trung phong (C)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -191,11 +235,20 @@ export default function PlayerRegistrationForm({email}) {
                     <div className="space-y-2">
                         <Label htmlFor="experience">Kinh Nghiệm</Label>
                         <Textarea id="experience" name="experience" value={formData.experience} onChange={handleChange} required />
+                        <TextEditor
+                            content={formData.experience}
+                            onChange={(content) => handleDescriptionChange("experience", content)}
+                            required
+                        />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="achievement">Thành Tích</Label>
                         <Textarea id="achievement" name="achievement" value={formData.achievement} onChange={handleChange} />
+                        <TextEditor
+                            content={formData.achievement}
+                            onChange={(content) => handleDescriptionChange("achievement", content)}
+                        />
                     </div>
                 </div>
 
@@ -232,10 +285,15 @@ export default function PlayerRegistrationForm({email}) {
                         </div>
                     </div>
                 </div>
-
-                <Button type="submit" className="w-full bg-[#bd2427] hover:bg-[#a01e21]">
-                    Gửi Đăng Ký
-                </Button>
+                {data ? (
+                    <Button type="submit" className="w-full bg-[#bd2427] hover:bg-[#a01e21]">
+                        Cập nhật đơn đăng kí
+                    </Button>
+                ) : (
+                    <Button type="submit" className="w-full bg-[#bd2427] hover:bg-[#a01e21]">
+                        Gửi Đăng Ký
+                    </Button>
+                )}
             </form>
         </div>
     )

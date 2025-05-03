@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const AchievementsSection = () => {
     return (
@@ -15,10 +16,13 @@ const AchievementsSection = () => {
                             </h3>
                         </div>
                         <div className="p-6">
-                            <p className="text-gray-300">
-                                Chiến thắng ngoạn mục tại giải đấu lớn nhất trong năm, khẳng định vị thế của Yên Hòa Storm trên bản đồ
-                                bóng rổ Hà Nội.
-                            </p>
+                            <Link href={"https://sovhtt.hanoi.gov.vn/ket-thuc-giai-bong-ro-hoc-sinh-thanh-pho-ha-noi-2021/#:~:text=Y%C3%AAn%20H%C3%B2a%20v%C3%B4%20%C4%91%E1%BB%8Bch%20nam,b%E1%BA%A5t%20ng%E1%BB%9D%20v%C3%A0%20h%E1%BA%A5p%20d%E1%BA%ABn."}>
+                                <p className="text-gray-300">
+                                    Chiến thắng ngoạn mục tại giải đấu lớn nhất trong năm, khẳng định vị thế của Yên Hòa Storm trên bản đồ
+                                    bóng rổ Hà Nội.
+                                </p>
+                            </Link>
+
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-6">

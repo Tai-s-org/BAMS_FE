@@ -20,14 +20,12 @@ export default function PresidentSidebar() {
     ];
 
     const menuItems = [
-        { title: "Accounts", icon: LayoutDashboard, url: "/dashboard/accounts" },
         { title: "Đội bóng", icon: RiGroup2Fill, url: "/team-management" },
-        { title: "Thanh toán", icon: CreditCard, url: "/dashboard/payment" },
+        { title: "Thanh toán", icon: CreditCard, url: "/payment" },
         { title: "Huấn luyện viên", icon: GiWhistle, url: "/coach-management" },
-        { title: "Cầu thủ", icon: GiBasketballJersey, url: "/dashboard/coach-management" },
-        { title: "Quản lý", icon: Users, url: "/dashboard/manager-management" },
+        { title: "Quản lý", icon: Users, url: "/manager-management" },
         { title: "Quản lý thông tin đội", icon: HiOutlineClipboardDocumentList, url: "/document-management" },
-        { title: "Đơn đăng kí", icon: FileText, url: "/dashboard/registration-session-management" },
+        { title: "Đơn đăng kí", icon: FileText, url: "/registration-session-management" },
     ];
 
     return (

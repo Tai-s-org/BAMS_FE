@@ -47,7 +47,7 @@ export default function ManagerPayment() {
                 <div className="flex items-center">
                     <h1 className="text-2xl font-bold ml-4"></h1>
                 </div>
-                <Link href="/dashboard/payment/team-payment">
+                <Link href="/payment/team-payment">
                     <Button className="gap-1">
                         <Wallet className="h-4 w-4" /> Xem các thanh toán của đội
                     </Button>

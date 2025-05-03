@@ -9,23 +9,20 @@ import { Badge } from "@/components/ui/Badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/Radio-group"
 import { Label } from "@/components/ui/Label"
 import Link from "next/link"
-import { ArrowLeft, FileText, DollarSign, QrCode, CheckCircle, Upload, AlertTriangle, CreditCard, Wallet, BanknoteIcon, } from "lucide-react"
+import { ArrowLeft, FileText, DollarSign, QrCode, CheckCircle, AlertTriangle, Wallet, BanknoteIcon, Calendar, Clock } from "lucide-react"
 import paymentApi from "@/api/payment"
 import teamFundApi from "@/api/teamFund"
-import Image from "next/image"
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 
 export default function PaymentDetail({ id }) {
     const [payment, setPayment] = useState()
-    const [isPaid, setIsPaid] = useState(false)
     const [showQR, setShowQR] = useState(false)
-    const [showUpload, setShowUpload] = useState(false)
-    const [receiptImage, setReceiptImage] = useState(null)
     const [paymentMethod, setPaymentMethod] = useState()
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("qr")
     const [paymentItems, setPaymentItems] = useState([]);
     const [qrCode, setqrCode] = useState()
     const [remainingTime, setRemainingTime] = useState(600); // 10 phút = 600 giây
+
 
     const fetchPaymentDetails = async () => {
         try {
@@ -39,9 +36,6 @@ export default function PaymentDetail({ id }) {
     }
 
     useEffect(() => {
-        // Fetch payment details from the server using the ID
-
-
         const fetchPaymentMethod = async () => {
             try {
                 const response = await teamFundApi.getManagerPaymentMethod(id)
@@ -58,7 +52,7 @@ export default function PaymentDetail({ id }) {
 
     const handlePay = () => {
         if (selectedPaymentMethod === "qr") {
-            const isAutoPayment = paymentMethod.paymentMethod === 0;
+            const isAutoPayment = paymentMethod.paymentMethod === 1;
 
             const generateQR = async () => {
                 console.log("id: ", id);
@@ -71,7 +65,7 @@ export default function PaymentDetail({ id }) {
                     setqrCode(response.data.data.qrCode)
                     setShowQR(true);
 
-                    if (isAutoPayment) {
+                    if (isAutoPayment && showQR) {
 
                         // Polling every 5s to check payment status
                         const intervalId = setInterval(async () => {
@@ -104,7 +98,8 @@ export default function PaymentDetail({ id }) {
             };
 
             generateQR();
-        } else {
+        }
+        else {
             // For other methods (e.g., cash)
             const updatePaymentStatus = async () => {
                 try {
@@ -135,13 +130,6 @@ export default function PaymentDetail({ id }) {
         }
         setShowQR(false)
     }
-
-    const handleUploadReceipt = () => {
-        // Simulate receipt upload
-        setReceiptImage("/placeholder.svg?height=300&width=200")
-        setShowUpload(false)
-    }
-
     const totalAmount = paymentItems.reduce((sum, item) => sum + item.amount, 0)
 
     function formatTienVN(number) {
@@ -173,9 +161,9 @@ export default function PaymentDetail({ id }) {
     return (
         <div className="container mx-auto py-6">
             <div className="flex items-center mb-6">
-                <Link href="/dashboard/payment">
-                    <Button variant="ghost" size="sm" className="gap-1">
-                        <ArrowLeft className="h-4 w-4" /> Quay lại trang thống kê
+                <Link href="/payment">
+                    <Button variant="ghost" size="sm" className="gap-1 hover:bg-[#F4F4F5]">
+                        <ArrowLeft className="h-4 w-4" /> Quay lại
                     </Button>
                 </Link>
                 <h1 className="text-2xl font-bold ml-4">Thanh toán #{payment?.paymentId}</h1>
@@ -205,68 +193,40 @@ export default function PaymentDetail({ id }) {
                                 </div>
 
                                 <Separator />
-
-                                {/* <div>
-                                    <h3 className="font-medium mb-2">Danh mục thanh toán</h3>
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-12 text-sm font-medium">
-                                            <div className="col-span-4">Danh mục</div>
-                                            <div className="col-span-2 text-right">Giá tiền</div>
-                                            <div className="col-span-1"></div>
-                                            <div className="col-span-5">Ghi chú</div>
-                                        </div>
-
-                                        <Separator />
-
-                                        {paymentItems.map((item) => (
-                                            <div key={item.paymentItemId} className="grid grid-cols-12 text-sm">
-                                                <div className="col-span-4">{item.paidItemName}</div>
-                                                <div className="col-span-2 text-right">{formatTienVN(item.amount)} VNĐ</div>
-                                                <div className="col-span-1"></div>
-                                                <div className="col-span-5 text-muted-foreground">{item.note}</div>
-                                            </div>
-                                        ))}
-
-                                        <Separator />
-
-                                        <div className="grid grid-cols-12 text-sm font-medium">
-                                            <div className="col-span-4 font-bold">Tổng</div>
-                                            <div className="col-span-2 text-right font-bold">{formatTienVN(payment?.totalAmount)} VNĐ</div>
-                                            <div className="col-span-5"></div>
-                                        </div>
-                                    </div>
-                                </div> */}
-
                                 <div>
                                     <h3 className="font-medium mb-2">Danh mục thanh toán</h3>
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow className="text-sm font-medium">
-                                                <TableHead className="w-4/12">Danh mục</TableHead>
-                                                <TableHead className="w-2/12 text-right">Giá tiền</TableHead>
-                                                <TableHead className="w-1/12"></TableHead>
-                                                <TableHead className="w-5/12">Ghi chú</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {paymentItems.map((item) => (
-                                                <TableRow key={item.paymentItemId} className="text-sm">
-                                                    <TableCell className="font-medium">{item.paidItemName}</TableCell>
-                                                    <TableCell className="text-right">{formatTienVN(item.amount)} VNĐ</TableCell>
-                                                    <TableCell></TableCell>
-                                                    <TableCell className="text-muted-foreground">{item.note}</TableCell>
+                                    <div className="rounded-lg border overflow-hidden">
+                                        <Table>
+                                            <TableHeader className="bg-slate-50">
+                                                <TableRow className="text-sm font-medium">
+                                                    <TableHead className="w-4/12">Danh mục</TableHead>
+                                                    <TableHead className="w-2/12 text-right">Giá tiền</TableHead>
+                                                    <TableHead className="w-1/12"></TableHead>
+                                                    <TableHead className="w-5/12">Ghi chú</TableHead>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                        <TableFooter>
-                                            <TableRow className="text-sm font-medium">
-                                                <TableCell className="font-bold">Tổng</TableCell>
-                                                <TableCell className="text-right font-bold">{formatTienVN(payment?.totalAmount)} VNĐ</TableCell>
-                                                <TableCell></TableCell>
-                                                <TableCell></TableCell>
-                                            </TableRow>
-                                        </TableFooter>
-                                    </Table>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {paymentItems.map((item) => (
+                                                    <TableRow key={item.paymentItemId} className="text-sm hover:bg-slate-50">
+                                                        <TableCell className="font-medium">{item.paidItemName}</TableCell>
+                                                        <TableCell className="text-right font-medium">{formatTienVN(item.amount)} VNĐ</TableCell>
+                                                        <TableCell></TableCell>
+                                                        <TableCell className="text-muted-foreground">{item.note || "-"}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                            <TableFooter>
+                                                <TableRow className="text-sm font-medium bg-slate-50">
+                                                    <TableCell className="font-bold">Tổng</TableCell>
+                                                    <TableCell className="text-right font-bold">
+                                                        {formatTienVN(payment?.totalAmount)} VNĐ
+                                                    </TableCell>
+                                                    <TableCell></TableCell>
+                                                    <TableCell></TableCell>
+                                                </TableRow>
+                                            </TableFooter>
+                                        </Table>
+                                    </div>
                                 </div>
 
                                 {(payment?.status == 0 || payment?.status == 2) && (
@@ -279,12 +239,14 @@ export default function PaymentDetail({ id }) {
                                                 onValueChange={setSelectedPaymentMethod}
                                                 className="space-y-3"
                                             >
-                                                {paymentMethod?.paymentMethod === 0 ?
+                                                {paymentMethod?.paymentMethod === 1 ?
                                                     (
                                                         <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
                                                             <RadioGroupItem value="qr" id="qr" />
                                                             <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
-                                                                <QrCode className="h-5 w-5" />
+                                                                <div className="bg-green-100 p-2 rounded-full">
+                                                                    <QrCode className="h-5 w-5 text-green-600" />
+                                                                </div>
                                                                 <div>
                                                                     <div className="font-medium">Thanh toán bằng mã QR tự động</div>
                                                                     <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn</div>
@@ -295,7 +257,9 @@ export default function PaymentDetail({ id }) {
                                                         <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
                                                             <RadioGroupItem value="qr" id="qr" />
                                                             <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
-                                                                <QrCode className="h-5 w-5" />
+                                                                <div className="bg-blue-100 p-2 rounded-full">
+                                                                    <QrCode className="h-5 w-5 text-blue-600" />
+                                                                </div>
                                                                 <div>
                                                                     <div className="font-medium">Thanh toán bằng mã QR thủ công</div>
                                                                     <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn và chờ quản lí duyệt</div>
@@ -306,7 +270,9 @@ export default function PaymentDetail({ id }) {
                                                 <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
                                                     <RadioGroupItem value="cash" id="cash" />
                                                     <Label htmlFor="cash" className="flex items-center gap-2 cursor-pointer">
-                                                        <BanknoteIcon className="h-5 w-5" />
+                                                        <div className="bg-amber-100 p-2 rounded-full">
+                                                            <BanknoteIcon className="h-5 w-5 text-amber-600" />
+                                                        </div>
                                                         <div>
                                                             <div className="font-medium">Tiền mặt</div>
                                                             <div className="text-sm text-muted-foreground">Thanh toán trực tiếp bằng tiền mặt</div>
@@ -317,42 +283,30 @@ export default function PaymentDetail({ id }) {
                                         </div>
                                     </>
                                 )}
-
-                                {receiptImage && (
-                                    <>
-                                        <Separator />
-                                        <div>
-                                            <h3 className="font-medium mb-2">Hóa đơn thanh toán</h3>
-                                            <div className="border rounded-md p-2 max-w-xs">
-                                                <img src={receiptImage || "/placeholder.svg"} alt="Payment receipt" className="w-full" />
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-end gap-2">
-                            {(payment?.status === 0 || payment?.status === 2) && (
-                                <>
-                                    <Button onClick={() => setShowUpload(true)} variant="outline" className="gap-1">
-                                        <Upload className="h-4 w-4" /> Tải lên biên lai thanh toán
-                                    </Button>
-                                    <Button onClick={handlePay} className="gap-1">
-                                        <Wallet className="h-4 w-4" /> Thanh toán ngay
-                                    </Button>
-                                </>
-                            )}
-                            {!isPaid && payment?.status === 2 && (
+                            {payment?.status === 2 && (
                                 <div className="flex items-center text-red-500 gap-1">
                                     <AlertTriangle className="h-4 w-4" />
                                     <span>Thời hạn thanh toán đã hết hạn</span>
                                 </div>
                             )}
-                            {/* {isPaid && !receiptImage && (
-                                <Button onClick={() => setShowUpload(true)} variant="outline" className="gap-1">
-                                    <Upload className="h-4 w-4" /> Tải lên biên lai thanh toán
-                                </Button>
-                            )} */}
+                            {(payment?.status === 0 || payment?.status === 2) && (
+                                <>
+                                    {selectedPaymentMethod === "qr" ? (
+                                        <Button onClick={handlePay} className="gap-1 bg-green-600 hover:bg-green-700">
+                                            <Wallet className="h-4 w-4" /> Thanh toán ngay
+                                        </Button>
+                                    ) : (
+                                        <div className="flex items-center text-yellow-500 gap-1">
+                                            <CheckCircle className="h-4 w-4" />
+                                            <span>Vui lòng thanh toán qua quản lý của đội</span>
+                                        </div>
+                                    )}
+
+                                </>
+                            )}
                             {payment?.status === 3 && (
                                 <div className="flex items-center text-yellow-500 gap-1">
                                     <CheckCircle className="h-4 w-4" />
@@ -364,14 +318,14 @@ export default function PaymentDetail({ id }) {
                 </div>
 
                 <div>
-                    <Card>
+                    {/* <Card>
                         <CardHeader>
                             <CardTitle>Trạng thái thanh toán</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 <div className="flex items-center gap-2">
-                                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                                    <BanknoteIcon className="h-4 w-4 text-muted-foreground" />
                                     <span className="text-sm">Tổng số tiền: {formatTienVN(payment?.totalAmount)} VNĐ</span>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -442,6 +396,131 @@ export default function PaymentDetail({ id }) {
                                 )}
                             </div>
                         </CardContent>
+                    </Card> */}
+
+                    <Card className="shadow-sm">
+                        <CardHeader className="bg-slate-50 border-b">
+                            <CardTitle>Trạng thái thanh toán</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-md border">
+                                    <div className="bg-green-100 p-2 rounded-full">
+                                        <DollarSign className="h-4 w-4 text-green-600" />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-medium">Tổng số tiền</div>
+                                        <div className="text-lg font-bold">{formatTienVN(payment?.totalAmount)} VNĐ</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3 p-3 rounded-md border">
+                                    {payment?.status === 1 ? (
+                                        <>
+                                            <div className="bg-green-100 p-2 rounded-full">
+                                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium">Trạng thái</div>
+                                                <div className="text-green-600 font-medium">Đã thanh toán</div>
+                                            </div>
+                                        </>
+                                    ) : payment?.status === 2 ? (
+                                        <>
+                                            <div className="bg-red-100 p-2 rounded-full">
+                                                <AlertTriangle className="h-4 w-4 text-red-600" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium">Trạng thái</div>
+                                                <div className="text-red-600 font-medium">Quá hạn</div>
+                                            </div>
+                                        </>
+                                    ) : payment?.status === 0 ? (
+                                        <>
+                                            <div className="bg-yellow-100 p-2 rounded-full">
+                                                <Clock className="h-4 w-4 text-yellow-600" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium">Trạng thái</div>
+                                                <div className="text-yellow-600 font-medium">Chưa thanh toán</div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="bg-blue-100 p-2 rounded-full">
+                                                <CheckCircle className="h-4 w-4 text-blue-600" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-medium">Trạng thái</div>
+                                                <div className="text-blue-600 font-medium">Đã thanh toán (Đang chờ xác nhận)</div>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center gap-3 p-3 rounded-md border">
+                                    <div className="bg-slate-100 p-2 rounded-full">
+                                        <Calendar className="h-4 w-4 text-slate-600" />
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-medium">Hạn thanh toán</div>
+                                        <div className="font-medium">{new Date(payment?.dueDate).toLocaleDateString("vi-VN")}</div>
+                                    </div>
+                                </div>
+
+                                {(payment?.status === 1 || payment?.status === 3) && (
+                                    <>
+                                        <Separator />
+                                        <div>
+                                            <h3 className="text-sm font-medium mb-3 text-slate-800">Thông tin thanh toán</h3>
+                                            <div className="space-y-3 text-sm">
+                                                <div className="grid grid-cols-2 p-2 bg-slate-50 rounded-md">
+                                                    <div className="text-muted-foreground">Ngày thanh toán:</div>
+                                                    <div className="font-medium">
+                                                        {payment.paymentDate ? new Date(payment?.paidDate).toLocaleDateString("vi-VN") : "-"}
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-2 p-2 bg-slate-50 rounded-md">
+                                                    <div className="text-muted-foreground">Phương thức thanh toán:</div>
+                                                    <div className="font-medium flex items-center gap-1">
+                                                        {selectedPaymentMethod === "qr" ? (
+                                                            <>
+                                                                <QrCode className="h-3 w-3" /> Mã QR
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <BanknoteIcon className="h-3 w-3" /> Tiền mặt
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {selectedPaymentMethod !== "cash" && (
+                                                    <div className="grid grid-cols-2 p-2 bg-slate-50 rounded-md">
+                                                        <div className="text-muted-foreground">Mã giao dịch:</div>
+                                                        <div className="font-medium">TXN-2025-04-28-123</div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+
+                                {payment?.status === 2 && (
+                                    <>
+                                        <Separator />
+                                        <div className="p-4 bg-red-50 rounded-md border border-red-200">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <AlertTriangle className="h-4 w-4 text-red-600" />
+                                                <h3 className="text-sm font-medium text-red-700">Thanh toán quá hạn</h3>
+                                            </div>
+                                            <p className="text-xs text-red-600">
+                                                Khoản thanh toán này đã quá hạn. Vui lòng liên hệ với người quản lý đội của bạn để được hỗ trợ.
+                                            </p>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </CardContent>
                     </Card>
                 </div>
             </div>
@@ -473,34 +552,10 @@ export default function PaymentDetail({ id }) {
                         <Button variant="outline" onClick={() => setShowQR(false)}>
                             Hủy
                         </Button>
-                        {paymentMethod?.paymentMethod === 1 && (
+                        {paymentMethod?.paymentMethod === 0 && (
                             <Button onClick={handleQrPay}>Đã thanh toán</Button>
                         )}
 
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            {/* Upload Receipt Dialog */}
-            <Dialog open={showUpload} onOpenChange={setShowUpload}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Tải lên biên lai thanh toán</DialogTitle>
-                        <DialogDescription>Tải lên ảnh biên lai thanh toán của bạn làm bằng chứng thanh toán.</DialogDescription>
-                    </DialogHeader>
-                    <div className="flex flex-col items-center justify-center py-4">
-                        <div className="border border-dashed border-gray-300 rounded-lg p-8 w-full text-center">
-                            <Upload className="h-8 w-8 mx-auto mb-4 text-gray-400" />
-                            <p className="text-sm text-gray-500 mb-2">Kéo và thả hình ảnh biên lai của bạn vào đây</p>
-                            <p className="text-xs text-gray-400 mb-4">Định dạng được hỗ trợ: JPG, PNG, PDF (Tối đa 5MB)</p>
-                            <Button size="sm">Duyệt tập tin</Button>
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowUpload(false)}>
-                            Hủy
-                        </Button>
-                        <Button onClick={handleUploadReceipt}>Tải lên biên lai thanh toán</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

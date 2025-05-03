@@ -64,7 +64,7 @@ export default function NewRegistrationSession() {
             await new Promise((resolve) => setTimeout(resolve, 1000))
 
             // Redirect to list page after successful creation
-            router.push("/dashboard/registration-session-management")
+            router.push("/registration-session-management")
         } catch (error) {
             console.error("Error creating registration session:", error)
         } finally {
@@ -157,7 +157,7 @@ export default function NewRegistrationSession() {
                         </div>
                     </CardContent>
                     <CardFooter className="flex justify-between border-t p-6">
-                        <Button variant="outline" onClick={() => router.push("/dashboard/registration-session-management")} disabled={isSubmitting}>
+                        <Button variant="outline" onClick={() => router.push("/registration-session-management")} disabled={isSubmitting}>
                             Hủy
                         </Button>
                         <Button type="submit" className="bg-[#bd2427] hover:bg-[#a61f22] text-white" disabled={isSubmitting}>

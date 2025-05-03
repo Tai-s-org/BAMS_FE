@@ -6,19 +6,19 @@ const InfoSection = () => {
             title: "Lịch sử hình thành",
             content:
                 "Yên Hòa Storm được thành lập vào năm 2010 bởi một nhóm những người yêu bóng rổ tại quận Cầu Giấy, Hà Nội. Từ một đội bóng nghiệp dư, chúng tôi đã phát triển thành một trong những câu lạc bộ bóng rổ hàng đầu tại Hà Nội.",
-            image: "/history.jpg",
+            image: "/assets/information/history.jpg",
         },
         {
             title: "Tầm nhìn và sứ mệnh",
             content:
                 "Chúng tôi hướng đến việc trở thành một trung tâm đào tạo bóng rổ chuyên nghiệp, nơi ươm mầm cho những tài năng trẻ và góp phần phát triển phong trào bóng rổ tại Việt Nam.",
-            image: "/vision.jpg",
+            image: "/assets/information/vision.jpg",
         },
         {
             title: "Đội ngũ huấn luyện viên",
             content:
                 "Yên Hòa Storm tự hào có đội ngũ huấn luyện viên giàu kinh nghiệm, trong đó có cả các cựu cầu thủ quốc gia. Họ không chỉ truyền đạt kỹ năng mà còn truyền cảm hứng cho các cầu thủ trẻ.",
-            image: "/coaches.jpg",
+            image: "/assets/information/coach.jpg",
         },
         {
             title: "Cơ sở vật chất",

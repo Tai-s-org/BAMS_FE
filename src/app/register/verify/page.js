@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import otpApi from "@/api/otp"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import registrationSessionApi from "@/api/registrationSession"
 
 export default function VerifyOTP() {
     const router = useRouter()
@@ -25,11 +26,13 @@ export default function VerifyOTP() {
     const [data, setData] = useState("")
     const [showSaveDialog, setShowSaveDialog] = useState(false)
     const { addToast } = useToasts();
+    const [sessionId, setSessionId] = useState("")
 
     // 🧠 Lấy email + role từ localStorage khi component mount
     useEffect(() => {
         const storedEmail = localStorage.getItem("email")
         const storedRole = localStorage.getItem("role")
+        const sessionId = localStorage.getItem("session")
 
         if (!storedEmail || !storedRole) {
             router.push("/")
@@ -38,6 +41,7 @@ export default function VerifyOTP() {
 
         setEmail(storedEmail)
         setRole(storedRole)
+        setSessionId(sessionId)
     }, [router])
 
     // ⏳ Đếm ngược
@@ -133,11 +137,12 @@ export default function VerifyOTP() {
                 email: email,
                 code: otpString,
                 purpose: roleForm,
+                memberRegistrationSessionId: sessionId
             })
 
             addToast({ message: response.data.message, type: "success" });
             console.log(response.data);
-            
+
             if (response.data.data.items[0]) {
                 setData(response.data.data.items[0])
                 setShowSaveDialog(true);
@@ -147,8 +152,17 @@ export default function VerifyOTP() {
             }
 
 
-        } catch (err) {
-            console.error(err)
+        } catch (error) {
+            if (error.response.data?.message === null) {
+                Object.entries(error.response.data?.errors).forEach(([key, value]) => {
+                    const msg = String(`${key}: ${value}`).split(":")[1]?.trim();
+                    addToast({ message: value, type: "error" });
+                    console.log(value);
+
+                });
+            } else {
+                addToast({ message: error.response.data?.message, type: "error" });
+            }
         }
     }
 
@@ -178,7 +192,14 @@ export default function VerifyOTP() {
         if (!canResend) return
         try {
             //API send otp
-            await sendOTP(email)
+            if (role === "manager") {
+                response = await registrationSessionApi.validateManagerEmailAndSendOtp(sessionId, email);
+            } else {
+                response = await registrationSessionApi.validatePlayerEmailAndSendOtp({
+                    "email": email,
+                    "memberSessionId": sessionId,
+                });
+            }
             setTimeLeft(300)
             setCanResend(false)
             setOtp(["", "", "", "", "", ""])
