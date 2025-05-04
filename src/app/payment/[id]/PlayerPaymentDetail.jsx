@@ -99,22 +99,23 @@ export default function PaymentDetail({ id }) {
 
             generateQR();
         }
-        else {
-            // For other methods (e.g., cash)
-            const updatePaymentStatus = async () => {
-                try {
-                    const response = await teamFundApi.updatePaymentStatus({
-                        "paymentId": id,
-                        "status": 3
-                    })
-                    fetchPaymentDetails()
-                } catch (err) {
+        // else {
+        //     // For other methods (e.g., cash)
+        //     const updatePaymentStatus = async () => {
+        //         try {
+        //             const response = await teamFundApi.updatePaymentStatus({
+        //                 "paymentId": id,
+        //                 "status": 3,
+        //                 "paymentMethod" : 0
+        //             })
+        //             fetchPaymentDetails()
+        //         } catch (err) {
 
-                }
-            }
+        //         }
+        //     }
 
-            updatePaymentStatus();
-        }
+        //     updatePaymentStatus();
+        // }
     };
 
 
@@ -122,7 +123,9 @@ export default function PaymentDetail({ id }) {
         try {
             const response = await teamFundApi.updatePaymentStatus({
                 "paymentId": id,
-                "status": 3
+                "status": 3,
+                "paidDate": Date.now(),
+                "paymentMethod": 0
             })
             fetchPaymentDetails()
         } catch (err) {
@@ -318,86 +321,6 @@ export default function PaymentDetail({ id }) {
                 </div>
 
                 <div>
-                    {/* <Card>
-                        <CardHeader>
-                            <CardTitle>Trạng thái thanh toán</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-2">
-                                    <BanknoteIcon className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">Tổng số tiền: {formatTienVN(payment?.totalAmount)} VNĐ</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    {payment?.status === 1 ? (
-                                        <>
-                                            <CheckCircle className="h-4 w-4 text-green-500" />
-                                            <span className="text-sm">Trạng thái: Đã thanh toán</span>
-                                        </>
-                                    ) : payment?.status === 2 ? (
-                                        <>
-                                            <AlertTriangle className="h-4 w-4 text-red-500" />
-                                            <span className="text-sm">Tình trạng: Quá hạn</span>
-                                        </>
-                                    ) : payment?.status === 0 ? (
-                                        <>
-                                            <FileText className="h-4 w-4 text-yellow-500" />
-                                            <span className="text-sm">Trạng thái: Chưa thanh toán</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <CheckCircle className="h-4 w-4 text-green-500" />
-                                            <span className="text-sm">Trạng thái: Đã thanh toán (Đang chờ xác nhận)</span>
-                                        </>
-                                    )}
-                                </div>
-
-                                {(payment?.status === 1 || payment?.status === 3) && (
-                                    <>
-                                        <Separator />
-                                        <div>
-                                            <h3 className="text-sm font-medium mb-2">Thông tin thanh toán</h3>
-                                            <div className="space-y-2 text-sm">
-                                                <div className="grid grid-cols-2">
-                                                    <div className="text-muted-foreground">Ngày thanh toán:</div>
-                                                    <div>{ }</div>
-                                                </div>
-                                                <div className="grid grid-cols-2">
-                                                    <div className="text-muted-foreground">Phương thức thanh toán:</div>
-                                                    <div>
-                                                        {selectedPaymentMethod === "qr"
-                                                            ? "Mã QR"
-                                                            : selectedPaymentMethod === "card"
-                                                                ? "Thẻ tín dụng/ghi nợ"
-                                                                : "Tiền mặt"}
-                                                    </div>
-                                                </div>
-                                                {selectedPaymentMethod !== "cash" && (
-                                                    <div className="grid grid-cols-2">
-                                                        <div className="text-muted-foreground">Mã giao dịch:</div>
-                                                        <div>TXN-2025-04-16-123</div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-
-                                {payment?.status === 2 && (
-                                    <>
-                                        <Separator />
-                                        <div className="p-3 bg-red-50 rounded-md border border-red-200">
-                                            <h3 className="text-sm font-medium text-red-700 mb-1">Payment Overdue</h3>
-                                            <p className="text-xs text-red-600">
-                                                This payment is past its due date. Please contact your team manager for assistance.
-                                            </p>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </CardContent>
-                    </Card> */}
-
                     <Card className="shadow-sm">
                         <CardHeader className="bg-slate-50 border-b">
                             <CardTitle>Trạng thái thanh toán</CardTitle>

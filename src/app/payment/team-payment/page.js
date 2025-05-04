@@ -9,17 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs"
 import { Badge } from "@/components/ui/Badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/Dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/Dialog"
 import { useAuth } from "@/hooks/context/AuthContext"
 import paymentApi from "@/api/payment"
 import teamFundApi from "@/api/teamFund"
+import { DatePicker } from "@/components/ui/DatePicker"
+import { se } from "date-fns/locale"
 
 export default function ManagerPayments() {
     const [selectedPayment, setSelectedPayment] = useState(null)
@@ -29,6 +24,9 @@ export default function ManagerPayments() {
     const { userInfo } = useAuth()
     const [payments, setPayments] = useState([])
     const teamId = userInfo?.roleInformation.teamId
+    const [date, setDate] = useState()
+    const [error, setError] = useState(false)
+    const [paymentMethod, setPaymentMethod] = useState(2)
 
     const fetchManagerInfo = async () => {
         if (!teamId) return
@@ -53,10 +51,24 @@ export default function ManagerPayments() {
     const overduePayments = payments.filter((payment) => payment.status === 2)
 
     const handleConfirmPayment = async () => {
+        const paymentMethod = selectedPayment.paymentMethod || 2;
+
+        // Dùng ngày từ payment nếu có, nếu không thì lấy từ state date
+        const finalPaidDate = selectedPayment.paidDate || date;
+
+        // Kiểm tra nếu không có ngày => báo lỗi
+        if (!finalPaidDate) {
+            setError(true);
+            return;
+        }
+
+        setError(false);
         try {
             await teamFundApi.updatePaymentStatus({
                 paymentId: selectedPayment.paymentId,
                 status: 1,
+                paidDate: finalPaidDate,
+                paymentMethod: paymentMethod
             })
             await fetchManagerInfo()
         } catch (error) {
@@ -69,16 +81,22 @@ export default function ManagerPayments() {
         try {
             const response = await paymentApi.getPaymentDetail(paymentId)
             setSelectedPayment(response.data.data)
+            if (response.data.data.paidDate) {
+                setDate(new Date(response.data.data.paidDate))
+            }
             setShowReceiptDialog(true)
         } catch (error) {
             console.error("Error fetching receipt:", error)
         }
     }
 
-    const confirmPayment = (payment) => {
-        setSelectedPayment(payment)
-        setShowConfirmDialog(true)
-    }
+    const confirmPayment = async (payment) => {
+        setSelectedPayment(payment);
+        setShowConfirmDialog(true);
+    };
+
+
+
 
     function formatTienVN(number) {
         return number != null ? number.toLocaleString("vi-VN") : ""
@@ -364,8 +382,19 @@ export default function ManagerPayments() {
                                 <div className="text-sm font-medium">{formatTienVN(selectedPayment?.totalAmount)} VNĐ</div>
                             </div>
                             <div className="grid grid-cols-2 gap-1">
-                                <div className="text-sm text-muted-foreground">Ngày thanh toán:</div>
-                                <div className="text-sm font-medium">{formatDate(selectedPayment?.paidDate)}</div>
+                                <div className="text-sm text-muted-foreground mb-1">
+                                    Ngày thanh toán
+                                    {(error && !selectedPayment?.paidDate) && <span className="text-red-600"> * Bắt buộc</span>}
+                                </div>
+                                {selectedPayment?.paidDate ? (
+                                    <div className="font-medium">{formatDate(selectedPayment?.paidDate)}</div>
+                                ) : (
+                                    <DatePicker
+                                        value={date}
+                                        onChange={setDate}
+                                        placeholder="Nhập ngày thanh toán"
+                                    />
+                                )}
                             </div>
                             <div className="grid grid-cols-2 gap-1">
                                 <div className="text-sm text-muted-foreground">Ghi chú:</div>
@@ -405,7 +434,7 @@ export default function ManagerPayments() {
                         </DialogDescription>
                     </DialogHeader>
 
-                    {/* <ScrollArea className="flex-1 pr-4 -mr-4"> */}<div className="flex-1 overflow-y-auto pr-4 -mr-4">
+                    <div className="flex-1 overflow-y-auto pr-4 -mr-4">
                         <div className="py-2 space-y-6">
                             {/* Payment Items */}
                             <div>
@@ -464,17 +493,28 @@ export default function ManagerPayments() {
                                                     <div className="text-sm text-muted-foreground mb-1">Phương thức thanh toán</div>
                                                     <div className="font-medium">
                                                         {selectedPayment?.paymentMethod === 1
-                                                            ? "Thanh toán bằng mã QR thủ công"
+                                                            ? "Thanh toán bằng mã QR tự động"
                                                             : selectedPayment?.paymentMethod === 2
                                                                 ? "Thanh toán bằng tiền mặt"
-                                                                : "Thanh toán bằng mã QR tự động"}
+                                                                : "Thanh toán bằng mã QR thủ công"}
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="space-y-3">
                                                 <div>
-                                                    <div className="text-sm text-muted-foreground mb-1">Ngày thanh toán</div>
-                                                    <div className="font-medium">{formatDate(selectedPayment?.paidDate)}</div>
+                                                    <div className="text-sm text-muted-foreground mb-1">
+                                                        Ngày thanh toán
+                                                        {(error && !selectedPayment?.paidDate) && <span className="text-red-600"> * Bắt buộc</span>}
+                                                    </div>
+                                                    {selectedPayment?.paidDate ? (
+                                                        <div className="font-medium">{formatDate(selectedPayment?.paidDate)}</div>
+                                                    ) : (
+                                                        <DatePicker
+                                                            value={date}
+                                                            onChange={setDate}
+                                                            placeholder="Nhập ngày thanh toán"
+                                                        />
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <div className="text-sm text-muted-foreground mb-1">Hạn thanh toán</div>
@@ -490,7 +530,7 @@ export default function ManagerPayments() {
                                 </Card>
                             </div>
                         </div>
-                    {/* </ScrollArea> */} </div>
+                    </div>
 
                     <DialogFooter className="mt-4 pt-4 border-t">
                         <Button variant="outline" onClick={() => setShowReceiptDialog(false)}>
