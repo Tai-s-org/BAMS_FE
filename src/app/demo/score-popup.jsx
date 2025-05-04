@@ -595,7 +595,8 @@ export function ScorePopup({ open, onClose, player, onStatusChange }) {
     Sprint: "",
     PushUp: "",
     StandardPlank: "",
-    PlankSide: "",
+    RightSidePlank: "",
+    LeftSidePlank: "",
   })
   const { addToast } = useToasts()
 
@@ -1334,28 +1335,53 @@ export function ScorePopup({ open, onClose, player, onStatusChange }) {
                       />
                     </div>
 
-                    {/* Plank 1 phía */}
+                    {/* Plank bên trái */}
                     <div className="flex justify-between items-center mb-2">
-                      <Label htmlFor="plank-side">
-                        Plank 1 phía
+                      <Label htmlFor="left-side-plank">
+                        Plank bên trái
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
                           className="ml-2"
-                          onClick={() => handleView("PlankSide")}
+                          onClick={() => handleView("LeftSidePlank")}
                         >
                           <Eye className="h-4 w-4" />
                           <span className="sr-only">Xem</span>
                         </Button>
                       </Label>
                       <Input
-                        id="plank-side"
+                        id="left-side-plank"
                         type="number"
                         placeholder="Nhập thời gian"
                         className="w-40"
-                        value={formValues.PlankSide}
-                        onChange={(e) => handleScoreChange("PlankSide", e.target.value)}
+                        value={formValues.LeftSidePlank}
+                        onChange={(e) => handleScoreChange("LeftSidePlank", e.target.value)}
+                      />
+                    </div>
+
+                    {/* Plank bên phải */}
+                    <div className="flex justify-between items-center mb-2">
+                      <Label htmlFor="right-side-plank">
+                        Plank bên phải
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="ml-2"
+                          onClick={() => handleView("RightSidePlank")}
+                        >
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">Xem</span>
+                        </Button>
+                      </Label>
+                      <Input
+                        id="right-side-plank"
+                        type="number"
+                        placeholder="Nhập thời gian"
+                        className="w-40"
+                        value={formValues.RightSidePlank}
+                        onChange={(e) => handleScoreChange("RightSidePlank", e.target.value)}
                       />
                     </div>
                   </div>

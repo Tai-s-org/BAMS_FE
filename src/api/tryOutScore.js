@@ -24,6 +24,13 @@ const tryOutApi = {
     getPlayerScoreByReport: (playerRegistrationId) => {
         return api.get(`/try-out-score/player/report/${playerRegistrationId}`);
     },
+
+    getAllPlayerScoreByReport: (sessionId) => {
+        return api.get(`/try-out-score/session/report/${sessionId}`);
+    },
+    exportPlayerScore: (sessionId) => {
+        return api.get(`/try-out-score/session/report/${sessionId}/export`);
+    },
     
 };
 
