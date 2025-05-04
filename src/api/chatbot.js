@@ -14,7 +14,10 @@ const chatbotApi = {
             'Content-Type': 'multipart/form-data'
           }
         });
-      }
+      },
+      downloadDocument: () => {
+        return api.get(`/chatbot/download-chatbot-document`, { responseType: "blob" });
+      },
 };
 
 export default chatbotApi;

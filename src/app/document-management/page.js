@@ -108,6 +108,47 @@ export default function DocumentManagement() {
         }
     }
 
+    const handleDownload = async () => {
+        try {
+            const response = await chatbotApi.downloadDocument(); // cần trả về response đầy đủ, không destructuring .data
+            console.log("Headers:", response.headers);
+            const blob = new Blob([response.data], {
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            });
+    
+            const url = window.URL.createObjectURL(blob);
+            const fileName = getFileNameFromHeader(response) || "YHBT_So_Tay.docx";
+    
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Lỗi khi tải xuống tài liệu:", error);
+            if (error.response?.status === 401) {
+                addToast({ message: error.response.data.Message, type: "error" });
+            }
+        }
+    };
+    
+    const getFileNameFromHeader = (response) => {
+        const disposition = response.headers["content-disposition"];
+        if (!disposition) return null;
+    
+        // Ưu tiên filename*=UTF-8''ten
+        const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/);
+        if (utf8Match) return decodeURIComponent(utf8Match[1]);
+    
+        // Fallback: filename=ten
+        const fileNameMatch = disposition.match(/filename="?([^"]+)"?/);
+        if (fileNameMatch) return fileNameMatch[1];
+    
+        return null;
+    };
+
     // Hàm định dạng kích thước file
     const formatFileSize = (bytes) => {
         if (bytes === 0) return "0 Bytes"
@@ -133,14 +174,14 @@ export default function DocumentManagement() {
                     <div className="flex items-center gap-3">
                         <FileText className="h-10 w-10 text-[#BD2427]" />
                         <div>
-                            <h2 className="text-lg font-medium">{currentDocument.fileName}</h2>
+                            {/* <h2 className="text-lg font-medium">{currentDocument.fileName}</h2>
                             <p className="text-sm text-gray-500">
                                 Đăng tải ngày: {currentDocument.uploadDate} • Kích thước: {currentDocument.fileSize}
-                            </p>
+                            </p> */}
                         </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                        <Button variant="outline" className="flex items-center gap-2">
+                        <Button variant="outline" className="flex items-center gap-2" onClick={handleDownload}>
                             <Download className="h-4 w-4" />
                             Tải Tài Liệu Hiện Tại
                         </Button>
