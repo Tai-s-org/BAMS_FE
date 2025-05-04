@@ -16,6 +16,9 @@ const playerApi = {
     getAllPlayerWithTeam: (filter) => {
         return api.get("/player/player-list", { params: filter });
     },
+    getNonTeamPlayersByGender: (filter) => {
+        return api.get("/player/players-to-assign-to-team", { params: filter });
+    },
 };
 
 export default playerApi;
