@@ -118,7 +118,7 @@ export default function ManagerInformation({ roleInformation, isEditing, formDat
         }
 
         fetchBankList()
-    }, [])
+    }, []) 
 
     const handleBankChange = (bankName) => {
         const selectedBank = bankList.find(bank => bank.name === bankName);

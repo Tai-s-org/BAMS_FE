@@ -46,10 +46,9 @@ export default function ManagerList({ managers, isDescending, toggleSortDirectio
                             </div>
                         </th>
                         <th className="px-6 py-3 font-medium">Email</th>
-                        <th className="px-6 py-3 font-medium">Role</th>
-                        <th className="px-6 py-3 font-medium">Team ID</th>
-                        <th className="px-6 py-3 font-medium">Status</th>
-                        <th className="px-6 py-3 font-medium text-right">Actions</th>
+                        <th className="px-6 py-3 font-medium">Đội</th>
+                        <th className="px-6 py-3 font-medium">Trạng thái</th>
+                        <th className="px-6 py-3 font-medium text-right"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,13 +58,12 @@ export default function ManagerList({ managers, isDescending, toggleSortDirectio
                                 <td className="px-6 py-4 font-medium">{manager.username}</td>
                                 <td className="px-6 py-4">{manager.fullname}</td>
                                 <td className="px-6 py-4">{manager.email}</td>
-                                <td className="px-6 py-4">{manager.roleCode}</td>
-                                <td className="px-6 py-4">{manager.roleInformation.teamId || "N/A"}</td>
+                                <td className="px-6 py-4">{manager.roleInformation.teamName || "Chưa có đội"}</td>
                                 <td className="px-6 py-4">
                                     <span
                                         className={`px-2 py-1 text-xs font-semibold rounded-full ${manager.isEnable ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
                                     >
-                                        {manager.isEnable ? "Enabled" : "Disabled"}
+                                        {manager.isEnable ? "Đang hoạt động" : "Không hoạt động"}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-right">
@@ -88,7 +86,7 @@ export default function ManagerList({ managers, isDescending, toggleSortDirectio
                                             <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                                             <circle cx="12" cy="12" r="3" />
                                         </svg>
-                                        Details
+                                        Xem chi tiết
                                     </button>
                                 </td>
                             </tr>

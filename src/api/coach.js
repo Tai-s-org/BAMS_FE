@@ -24,7 +24,7 @@ const coachApi = {
         return api.patch(`/coach/change-status/${userId}`);
     },
     assignCoachToTeam: (data) => {
-        return api.patch(`/api/coach/assign-to-team`, data);
+        return api.patch(`/coach/assign-to-team`, data);
     },
 };
 
