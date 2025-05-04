@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { format } from "date-fns"
-import { CalendarDays, Plus, Trash2, Users, BellIcon as Whistle, Clock, MapPin, Trophy, AlertCircle, CheckCircle2, Eye } from "lucide-react"
+import { CalendarDays, Plus, Trash2, Users, BellIcon as Whistle, Clock, MapPin, Trophy, AlertCircle, CheckCircle2, Search } from "lucide-react"
 
 import { Button } from "@/components/ui/Button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card"
@@ -25,11 +25,11 @@ import scheduleApi from "@/api/schedule"
 import matchApi from "@/api/match"
 import { GiBasketballJersey, GiWhistle } from "react-icons/gi"
 import { useToasts } from "@/hooks/providers/ToastProvider"
-import RemoveConfirmDialog from "@/components/ui/RemoveConfirmDialog"
 import Link from "next/link"
 import { LuEye } from "react-icons/lu"
 import { useRouter } from "next/navigation"
 import RemoveMemberConfirmDialog from "@/components/team-management/RemoveConfirm"
+import { Input } from "@/components/ui/Input"
 
 export default function TeamDashboard() {
   const [team, setTeam] = useState({
@@ -46,6 +46,7 @@ export default function TeamDashboard() {
   const [trainingSessionsData, setTrainingSessionsData] = useState([])
   const [matchesData, setMatchesData] = useState([])
   const [nonTeamPlayers, setNonTeamPlayers] = useState([])
+  const [nonTeamPlayerFilter, setNonTeamPlayerFilter] = useState([])
   const { user, userInfo } = useAuth();
   const { addToast } = useToasts();
   const [isNewPlayersAdded, setIsNewPlayersAdded] = useState(false)
@@ -54,6 +55,7 @@ export default function TeamDashboard() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [deletePlayerName, setDeletePlayerName] = useState(null)
   const [deletePlayerId, setDeletePlayerId] = useState(null)
+  const [playerSearch, setPlayerSearch] = useState("")
   const router = useRouter();
 
   useEffect(() => {
@@ -67,6 +69,11 @@ export default function TeamDashboard() {
   useEffect(() => {
     fetchNonTeamPlayers();
   }, [isNewPlayersAdded]);
+
+  useEffect(() => {
+    const playerFiltered = nonTeamPlayers.filter((player) => player.fullname.toLowerCase().includes(playerSearch.toLowerCase()) || player.email.toLowerCase().includes(playerSearch.toLowerCase()) || player.phone.toLowerCase().includes(playerSearch.toLowerCase()));
+    setNonTeamPlayerFilter(playerFiltered);
+  }, [playerSearch, nonTeamPlayers]);
 
   const fetchTeam = async () => {
     try {
@@ -192,6 +199,7 @@ export default function TeamDashboard() {
       addToast({ message: "Lỗi khi thêm người cho team", type: "error" });
     } finally {
       setIsAddPlayerModalOpen(false)
+      setPlayerSearch("")
       setSelectedPlayers([])
     }
   }
@@ -199,7 +207,7 @@ export default function TeamDashboard() {
   // Remove player from team
   const handleRemovePlayer = async (userId, date) => {
     try {
-      const response = await teamApi.removePlayer(userInfo?.roleInformation.teamId, [userId], {leftDate: format(new Date(date), "yyyy-MM-dd")});
+      const response = await teamApi.removePlayer(userInfo?.roleInformation.teamId, [userId], { leftDate: format(new Date(date), "yyyy-MM-dd") });
       addToast({ message: response?.data.message, type: response?.data.status });
       setTeam({
         ...team,
@@ -482,7 +490,14 @@ export default function TeamDashboard() {
             <DialogTitle>Thêm cầu thủ vào {team.teamName}</DialogTitle>
             <DialogDescription>Chọn cầu thủ để thêm vào đội. Bạn có thể chọn nhiều cầu thủ cùng lúc.</DialogDescription>
           </DialogHeader>
-
+          <div className="w-full">
+            <Input
+              placeholder="Tìm kiếm bằng tên, email hoặc số điện thoại"
+              className="mb-4 h-10"
+              onChange={(e) => setPlayerSearch(e.target.value)}
+              value={playerSearch}
+            />
+          </div>
           <div className="max-h-[60vh] overflow-y-auto">
             <Table>
               <TableHeader>
@@ -495,7 +510,7 @@ export default function TeamDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {nonTeamPlayers.map((player) => {
+                {nonTeamPlayerFilter.map((player) => {
 
                   return (
                     <TableRow key={player.userId}>
@@ -512,7 +527,7 @@ export default function TeamDashboard() {
                     </TableRow>
                   )
                 })}
-                {nonTeamPlayers.length === 0 && (
+                {nonTeamPlayerFilter.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                       Không có cầu thủ nào khả dụng để thêm.
@@ -569,7 +584,7 @@ export default function TeamDashboard() {
                   )}
                   <div className="flex-1">
                     <div className="text-sm font-medium">
-                      {nonTeamPlayers.find((p) => p.userId === result.playerId)?.fullname}
+                      {nonTeamPlayerFilter.find((p) => p.userId === result.playerId)?.fullname}
                     </div>
                     <div className={`text-sm ${result.success ? "text-green-700" : "text-red-700"}`}>
                       {result.message}

@@ -38,21 +38,28 @@ export default function DocumentManagement() {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            const filtered = documentSections.filter((section) =>
-                section.text.toLowerCase().includes(searchQuery.toLowerCase()),
-            )
-            setFilteredSections(filtered)
-            if (filtered.length === 0) {
-                setFilteredSections([
-                    {
-                        id: "no-results",
-                        text: "Không tìm thấy đề mục nào phù hợp với từ khóa tìm kiếm của bạn.",
-                    },
-                ])
+            if (searchQuery.trim() === "") {
+                setFilteredSections(documentSections)
+            } else {
+                const filtered = documentSections.filter((section) =>
+                    section.text.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+    
+                if (filtered.length === 0) {
+                    setFilteredSections([
+                        {
+                            id: "no-results",
+                            text: "Không tìm thấy đề mục nào phù hợp với từ khóa tìm kiếm của bạn.",
+                        },
+                    ])
+                } else {
+                    setFilteredSections(filtered)
+                }
             }
-        }, 300) // Thay đổi thời gian debounce nếu cần
+        }, 300)
+    
         return () => clearTimeout(timer)
-    }, [searchQuery])
+    }, [searchQuery, documentSections])
 
     const fetchDocumentSections = async () => {
         try {
