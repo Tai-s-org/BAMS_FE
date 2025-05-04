@@ -131,7 +131,7 @@ export function FaceDetectionPreview({
             return response?.data.data.registeredFaces[0]
         } catch (error) {
             addToast({
-                message: `Không thành công đăng ký Face ID cho: ${memberName}. Vui lòng chọn ảnh khác!`,
+                message: `Không tìm thấy khuôn mặt để đăng ký Face ID cho: ${memberName}. Vui lòng chọn ảnh khác!`,
                 type: "error"
             })
             throw error
