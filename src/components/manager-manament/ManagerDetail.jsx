@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import managerApi from "@/api/manager"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import teamApi from "@/api/team"
 
 export default function ManagerDetail({ id }) {
     const [manager, setManager] = useState(null)
@@ -11,58 +12,89 @@ export default function ManagerDetail({ id }) {
     const [error, setError] = useState(null)
     const [showAssignTeamModal, setShowAssignTeamModal] = useState(false)
     const [showDisableModal, setShowDisableModal] = useState(false)
-    const [selectedTeam, setSelectedTeam] = useState("1")
+    const [selectedTeam, setSelectedTeam] = useState("")
     const router = useRouter()
+    const [teams, setTeams] = useState([])
     const { addToast } = useToasts();
 
-    // Mock teams data
-    const teams = [
-        { id: "1", name: "Development Team" },
-        { id: "2", name: "Marketing Team" },
-        { id: "3", name: "Sales Team" },
-        { id: "4", name: "Support Team" },
-    ]
-
-    // Fetch user data
     useEffect(() => {
-        const fetchManagerData = async () => {
+        const fetchTeams = async () => {
             try {
-                setLoading(true)
-                const response = await managerApi.getManagerById(id)
-                setManager(response.data.data)
-                console.log(response.data);
-
-                //setSelectedTeam(response.data.roleInformation.teamId || "")
-            } catch (err) {
-                console.error("Error fetching user data:", err)
-                setError("Failed to load user data. Please try again.")
-            } finally {
-                setLoading(false)
+                // Fetch teams data from the API
+                const response = await teamApi.listTeams()
+                console.log("team:", response.data.data);
+                setTeams(response.data.data.items)
+            } catch (error) {
+                console.error("Error fetching teams:", error)
             }
         }
 
+        fetchTeams()
+    }, [])
+
+    // Mock teams data
+    // const teams = [
+    //     { id: "1", name: "Development Team" },
+    //     { id: "2", name: "Marketing Team" },
+    //     { id: "3", name: "Sales Team" },
+    //     { id: "4", name: "Support Team" },
+    // ]
+
+    const fetchManagerData = async () => {
+        try {
+            setLoading(true)
+            const response = await managerApi.getManagerById(id)
+            setManager(response.data.data)
+            //setSelectedTeam(response.data.roleInformation.teamId || "")
+        } catch (err) {
+            console.error("Error fetching user data:", err)
+            setError("Failed to load user data. Please try again.")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
+    // Fetch user data
+    useEffect(() => {
         fetchManagerData()
     }, [id])
 
     const handleAssignTeam = async () => {
-        // try {
-        //     // In a real app, you would call an API to update the team
-        //     await managerApi.assignMemberToTeam(manager.userId, selectedTeam)
+        console.log("Assigning team:", selectedTeam);
 
-        //     // Update local state
-        //     setUser((prev) => ({
-        //         ...prev,
-        //         roleInformation: {
-        //             ...prev.roleInformation,
-        //             teamId: selectedTeam,
-        //         },
-        //     }))
+        try {
+            // In a real app, you would call an API to update the team
+            const response = await managerApi.assignManagerToTeam(
+                {
+                    "userId": manager.userId,
+                    "teamId": selectedTeam,
+                    "bankName": manager.roleInformation.bankName,
+                    "bankAccountNumber": manager.roleInformation.bankBinId,
+                    "paymentMethod": manager.roleInformation.paymentMethod,
+                    "bankBinId": manager.roleInformation.bankAccountNumber
+                }, selectedTeam)
+            console.log("response:", response);
+            // Update local state
+            setManager((prev) => ({
+                ...prev,
+                roleInformation: {
+                    ...prev.roleInformation,
+                    teamId: selectedTeam,
+                },
+            }))
+            fetchManagerData()
+            addToast({ message: response.data.message, type: "success" });
+            setShowAssignTeamModal(false)
+        } catch (err) {
+            console.log(err);
 
-        //     alert(`Assigned to team: ${selectedTeam}`)
-        //     setShowAssignTeamModal(false)
-        // } catch (err) {
-        //     alert("Failed to assign team. Please try again.")
-        // }
+        }
+    }
+
+    const viewTeamName = (teamId) => {
+        const team = teams.find((team) => team.teamId === teamId)
+        return team ? team.teamName : "Chưa có đội"
     }
 
     const handleDisableUser = async () => {
@@ -96,7 +128,7 @@ export default function ManagerDetail({ id }) {
             <div className="container mx-auto py-8 px-4 flex justify-center items-center min-h-[60vh]">
                 <div className="flex flex-col items-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#bd2427]"></div>
-                    <p className="mt-4 text-gray-600">Loading user details...</p>
+                    <p className="mt-4 text-gray-600">Đang tải thông tin người dùng...</p>
                 </div>
             </div>
         )
@@ -111,7 +143,7 @@ export default function ManagerDetail({ id }) {
                         onClick={() => router.back()}
                         className="mt-2 px-3 py-1 text-sm border border-red-300 rounded hover:bg-red-100 transition-colors"
                     >
-                        Go Back
+                        Quay lại
                     </button>
                 </div>
             </div>
@@ -167,10 +199,10 @@ export default function ManagerDetail({ id }) {
                                 <span
                                     className={`px-2 py-1 text-xs font-semibold rounded-full ${manager.isEnable ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
                                 >
-                                    {manager.isEnable ? "Active" : "Inactive"}
+                                    {manager.isEnable ? "Đang hoạt động" : "Ngừng hoạt động"}
                                 </span>
                             </div>
-                            <div className="mt-1 text-gray-500">{manager.roleCode}</div>
+                            <div className="mt-1 text-gray-500">Quản lí</div>
                         </div>
                         <div className="mt-4 sm:mt-0 flex flex-wrap gap-2">
                             <button
@@ -194,7 +226,7 @@ export default function ManagerDetail({ id }) {
                                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                 </svg>
-                                Assign to Team
+                                Phân công vào đội
                             </button>
                             <button
                                 onClick={() => setShowDisableModal(true)}
@@ -218,7 +250,7 @@ export default function ManagerDetail({ id }) {
                                         <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12s4.48 10 10 10 10-4.48 10-10z" />
                                     )}
                                 </svg>
-                                {manager.isEnable ? "Disable User" : "Enable User"}
+                                {manager.isEnable ? "Vô hiệu hóa" : "Kích hoạt"}
                             </button>
                             <button
                                 onClick={handleUpdate}
@@ -239,7 +271,7 @@ export default function ManagerDetail({ id }) {
                                     <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
                                     <path d="m15 5 4 4" />
                                 </svg>
-                                Update
+                                Thay đổi thông tin
                             </button>
                         </div>
                     </div>
@@ -251,17 +283,17 @@ export default function ManagerDetail({ id }) {
                 {/* Personal Information */}
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="px-6 py-4 bg-gray-50 border-b">
-                        <h2 className="text-xl font-semibold">Personal Information</h2>
+                        <h2 className="text-xl font-semibold">Thông tin cá nhân</h2>
                     </div>
                     <div className="p-6">
                         <div className="space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-sm text-gray-500">Full Name</p>
+                                    <p className="text-sm text-gray-500">Họ và tên</p>
                                     <p className="font-medium">{manager.fullname}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500">Username</p>
+                                    <p className="text-sm text-gray-500">Tên tài khoản</p>
                                     <p className="font-medium">{manager.username}</p>
                                 </div>
                             </div>
@@ -273,18 +305,18 @@ export default function ManagerDetail({ id }) {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-sm text-gray-500">Phone</p>
-                                    <p className="font-medium">{manager.phone || "Not provided"}</p>
+                                    <p className="text-sm text-gray-500">Số điện thoại</p>
+                                    <p className="font-medium">{manager.phone || "-"}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500">Date of Birth</p>
-                                    <p className="font-medium">{manager.dateOfBirth || "Not provided"}</p>
+                                    <p className="text-sm text-gray-500">Ngày sinh</p>
+                                    <p className="font-medium">{manager.dateOfBirth || "N-"}</p>
                                 </div>
                             </div>
 
                             <div>
-                                <p className="text-sm text-gray-500">Address</p>
-                                <p className="font-medium">{manager.address || "Not provided"}</p>
+                                <p className="text-sm text-gray-500">Địa chỉ</p>
+                                <p className="font-medium">{manager.address || "-"}</p>
                             </div>
                         </div>
                     </div>
@@ -293,39 +325,39 @@ export default function ManagerDetail({ id }) {
                 {/* Role Information */}
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="px-6 py-4 bg-gray-50 border-b">
-                        <h2 className="text-xl font-semibold">Role Information</h2>
+                        <h2 className="text-xl font-semibold">Thông tin vai trò</h2>
                     </div>
                     <div className="p-6">
                         <div className="space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-sm text-gray-500">Role</p>
-                                    <p className="font-medium">{manager.roleCode}</p>
+                                    <p className="text-sm text-gray-500">Vai trò</p>
+                                    <p className="font-medium">Quản lí</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500">Team ID</p>
-                                    <p className="font-medium">{manager.roleInformation?.teamId || "Not assigned"}</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-sm text-gray-500">Bank Name</p>
-                                    <p className="font-medium">{manager.roleInformation?.bankName || "Not provided"}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">Bank Account Number</p>
-                                    <p className="font-medium">{manager.roleInformation?.bankAccountNumber || "Not provided"}</p>
+                                    <p className="text-sm text-gray-500">Đội</p>
+                                    <p className="font-medium">{viewTeamName(manager.roleInformation?.teamId) || "-"}</p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-sm text-gray-500">Created At</p>
+                                    <p className="text-sm text-gray-500">Tên ngân hàng</p>
+                                    <p className="font-medium">{manager.roleInformation?.bankName || "-"}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Số tài khoản ngân hàng</p>
+                                    <p className="font-medium">{manager.roleInformation?.bankAccountNumber || "-"}</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-sm text-gray-500">Tạo ngày</p>
                                     <p className="font-medium">{manager.createdAt}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500">Last Updated</p>
+                                    <p className="text-sm text-gray-500">Lần cuối cập nhật</p>
                                     <p className="font-medium">{manager.updatedAt}</p>
                                 </div>
                             </div>
@@ -339,20 +371,20 @@ export default function ManagerDetail({ id }) {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
                         <div className="px-6 py-4 border-b">
-                            <h3 className="text-xl font-semibold">Assign to Team</h3>
+                            <h3 className="text-xl font-semibold">Phân công vào đội</h3>
                         </div>
                         <div className="p-6">
                             <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-medium mb-2">Select Team</label>
+                                <label className="block text-gray-700 text-sm font-medium mb-2">Chọn đội</label>
                                 <div className="relative">
                                     <select
                                         value={selectedTeam}
                                         onChange={(e) => setSelectedTeam(e.target.value)}
                                         className="w-full px-3 py-2 border rounded-md appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#bd2427] focus:border-transparent"
                                     >
-                                        {teams.map((team) => (
-                                            <option key={team.id} value={team.id}>
-                                                {team.name}
+                                        {Array.isArray(teams) && teams.map((team) => (
+                                            <option key={team.teamId} value={team.teamId}>
+                                                {team.teamName}
                                             </option>
                                         ))}
                                     </select>
@@ -374,13 +406,13 @@ export default function ManagerDetail({ id }) {
                                     onClick={() => setShowAssignTeamModal(false)}
                                     className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                                 >
-                                    Cancel
+                                    Hủy
                                 </button>
                                 <button
                                     onClick={handleAssignTeam}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                                 >
-                                    Assign
+                                    Phân công
                                 </button>
                             </div>
                         </div>

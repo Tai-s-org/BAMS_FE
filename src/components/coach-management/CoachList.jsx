@@ -12,8 +12,12 @@ export default function CoachList({ coaches }) {
 
     // Format date to display in a more readable format
     const formatDate = (dateString) => {
-        if (!dateString) return "N/A"
-        return new Date(dateString).toLocaleDateString()
+        const date = new Date(dateString)
+        return date.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        })
     }
 
     return (
@@ -26,7 +30,7 @@ export default function CoachList({ coaches }) {
                         <th className="px-6 py-3 font-medium">Tiểu sử</th>
                         <th className="px-6 py-3 font-medium">Ngày kí hợp đồng</th>
                         <th className="px-6 py-3 font-medium">Ngày hết hạn hợp đồng</th>
-                        <th className="px-6 py-3 font-medium text-right">Actions</th>
+                        <th className="px-6 py-3 font-medium text-right"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,8 +38,8 @@ export default function CoachList({ coaches }) {
                         coaches.map((coach) => (
                             <tr key={coach.userId} className="bg-white border-b hover:bg-slate-50">
                                 <td className="px-6 py-4 font-medium">{coach.fullname}</td>
-                                <td className="px-6 py-4">{coach.teamId || "Not Assigned"}</td>
-                                <td className="px-6 py-4">{coach.bio || "N/A"}</td>
+                                <td className="px-6 py-4">{coach.teamId || "Chưa có đội"}</td>
+                                <td className="px-6 py-4">{coach.bio || "-"}</td>
                                 <td className="px-6 py-4">{formatDate(coach.contractStartDate)}</td>
                                 <td className="px-6 py-4">{formatDate(coach.contractEndDate)}</td>
                                 <td className="px-6 py-4 text-right">
@@ -66,7 +70,7 @@ export default function CoachList({ coaches }) {
                     ) : (
                         <tr>
                             <td colSpan={6} className="px-6 py-4 text-center">
-                                No coaches found matching the current filters
+                                Không tìm thấy huấn luyện viên nào phù hợp với bộ lọc hiện tại
                             </td>
                         </tr>
                     )}

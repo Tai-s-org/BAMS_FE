@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import coachApi from "@/api/coach"
 import teamApi from "@/api/team"
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 export default function CoachDetail({ id }) {
     const router = useRouter()
@@ -15,13 +16,7 @@ export default function CoachDetail({ id }) {
     const [selectedTeam, setSelectedTeam] = useState("1")
     const [isEnabled, setIsEnabled] = useState(true)
     const [teams, setTeams] = useState([])
-    // Mock teams data
-    // const teams = [
-    //     { id: "1", name: "Development Team" },
-    //     { id: "2", name: "Marketing Team" },
-    //     { id: "3", name: "Sales Team" },
-    //     { id: "4", name: "Support Team" },
-    // ]
+    const { addToast } = useToasts();
 
     // Format date to display in a more readable format
     const formatDate = (dateString) => {
@@ -32,30 +27,32 @@ export default function CoachDetail({ id }) {
             year: "numeric",
         })
     }
+    const fetchCoachData = async () => {
+        try {
+            setLoading(true)
+            const coachData = await coachApi.getCoachById(id);
+            console.log(coachData.data);
+
+            setCoach(coachData.data.data)
+            setSelectedTeam(coachData.data.teamId || "1")
+            setIsEnabled(true)
+        } catch (err) {
+            console.error("Error fetching coach data:", err)
+            setError("Failed to load coach data. Please try again.")
+        } finally {
+            setLoading(false)
+        }
+    }
 
     // Fetch coach data
     useEffect(() => {
-        const fetchCoachData = async () => {
-            try {
-                setLoading(true)
-                const coachData = await coachApi.getCoachById(id);
-                console.log(coachData.data);
 
-                setCoach(coachData.data.data)
-                setSelectedTeam(coachData.data.teamId || "1")
-                setIsEnabled(true)
-            } catch (err) {
-                console.error("Error fetching coach data:", err)
-                setError("Failed to load coach data. Please try again.")
-            } finally {
-                setLoading(false)
-            }
-        }
 
         const fetchTeam = async () => {
             try {
                 const teamData = await teamApi.listTeams();
                 console.log("Team: ", teamData.data);
+                setTeams(teamData.data.data.items)
             } catch (err) {
                 console.error("Error fetching team data:", err)
             }
@@ -67,9 +64,9 @@ export default function CoachDetail({ id }) {
     const handleAssignTeam = async () => {
         try {
             // In a real app, you would call an API to update the team
-            await coachApi.assignCoachToTeam({
+            const response = await coachApi.assignCoachToTeam({
                 "userId": coach.userId,
-                "teamId": "string"
+                "teamId": selectedTeam
             })
 
             // Update local state
@@ -77,26 +74,28 @@ export default function CoachDetail({ id }) {
                 ...prev,
                 teamId: selectedTeam,
             }))
-
-            alert(`Assigned to team: ${selectedTeam}`)
+            fetchCoachData()
+            addToast({ message: response.data.message, type: "success" })
+            
             setShowAssignTeamModal(false)
         } catch (err) {
-            alert("Failed to assign team. Please try again.")
+            console.log(err);
+
         }
     }
 
     const handleToggleStatus = async () => {
         try {
             // In a real app, you would call an API to toggle the coach's status
-            await coachApi.changeCoachStatus(coach.userId)
-
+            const response = await coachApi.changeCoachStatus(coach.userId)
+            console.log(response.data);
+            
             // Update local state
             setIsEnabled((prev) => !prev)
-
-            alert(`Coach ${isEnabled ? "disabled" : "enabled"} successfully`)
+            addToast({ message: response.data.message, type: "success" })
             setShowDisableModal(false)
         } catch (err) {
-            alert("Failed to update coach status. Please try again.")
+            addToast({ message: err, type: "error" })
         }
     }
 
@@ -109,7 +108,7 @@ export default function CoachDetail({ id }) {
             <div className="container mx-auto py-8 px-4 flex justify-center items-center min-h-[60vh]">
                 <div className="flex flex-col items-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#bd2427]"></div>
-                    <p className="mt-4 text-gray-600">Loading coach details...</p>
+                    <p className="mt-4 text-gray-600">Đang tải thông tin chi tiết về huấn luyện viên...</p>
                 </div>
             </div>
         )
@@ -171,13 +170,13 @@ export default function CoachDetail({ id }) {
                     <div className="mt-12 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-2xl font-bold">@{coach.username}</h1>
-                            <div className="flex items-center mt-1">
+                            {/* <div className="flex items-center mt-1">
                                 <span
                                     className={`px-2 py-1 text-xs font-semibold rounded-full ${coach.isEnabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
                                 >
                                     {coach.isEnabled ? "Đang hoạt động" : "Không hoạt động"}
                                 </span>
-                            </div>
+                            </div> */}
                         </div>
                         <div className="mt-4 sm:mt-0 flex flex-wrap gap-2">
                             <button
@@ -205,7 +204,7 @@ export default function CoachDetail({ id }) {
                             </button>
                             <button
                                 onClick={() => setShowDisableModal(true)}
-                                className={`px-4 py-2 ${isEnabled ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"} text-white rounded-md transition-colors flex items-center`}
+                                className={`px-4 py-2 ${coach?.isEnabled ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"} text-white rounded-md transition-colors flex items-center`}
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -219,7 +218,7 @@ export default function CoachDetail({ id }) {
                                     strokeLinejoin="round"
                                     className="mr-2"
                                 >
-                                    {isEnabled ? (
+                                    {coach?.isEnabled ? (
                                         <path d="M18.36 6.64A9 9 0 0 1 20.77 15M5.64 6.64A9 9 0 1 0 18.36 19.36L5.64 6.64z" />
                                     ) : (
                                         <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12s4.48 10 10 10 10-4.48 10-10z" />
@@ -297,7 +296,7 @@ export default function CoachDetail({ id }) {
                 {/* Team Information */}
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="px-6 py-4 bg-gray-50 border-b">
-                        <h2 className="text-xl font-semibold">Team Information</h2>
+                        <h2 className="text-xl font-semibold">Thông tin đội</h2>
                     </div>
                     <div className="p-6">
                         <div className="space-y-4">
@@ -320,20 +319,20 @@ export default function CoachDetail({ id }) {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
                         <div className="px-6 py-4 border-b">
-                            <h3 className="text-xl font-semibold">Assign to Team</h3>
+                            <h3 className="text-xl font-semibold">Phân công vào đội</h3>
                         </div>
                         <div className="p-6">
                             <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-medium mb-2">Select Team</label>
+                                <label className="block text-gray-700 text-sm font-medium mb-2">Chọn đội</label>
                                 <div className="relative">
                                     <select
                                         value={selectedTeam}
                                         onChange={(e) => setSelectedTeam(e.target.value)}
                                         className="w-full px-3 py-2 border rounded-md appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#bd2427] focus:border-transparent"
                                     >
-                                        {teams.map((team) => (
-                                            <option key={team.id} value={team.id}>
-                                                {team.name}
+                                        {Array.isArray(teams) && teams.map((team) => (
+                                            <option key={team.teamId} value={team.teamId}>
+                                                {team.teamName}
                                             </option>
                                         ))}
                                     </select>
@@ -355,13 +354,13 @@ export default function CoachDetail({ id }) {
                                     onClick={() => setShowAssignTeamModal(false)}
                                     className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                                 >
-                                    Cancel
+                                    Hủy bỏ
                                 </button>
                                 <button
                                     onClick={handleAssignTeam}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                                 >
-                                    Assign
+                                    Phân công
                                 </button>
                             </div>
                         </div>
@@ -374,14 +373,14 @@ export default function CoachDetail({ id }) {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
                         <div className="px-6 py-4 border-b">
-                            <h3 className="text-xl font-semibold">{isEnabled ? "Disable Coach" : "Enable Coach"}</h3>
+                            <h3 className="text-xl font-semibold">{isEnabled ? "Vô hiệu hóa HLV" : "Kích hoạt HLV"}</h3>
                         </div>
                         <div className="p-6">
                             <p className="mb-4">
-                                Are you sure you want to {isEnabled ? "disable" : "enable"} this coach?
-                                {isEnabled
-                                    ? " They will no longer be able to access the system."
-                                    : " They will regain access to the system."}
+                            Bạn có chắc chắn muốn {coach?.isEnabled ? "vô hiệu hóa" : "kích hoạt"} HLV này không?
+                                {coach?.isEnabled
+                                    ? " Họ sẽ không còn có thể truy cập vào hệ thống nữa."
+                                    : " Họ sẽ lấy lại được quyền truy cập vào hệ thống."}
                             </p>
                             <div className="flex justify-end space-x-2">
                                 <button
@@ -392,9 +391,9 @@ export default function CoachDetail({ id }) {
                                 </button>
                                 <button
                                     onClick={handleToggleStatus}
-                                    className={`px-4 py-2 ${isEnabled ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"} text-white rounded-md transition-colors`}
+                                    className={`px-4 py-2 ${coach?.isEnabled ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"} text-white rounded-md transition-colors`}
                                 >
-                                    {isEnabled ? "Disable" : "Enable"}
+                                    {coach?.isEnabled ? "Vô hiệu hóa" : "Kích hoạt"}
                                 </button>
                             </div>
                         </div>

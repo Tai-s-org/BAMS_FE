@@ -95,13 +95,13 @@ export default function CoachManagement() {
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 {/* Header */}
                 <div className="bg-[#bd2427] text-white px-6 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Coach List</h1>
+                    <h1 className="text-2xl font-bold">Danh sách huấn luyện viên</h1>
                     <button
                         onClick={() => setShowCreateModal(true)}
                         className="px-4 py-2 bg-white text-[#bd2427] rounded-md hover:bg-gray-100 transition-colors flex items-center"
                     >
                         <Plus className="mr-2 h-5 w-5" />
-                        Create Coach
+                        Tạo tài khoản huấn luyện viên
                     </button>
                 </div>
 
@@ -123,7 +123,7 @@ export default function CoachManagement() {
                                 onClick={fetchData}
                                 className="mt-2 px-3 py-1 text-sm border border-red-300 rounded hover:bg-red-100 transition-colors"
                             >
-                                Retry
+                                Thử lại
                             </button>
                         </div>
                     )}
@@ -132,7 +132,7 @@ export default function CoachManagement() {
                     {loading ? (
                         <div className="flex justify-center items-center py-12">
                             <Loader2 className="h-8 w-8 animate-spin text-[#bd2427]" />
-                            <span className="ml-2 text-lg">Loading...</span>
+                            <span className="ml-2 text-lg">Đang tải...</span>
                         </div>
                     ) : (
                         <>

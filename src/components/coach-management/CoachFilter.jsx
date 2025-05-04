@@ -26,7 +26,7 @@ export default function CoachFilter({ searchUserId, teamIdFilter, uniqueTeamIds,
                     </div>
                     <input
                         type="text"
-                        placeholder="Search by User ID..."
+                        placeholder="Tìm kiếm theo tên..."
                         value={searchUserId}
                         onChange={(e) => onSearchChange(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427] focus:border-transparent"
@@ -61,7 +61,7 @@ export default function CoachFilter({ searchUserId, teamIdFilter, uniqueTeamIds,
                             onChange={(e) => onFilterChange(e.target.value)}
                             className="w-full px-3 py-2 border rounded-md appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-[#bd2427] focus:border-transparent"
                         >
-                            <option value="all">All Teams</option>
+                            <option value="all">Tất cả team</option>
                             {/* {uniqueTeamIds.map((teamId) => (
                                 <option key={teamId} value={teamId}>
                                     Team {teamId}
