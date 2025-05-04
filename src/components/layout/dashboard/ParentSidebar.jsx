@@ -1,24 +1,19 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { BarChart3, CreditCard, FileText, Grid, Home, LayoutDashboard, Package, Settings, Users, Code, Database, History } from "lucide-react";
+import { BarChart3, Grid } from "lucide-react";
+import { FaCalendarCheck } from "react-icons/fa";
+import { RiBasketballFill } from "react-icons/ri";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
 import Link from "next/link";
-import { TbPlayBasketball } from "react-icons/tb";
 
 export default function ParentSidebar() {
-    const pathname = usePathname(); // Lấy đường dẫn hiện tại
-
-    // const mainMenuItems = [
-    //     {
-    //         title: "Trang chủ",
-    //         icon: Home,
-    //         url: "/dashboard",
-    //     },
-    // ];
+    const pathname = usePathname(); 
 
     const menuItems = [
-        { title: "Lịch tập luyện", icon: BarChart3, url: "/schedules" }
+        { title: "Lịch tập luyện", icon: BarChart3, url: "/schedules" },
+        { title: "Tình trạng điểm danh", icon: FaCalendarCheck, url: "/attendance-tracker" },
+        { title: "Lịch thi đấu", icon: RiBasketballFill, url: "/match-tracker" },
     ];
 
     return (
@@ -34,23 +29,6 @@ export default function ParentSidebar() {
                     </div>
                 </div>
                 <SidebarMenu>
-                    {/* {mainMenuItems.map((item) => {
-                        const isActive = pathname === item.url;
-                        return (
-                            <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton
-                                    asChild
-                                    className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
-                                        }`}
-                                >
-                                    <a href={item.url} className="flex items-center gap-2">
-                                        <item.icon className="h-5 w-5" />
-                                        <span>{item.title}</span>
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        );
-                    })} */}
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
