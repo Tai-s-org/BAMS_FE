@@ -10,21 +10,33 @@ import Link from "next/link"
 import { ArrowLeft, Filter } from "lucide-react"
 import { useEffect, useState } from "react"
 import teamFundApi from "@/api/teamFund"
+import teamApi from "@/api/team"
 
 export default function PresidentPayment() {
     const [teamFundList, setTeamFundList] = useState([])
-
+    const [teams, setTeams] = useState([])
 
     useEffect(() => {
-        const fetchTeamFund = async() => {
+        const feathTeam = async () => {
+            try {
+                const response = await teamApi.listTeams();
+                console.log(response.data);
+                setTeams(response.data.data)
+            } catch (error) {
+                console.error("Error fetching teams:", error);
+            }
+        }
+
+        const fetchTeamFund = async () => {
             try {
                 const response = await teamFundApi.teamFundList();
                 console.log(response.data);
                 setTeamFundList(response.data.data)
             } catch (error) {
-                
+
             }
         }
+        feathTeam()
         fetchTeamFund()
     }, [])
 
@@ -47,13 +59,13 @@ export default function PresidentPayment() {
                 <h1 className="text-2xl font-bold ml-4">Thống kê thanh toán của câu lạc bộ</h1>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium">Tổng số đội</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">5</div>
+                        <div className="text-2xl font-bold">{teams.length || 0}</div>
                     </CardContent>
                 </Card>
 
@@ -75,14 +87,14 @@ export default function PresidentPayment() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                {/* <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium">Payment Rate</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">78%</div>
                     </CardContent>
-                </Card>
+                </Card> */}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -92,7 +104,7 @@ export default function PresidentPayment() {
                             <TabsList>
                                 <TabsTrigger value="pending">Báo cáo đang chờ duyệt</TabsTrigger>
                                 <TabsTrigger value="approved">Báo cáo đã duyệt</TabsTrigger>
-                                <TabsTrigger value="history">Lịch sử thanh toán</TabsTrigger>
+                                {/* <TabsTrigger value="history">Lịch sử thanh toán</TabsTrigger> */}
                             </TabsList>
 
                             <div className="flex flex-wrap gap-2 items-center">
@@ -103,11 +115,20 @@ export default function PresidentPayment() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all-teams">Tất cả các đội</SelectItem>
+                                        {Array.isArray(teams) &&
+                                            teams?.map((team) => (
+                                                <SelectItem key={team.teamId} value={team.teamId}>
+                                                    {team.teamName}
+                                                </SelectItem>
+                                            ))
+                                        }
+                                        {/* <SelectItem value="all-teams">Tất cả các đội</SelectItem>
+                                        <SelectItem value="all-teams">Tất cả các đội</SelectItem>
                                         <SelectItem value="team-alpha">Team Alpha</SelectItem>
                                         <SelectItem value="team-beta">Team Beta</SelectItem>
                                         <SelectItem value="team-gamma">Team Gamma</SelectItem>
                                         <SelectItem value="team-delta">Team Delta</SelectItem>
-                                        <SelectItem value="team-epsilon">Team Epsilon</SelectItem>
+                                        <SelectItem value="team-epsilon">Team Epsilon</SelectItem> */}
                                     </SelectContent>
                                 </Select>
 
@@ -133,7 +154,7 @@ export default function PresidentPayment() {
                                     <CardDescription className="text-[#94949B]">Xem xét và phê duyệt báo cáo chi phí của các đội</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <PendingReportsList  pendingReports={pendingTeamFundList}/>
+                                    <PendingReportsList pendingReports={pendingTeamFundList} />
                                 </CardContent>
                             </Card>
                         </TabsContent>
@@ -150,7 +171,7 @@ export default function PresidentPayment() {
                             </Card>
                         </TabsContent>
 
-                        <TabsContent value="history">
+                        {/* <TabsContent value="history">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Lịch sử thanh toán</CardTitle>
@@ -160,7 +181,7 @@ export default function PresidentPayment() {
                                     <PaymentHistoryList />
                                 </CardContent>
                             </Card>
-                        </TabsContent>
+                        </TabsContent> */}
                     </Tabs>
                 </div>
 

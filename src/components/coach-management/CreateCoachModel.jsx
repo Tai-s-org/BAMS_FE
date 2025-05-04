@@ -1,17 +1,21 @@
 "use client"
 
+import coachApi from "@/api/coach"
 import { useState } from "react"
+import { DatePicker } from "../ui/DatePicker"
 
 export default function CreateCoachModal({ onClose, onSubmit }) {
     const [formData, setFormData] = useState({
-        username: "",
-        fullname: "",
-        password: "",
-        email: "",
-        phone: "",
-        address: "",
-        dateOfBirth: "",
+        "fullname": "",
+        "email": "",
+        "profileImage": "",
+        "phone": "",
+        "address": "",
+        "dateOfBirth": "",
+        "contractStartDate": "",
+        "contractEndDate": "",
     })
+
     const [errors, setErrors] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -21,8 +25,6 @@ export default function CreateCoachModal({ onClose, onSubmit }) {
             ...prev,
             [name]: value,
         }))
-
-        // Clear error when field is edited
         if (errors[name]) {
             setErrors((prev) => ({
                 ...prev,
@@ -34,18 +36,8 @@ export default function CreateCoachModal({ onClose, onSubmit }) {
     const validateForm = () => {
         const newErrors = {}
 
-        if (!formData.username.trim()) {
-            newErrors.username = "Username is required"
-        }
-
         if (!formData.fullname.trim()) {
             newErrors.fullname = "Full name is required"
-        }
-
-        if (!formData.password) {
-            newErrors.password = "Password is required"
-        } else if (formData.password.length < 6) {
-            newErrors.password = "Password must be at least 6 characters"
         }
 
         if (!formData.email.trim()) {
@@ -60,19 +52,18 @@ export default function CreateCoachModal({ onClose, onSubmit }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-
-        if (!validateForm()) {
-            return
-        }
+        if (!validateForm()) return
 
         setIsSubmitting(true)
-
         try {
-            await onSubmit(formData)
+            console.log("Submitting form data:", formData);
+
+            const response = await coachApi.createNewCoachAccount(formData);
+            console.log(response);
+
             onClose()
         } catch (error) {
-            console.error("Error submitting form:", error)
-        } finally {
+            console.log("Error submitting form:", error)
             setIsSubmitting(false)
         }
     }
@@ -81,131 +72,128 @@ export default function CreateCoachModal({ onClose, onSubmit }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
                 <div className="px-6 py-4 border-b flex justify-between items-center">
-                    <h3 className="text-xl font-semibold">Create New Coach</h3>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
+                    <h3 className="text-xl font-semibold">Tạo mới huấn luyện viên</h3>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6">
-                    <div className="space-y-4">
-                        {/* Username */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Username <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="username"
-                                value={formData.username}
-                                onChange={handleChange}
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427] ${errors.username ? "border-red-500" : "border-gray-300"}`}
-                            />
-                            {errors.username && <p className="mt-1 text-sm text-red-500">{errors.username}</p>}
-                        </div>
-
-                        {/* Full Name */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Full Name <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="fullname"
-                                value={formData.fullname}
-                                onChange={handleChange}
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427] ${errors.fullname ? "border-red-500" : "border-gray-300"}`}
-                            />
-                            {errors.fullname && <p className="mt-1 text-sm text-red-500">{errors.fullname}</p>}
-                        </div>
-
-                        {/* Password */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Password <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427] ${errors.password ? "border-red-500" : "border-gray-300"}`}
-                            />
-                            {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
-                        </div>
-
-                        {/* Email */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Email <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427] ${errors.email ? "border-red-500" : "border-gray-300"}`}
-                            />
-                            {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
-                        </div>
-
-                        {/* Phone */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                            <input
-                                type="text"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427]"
-                            />
-                        </div>
-
-                        {/* Address */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                            <input
-                                type="text"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427]"
-                            />
-                        </div>
-
-                        {/* Date of Birth */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                            <input
-                                type="date"
-                                name="dateOfBirth"
-                                value={formData.dateOfBirth}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427]"
-                            />
-                        </div>
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                    {/* Full Name */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Họ và tên <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="fullname"
+                            value={formData.fullname}
+                            onChange={handleChange}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427] ${errors.fullname ? "border-red-500" : "border-gray-300"}`}
+                        />
+                        {errors.fullname && <p className="mt-1 text-sm text-red-500">{errors.fullname}</p>}
                     </div>
 
+                    {/* Email */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Email <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427] ${errors.email ? "border-red-500" : "border-gray-300"}`}
+                            required
+                        />
+                        {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
+                    </div>
+
+                    {/* Profile Image */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Ảnh đại diện (URL)</label>
+                        <input
+                            type="text"
+                            name="profileImage"
+                            value={formData.profileImage}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427]"
+                        />
+                    </div>
+
+                    {/* Phone */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại <span className="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427]"
+                            required
+                        />
+                    </div>
+
+                    {/* Address */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ <span className="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#bd2427]"
+                            required
+                        />
+                    </div>
+
+                    {/* Date of Birth */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Ngày sinh</label>
+                        <DatePicker
+                            value={formData.dateOfBirth ? new Date(formData.dateOfBirth) : null}
+                            onChange={(date) => setFormData((prev) => ({
+                                ...prev,
+                                dateOfBirth: date?.toISOString() || ""
+                            }))}
+
+                        />
+                    </div>
+
+                    {/* Contract Start Date */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Ngày kí hợp đồng</label>
+                        <DatePicker
+                            value={formData.contractStartDate ? new Date(formData.contractStartDate) : null}
+                            onChange={(date) => setFormData((prev) => ({
+                                ...prev,
+                                contractStartDate: date?.toISOString() || ""
+                            }))}
+                            minDate={formData.contractStartDate || Date.now()}
+                            required
+                        />
+                    </div>
+
+                    {/* Contract End Date */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Ngày hết hạn hợp đồng</label>
+                        <DatePicker
+                            value={formData.contractEndDate ? new Date(formData.contractEndDate) : null}
+                            onChange={(date) => setFormData((prev) => ({
+                                ...prev,
+                                contractEndDate: date?.toISOString() || ""
+                            }))}
+                            required
+                        />
+                    </div>
+
+                    {/* Buttons */}
                     <div className="mt-6 flex justify-end space-x-3">
                         <button
                             type="button"
                             onClick={onClose}
                             className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                         >
-                            Cancel
+                            Hủy
                         </button>
                         <button
                             type="submit"
@@ -227,7 +215,7 @@ export default function CreateCoachModal({ onClose, onSubmit }) {
                                     ></path>
                                 </svg>
                             )}
-                            Create Coach
+                            Tạo huấn luyện viên
                         </button>
                     </div>
                 </form>
@@ -235,4 +223,3 @@ export default function CreateCoachModal({ onClose, onSubmit }) {
         </div>
     )
 }
-

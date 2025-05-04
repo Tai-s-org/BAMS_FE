@@ -11,7 +11,7 @@ const managerApi = {
     getManagerById: (userId) => {
         return api.get(`/manager/manager-detail/${userId}`);
     },
-    assignMemberToTeam: (data) => {
+    assignManagerToTeam: (data) => {
         return api.put('/manager/assign-manager-to-team', data);
     },
     disableManager: (userId) => {
