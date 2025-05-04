@@ -110,8 +110,7 @@ export default function DocumentManagement() {
 
     const handleDownload = async () => {
         try {
-            const response = await chatbotApi.downloadDocument(); // cần trả về response đầy đủ, không destructuring .data
-            console.log("Headers:", response.headers);
+            const response = await chatbotApi.downloadDocument(); 
             const blob = new Blob([response.data], {
                 type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             });
