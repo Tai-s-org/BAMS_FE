@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { CalendarDays, MapPin, Trophy, Edit, Power, User, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/Input";
@@ -46,6 +47,7 @@ export default function TeamDetails() {
   const [selectedFundManager, setSelectedFundManager] = useState(
     selectedTeam.fundManagerId ? selectedTeam.fundManagerId : null,
   )
+  const [editedGender, setEditedGender] = useState("")
   const [selectedFundManagerError, setSelectedFundManagerError] = useState(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [matches, setMatches] = useState([])
@@ -102,14 +104,14 @@ export default function TeamDetails() {
 
 
   const handleEditName = (team) => {
-    setEditedName(team.teamName);
+    setEditedName(team.teamName.split(" ").slice(1).join(" "));
     setIsEditing(true);
   };
 
   const submitName = async () => {
     try {
       const data = {
-        teamName: editedName,
+        teamName: editedGender + " " + editedName,
         status: selectedTeam.status
       }
       const response = await teamApi.updateTeamName(data, selectedTeamId);
@@ -131,7 +133,7 @@ export default function TeamDetails() {
     );
 
     setTeams(updatedTeams);
-    setSelectedTeam({ ...selectedTeam, teamName: editedName });
+    setSelectedTeam({ ...selectedTeam, teamName: editedGender + " " + editedName });
     setIsEditing(false);
     submitName();
   };
@@ -265,19 +267,35 @@ export default function TeamDetails() {
                 <div className="flex-1">
                   {isEditing && selectedTeam.teamId === team.teamId ? (
                     <div className="flex items-center gap-2">
-                      <Input
-                        value={editedName}
-                        onChange={(e) => setEditedName(e.target.value)}
-                        className="max-w-xs"
-                        placeholder="Nhập tên đội mới"
-                      />
-                      <Button onClick={handleSaveName} size="sm" className="bg-[#BD2427] hover:bg-[#9a1e21]">
-                        Lưu
-                      </Button>
-                      <Button onClick={() => setIsEditing(false)} size="sm" variant="outline">
-                        Hủy
-                      </Button>
-                    </div>
+                    <Select
+                      value={editedGender}
+                      onValueChange={(value) => setEditedGender(value)}
+                      required
+                    >
+                      <SelectTrigger className="w-28">
+                        <SelectValue placeholder="Chọn" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Nam">Nam</SelectItem>
+                        <SelectItem value="Nữ">Nữ</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  
+                    <Input
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      className="max-w-xs"
+                      placeholder="Nhập tên đội mới"
+                    />
+                    
+                    <Button onClick={handleSaveName} size="sm" className="bg-[#BD2427] hover:bg-[#9a1e21]">
+                      Lưu
+                    </Button>
+                    
+                    <Button onClick={() => setIsEditing(false)} size="sm" variant="outline">
+                      Hủy
+                    </Button>
+                  </div>
                   ) : (
                     <>
                       <div className="flex items-center gap-2">
@@ -292,7 +310,9 @@ export default function TeamDetails() {
                     variant="outline"
                     size="sm"
                     className="flex items-center gap-1"
-                    onClick={() => handleEditName(team)}
+                    onClick={() => {
+                      setEditedGender(team.teamName.split(" ")[0]);
+                      handleEditName(team)}}
                   >
                     <Edit className="h-4 w-4" />
                     <span>Sửa tên</span>
