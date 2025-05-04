@@ -26,6 +26,9 @@ const attendanceApi = {
             },
         });
     },
+    getUserSummaryAttendance: (data) => {
+        return api.get('/Attendance/get-user-summary-attendances', {params: data});
+    },
 }
 
 export default attendanceApi;

@@ -225,6 +225,13 @@ export default function TeamDashboard() {
     }
   }
 
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength - 3) + "...";
+    }
+    return text;
+  };
+
   return (
     <div className="container mx-auto py-6">
       {/* Team Header */}
@@ -263,7 +270,7 @@ export default function TeamDashboard() {
                 {trainingSessionsData.map((session) => (
                   <div key={session.trainingSessionId} className="flex flex-col p-4 border rounded-lg">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium">{session.courtName} - {session.courtAddress}</h3>
+                      <h3 className="font-medium">{truncateText(`${session.courtName} - ${session.courtAddress}`, 50)}</h3>
                       <Link href={`/training-sessions/${session.trainingSessionId}`} className="text-[#BD2427] hover:text-[#9a1e20]">
                         <Badge variant={"outline"}>
                           <LuEye className="h-4 w-4 mr-1" /> Chi tiết
@@ -335,7 +342,7 @@ export default function TeamDashboard() {
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground mt-1">
                       <MapPin className="h-4 w-4 mr-1" />
-                      <span>{match.courtName} - {match.courtAddress}</span>
+                      <span>{truncateText(`${match.courtName} - ${match.courtAddress}`, 50)}</span>
                     </div>
                   </div>
                 ))}
