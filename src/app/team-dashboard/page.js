@@ -84,10 +84,10 @@ export default function TeamDashboard() {
   const fetchNonTeamPlayers = async () => {
     try {
       const data = {
-        OnlyNoTeam: true
+        teamId: userInfo?.roleInformation.teamId
       }
-      const response = await playerApi.getNonTeamPlayers(data);
-      setNonTeamPlayers(response?.data.data.items);
+      const response = await playerApi.getNonTeamPlayersByGender(data);
+      setNonTeamPlayers(response?.data.data);
     } catch (error) {
       console.error("Error fetching non-team players:", error)
       if (error?.response?.data.status === 401) {
