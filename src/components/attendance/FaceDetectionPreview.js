@@ -36,22 +36,6 @@ export function FaceDetectionPreview({
     })
     const { addToast } = useToasts()
 
-
-
-    // Xử lý detectedFaces để đảm bảo mỗi face có faceId duy nhất
-    // let processedFaces = useMemo(() => {
-    //     return detectionResult.detectedFaces.map(face => {
-    //         // Nếu là face chưa xác định và không có faceId, tạo faceId từ tọa độ
-    //         if (face.userId === "Không xác định" && face.faceId === "Không xác định") {
-    //             return {
-    //                 ...face,
-    //                 faceId: `unidentified_${getFaceKey(face)}`
-    //             }
-    //         }
-    //         return face
-    //     })
-    // }, [detectionResult.detectedFaces])
-
     // Danh sách player đã được detect tự động
     let autoDetectedPlayers = useMemo(() => {
         return processedFaces
@@ -389,7 +373,6 @@ export function FaceDetectionPreview({
                             </div>
                         </div>
 
-                        {/* Chú thích khung màu */}
                         <div className="text-sm text-gray-600 w-full lg:w-72">
                             <p>• <span className="text-green-600">Khung xanh</span>: Đã xác định tự động</p>
                             <p>• <span className="text-blue-600">Khung xanh dương</span>: Đã gán thủ công</p>
@@ -398,7 +381,6 @@ export function FaceDetectionPreview({
                         </div>
                     </div>
 
-                    {/* Danh sách cầu thủ đã gán */}
                     {Object.keys(assignedPlayers).length > 0 && (
                         <div className="border-t pt-4">
                             <h4 className="font-medium mb-2">Cầu thủ đã gán thủ công:</h4>
