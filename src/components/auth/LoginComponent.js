@@ -35,17 +35,7 @@ export default function LoginComponent() {
     };
 
     return (
-        <div className="p-6 rounded-lg shadow-lg w-full h-full">
-            <Button
-                variant="outline"
-                className="border border-gray-300 text-gray-700 hover:bg-gray-100 transition-all duration-300"
-                asChild
-            >
-                <Link href="/">
-                    <House className="mr-2 h-4 w-4" />
-                    Trang chủ
-                </Link>
-            </Button>
+        <div className="w-full">
             <FormLogin onSubmit={handleLogin} loading={loading}/>
         </div>
     );

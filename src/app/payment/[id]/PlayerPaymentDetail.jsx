@@ -13,6 +13,7 @@ import { ArrowLeft, FileText, DollarSign, QrCode, CheckCircle, AlertTriangle, Wa
 import paymentApi from "@/api/payment"
 import teamFundApi from "@/api/teamFund"
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
+import { differenceInDays, addDays, format, parseISO } from "date-fns";
 
 export default function PaymentDetail({ id }) {
     const [payment, setPayment] = useState()
@@ -160,6 +161,24 @@ export default function PaymentDetail({ id }) {
         return () => clearInterval(interval);
     }, [showQR, paymentMethod]);
 
+    function isAtLeastThreeDaysLater(dateStr) {
+        if (dateStr) {
+            const xDate = parseISO(dateStr); // chuyển chuỗi sang đối tượng Date
+            const today = new Date();
+            return differenceInDays(today, xDate) >= 3;
+        }
+        else return ""
+    }
+
+
+    function addThreeDays(dateStr) {
+        if (dateStr) {
+            const xDate = parseISO(dateStr)
+            const newDate = addDays(xDate, 3)
+            return format(newDate, "dd/MM/yyyy")
+        }
+        else return ""
+    }
 
     return (
         <div className="container mx-auto py-6">
@@ -203,7 +222,7 @@ export default function PaymentDetail({ id }) {
                                             <TableHeader className="bg-slate-50">
                                                 <TableRow className="text-sm font-medium">
                                                     <TableHead className="w-4/12">Danh mục</TableHead>
-                                                    <TableHead className="w-2/12 text-right">Giá tiền</TableHead>
+                                                    <TableHead className="w-3/12 text-right">Số tiền</TableHead>
                                                     <TableHead className="w-1/12"></TableHead>
                                                     <TableHead className="w-5/12">Ghi chú</TableHead>
                                                 </TableRow>
@@ -231,92 +250,118 @@ export default function PaymentDetail({ id }) {
                                         </Table>
                                     </div>
                                 </div>
-
-                                {(payment?.status == 0 || payment?.status == 2) && (
+                                {isAtLeastThreeDaysLater(payment?.approvedAt) ? (
                                     <>
-                                        <Separator />
-                                        <div>
-                                            <h3 className="font-medium mb-2">Phương thức thanh toán</h3>
-                                            <RadioGroup
-                                                value={selectedPaymentMethod}
-                                                onValueChange={setSelectedPaymentMethod}
-                                                className="space-y-3"
-                                            >
-                                                {paymentMethod?.paymentMethod === 1 ?
-                                                    (
+                                        {(payment?.status == 0 || payment?.status == 2) && (
+                                            <>
+                                                <Separator />
+                                                <div>
+                                                    <h3 className="font-medium mb-2">Phương thức thanh toán</h3>
+                                                    <RadioGroup
+                                                        value={selectedPaymentMethod}
+                                                        onValueChange={setSelectedPaymentMethod}
+                                                        className="space-y-3"
+                                                    >
+                                                        {paymentMethod?.paymentMethod === 1 ?
+                                                            (
+                                                                <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+                                                                    <RadioGroupItem value="qr" id="qr" />
+                                                                    <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
+                                                                        <div className="bg-green-100 p-2 rounded-full">
+                                                                            <QrCode className="h-5 w-5 text-green-600" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="font-medium">Thanh toán bằng mã QR tự động</div>
+                                                                            <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn</div>
+                                                                        </div>
+                                                                    </Label>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
+                                                                    <RadioGroupItem value="qr" id="qr" />
+                                                                    <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
+                                                                        <div className="bg-blue-100 p-2 rounded-full">
+                                                                            <QrCode className="h-5 w-5 text-blue-600" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="font-medium">Thanh toán bằng mã QR thủ công</div>
+                                                                            <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn và chờ quản lí duyệt</div>
+                                                                        </div>
+                                                                    </Label>
+                                                                </div>
+                                                            )}
                                                         <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
-                                                            <RadioGroupItem value="qr" id="qr" />
-                                                            <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
-                                                                <div className="bg-green-100 p-2 rounded-full">
-                                                                    <QrCode className="h-5 w-5 text-green-600" />
+                                                            <RadioGroupItem value="cash" id="cash" />
+                                                            <Label htmlFor="cash" className="flex items-center gap-2 cursor-pointer">
+                                                                <div className="bg-amber-100 p-2 rounded-full">
+                                                                    <BanknoteIcon className="h-5 w-5 text-amber-600" />
                                                                 </div>
                                                                 <div>
-                                                                    <div className="font-medium">Thanh toán bằng mã QR tự động</div>
-                                                                    <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn</div>
+                                                                    <div className="font-medium">Tiền mặt</div>
+                                                                    <div className="text-sm text-muted-foreground">Thanh toán trực tiếp bằng tiền mặt</div>
                                                                 </div>
                                                             </Label>
                                                         </div>
-                                                    ) : (
-                                                        <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
-                                                            <RadioGroupItem value="qr" id="qr" />
-                                                            <Label htmlFor="qr" className="flex items-center gap-2 cursor-pointer">
-                                                                <div className="bg-blue-100 p-2 rounded-full">
-                                                                    <QrCode className="h-5 w-5 text-blue-600" />
-                                                                </div>
-                                                                <div>
-                                                                    <div className="font-medium">Thanh toán bằng mã QR thủ công</div>
-                                                                    <div className="text-sm text-muted-foreground">Quét bằng ứng dụng thanh toán của bạn và chờ quản lí duyệt</div>
-                                                                </div>
-                                                            </Label>
-                                                        </div>
-                                                    )}
-                                                <div className="flex items-center space-x-2 border rounded-md p-3 hover:bg-gray-50 cursor-pointer">
-                                                    <RadioGroupItem value="cash" id="cash" />
-                                                    <Label htmlFor="cash" className="flex items-center gap-2 cursor-pointer">
-                                                        <div className="bg-amber-100 p-2 rounded-full">
-                                                            <BanknoteIcon className="h-5 w-5 text-amber-600" />
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-medium">Tiền mặt</div>
-                                                            <div className="text-sm text-muted-foreground">Thanh toán trực tiếp bằng tiền mặt</div>
-                                                        </div>
-                                                    </Label>
+                                                    </RadioGroup>
                                                 </div>
-                                            </RadioGroup>
+                                            </>
+                                        )}
+                                    </>
+
+                                ) : (
+                                    <>
+                                        <div className=" text-red-700 gap-1 font-normal italic text-sm">
+                                            <p>
+                                                *Ghi chú:
+                                            </p>
+                                            <p className="pl-4">
+                                                - Phía trên chỉ là số tiền dự kiến mà bạn cần phải nộp. Số tiền chính thức sẽ được chốt vào ngày {addThreeDays(payment?.approvedAt)}.
+                                            </p>
+                                            <p className="pl-4">
+                                                - Trong khoảng thời gian trước ngày chốt, nếu có bất kỳ sai sót nào liên quan đến các danh mục thanh toán, vui lòng liên hệ quản lý của đội để nhận được sự trợ giúp. Sau ngày {addThreeDays(payment?.approvedAt)}, mọi khiếu nại sẽ không được giải quyết.
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center text-yellow-500 gap-1">
+                                            <CheckCircle className="h-4 w-4" />
+                                            <span>Vui lòng chờ đến ngày thanh toán</span>
                                         </div>
                                     </>
                                 )}
+
                             </div>
                         </CardContent>
-                        <CardFooter className="flex justify-end gap-2">
-                            {payment?.status === 2 && (
-                                <div className="flex items-center text-red-500 gap-1">
-                                    <AlertTriangle className="h-4 w-4" />
-                                    <span>Thời hạn thanh toán đã hết hạn</span>
-                                </div>
-                            )}
-                            {(payment?.status === 0 || payment?.status === 2) && (
-                                <>
-                                    {selectedPaymentMethod === "qr" ? (
-                                        <Button onClick={handlePay} className="gap-1 bg-green-600 hover:bg-green-700">
-                                            <Wallet className="h-4 w-4" /> Thanh toán ngay
-                                        </Button>
-                                    ) : (
-                                        <div className="flex items-center text-yellow-500 gap-1">
-                                            <CheckCircle className="h-4 w-4" />
-                                            <span>Vui lòng thanh toán qua quản lý của đội</span>
-                                        </div>
-                                    )}
+                        {isAtLeastThreeDaysLater(payment?.approvedAt) ? (
+                            <CardFooter className="flex justify-end gap-2">
+                                {payment?.status === 2 && (
+                                    <div className="flex items-center text-red-500 gap-1">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        <span>Thời hạn thanh toán đã hết hạn</span>
+                                    </div>
+                                )}
+                                {(payment?.status === 0 || payment?.status === 2) && (
+                                    <>
+                                        {selectedPaymentMethod === "qr" ? (
+                                            <Button onClick={handlePay} className="gap-1 bg-green-600 hover:bg-green-700">
+                                                <Wallet className="h-4 w-4" /> Thanh toán ngay
+                                            </Button>
+                                        ) : (
+                                            <div className="flex items-center text-yellow-500 gap-1">
+                                                <CheckCircle className="h-4 w-4" />
+                                                <span>Vui lòng thanh toán qua quản lý của đội</span>
+                                            </div>
+                                        )}
 
-                                </>
-                            )}
-                            {payment?.status === 3 && (
-                                <div className="flex items-center text-yellow-500 gap-1">
-                                    <CheckCircle className="h-4 w-4" />
-                                    <span>Đang chờ xác nhận của người quản lý</span>
-                                </div>
-                            )}
-                        </CardFooter>
+                                    </>
+                                )}
+                                {payment?.status === 3 && (
+                                    <div className="flex items-center text-yellow-500 gap-1">
+                                        <CheckCircle className="h-4 w-4" />
+                                        <span>Đang chờ xác nhận của người quản lý</span>
+                                    </div>
+                                )}
+                            </CardFooter>
+                        ) : (<></>)}
+
                     </Card>
                 </div>
 

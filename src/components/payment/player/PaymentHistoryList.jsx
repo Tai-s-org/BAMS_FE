@@ -56,7 +56,7 @@ export function PaymentHistoryList({ completedPayments }) {
                             </div>
                             <div>
                                 <div className="font-medium">
-                                    {payment.teamName} - {payment.teamFundId}
+                                    {payment.teamName} - {payment.teamFundDescription}
                                 </div>
                                 <div className="text-sm text-muted-foreground">Đã thanh toán ngày {payment.paidDate}</div>
                             </div>

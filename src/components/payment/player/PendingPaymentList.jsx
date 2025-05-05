@@ -55,7 +55,7 @@ export function PendingPaymentsList({ pendingPayments }) {
                             </div>
                             <div>
                                 <div className="font-medium">
-                                    {payment.teamName} - {payment.title}
+                                    {payment.teamName} - {payment.teamFundDescription}
                                 </div>
                                 <div className={`text-sm ${payment.isOverdue ? "text-red-500" : "text-muted-foreground"}`}>
                                     {payment.isOverdue ? "Hết hạn từ " : "Hạn đóng "}
