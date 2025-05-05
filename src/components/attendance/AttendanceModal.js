@@ -513,7 +513,7 @@ export function AttendanceModal({ isOpen, onClose, session }) {
         <FaceDetectionPreview
           detectionResult={detectionResult}
           onConfirm={handleFaceConfirm}
-          players={playerAttendance}
+          players={[...playerAttendance, ...coachAttendance]}
           onClose={() => setShowFacePreview(false)}
         />
       )}

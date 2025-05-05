@@ -244,7 +244,7 @@ export default function PlayerDetailPage() {
                   </Avatar>
                   <h2 className="mt-4 text-2xl font-bold text-center">{player.fullname}</h2>
                   <div className="flex items-center justify-center mt-2 mb-4">
-                    <Badge className="bg-red-300">{player.position}</Badge>
+                    <Badge className="bg-red-300">{player.position || "N/A"}</Badge>
                   </div>
                 </div>
               </CardHeader>
@@ -253,17 +253,17 @@ export default function PlayerDetailPage() {
                   <div className="flex items-center gap-3">
                     <TShirt className="w-5 h-5 text-[#BD2427]" />
                     <span className="font-medium">Số áo:</span>
-                    <span>{player.shirtNumber || "Chưa được gán"}</span>
+                    <span>{player.shirtNumber || "N/A"}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Users className="w-5 h-5 text-[#BD2427]" />
                     <span className="font-medium">Đội:</span>
-                    <span>{player.teamName}</span>
+                    <span>{player.teamName || "N/A"}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CalendarIcon className="w-5 h-5 text-[#BD2427]" />
                     <span className="font-medium">Ngày tham gia:</span>
-                    <span>{formatDate(player.clubJoinDate)}</span>
+                    <span>{formatDate(player.clubJoinDate) || "N/A"}</span>
                   </div>
                 </div>
               </CardContent>
@@ -288,12 +288,12 @@ export default function PlayerDetailPage() {
                       <div className="flex items-center gap-3">
                         <Mail className="w-5 h-5 text-[#BD2427]" />
                         <span className="font-medium">Email:</span>
-                        <span className="truncate">{player.email}</span>
+                        <span className="truncate">{player.email || "Chưa cung cấp"}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <Phone className="w-5 h-5 text-[#BD2427]" />
                         <span className="font-medium">Điện thoại:</span>
-                        <span>{player.phone}</span>
+                        <span>{player.phone || "Chưa cung cấp"}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <MapPin className="w-5 h-5 text-[#BD2427]" />
@@ -320,17 +320,17 @@ export default function PlayerDetailPage() {
                       <div className="flex items-center gap-3">
                         <Ruler className="w-5 h-5 text-[#BD2427]" />
                         <span className="font-medium">Chiều cao:</span>
-                        <span>{player.height} cm</span>
+                        <span>{player.height || "N/A"} cm</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <Weight className="w-5 h-5 text-[#BD2427]" />
                         <span className="font-medium">Cân nặng:</span>
-                        <span>{player.weight} kg</span>
+                        <span>{player.weight || "N/A"} kg</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <Basketball className="w-5 h-5 text-[#BD2427]" />
                         <span className="font-medium">Vị trí:</span>
-                        <span>{player.position}</span>
+                        <span>{player.position || "N/A"}</span>
                       </div>
                     </div>
                   </div>
@@ -347,7 +347,7 @@ export default function PlayerDetailPage() {
                       <div className="flex items-center gap-3">
                         <Users className="w-5 h-5 text-[#BD2427]" />
                         <span className="font-medium">Tên đội:</span>
-                        <span>{player.teamName}</span>
+                        <span>{player.teamName || "N/A"}</span>
                       </div>
                     </div>
                   </div>
@@ -406,22 +406,22 @@ export default function PlayerDetailPage() {
                           <div className="flex items-center gap-3">
                             <User className="w-5 h-5 text-[#BD2427]" />
                             <span className="font-medium">Họ tên:</span>
-                            <span>{parent.fullname}</span>
+                            <span>{parent.fullname || "N/A"}</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <Mail className="w-5 h-5 text-[#BD2427]" />
                             <span className="font-medium">Email:</span>
-                            <span className="truncate">{parent.email}</span>
+                            <span className="truncate">{parent.email || "N/A"}</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <Phone className="w-5 h-5 text-[#BD2427]" />
                             <span className="font-medium">Điện thoại:</span>
-                            <span>{parent.phone}</span>
+                            <span>{parent.phone || "N/A"}</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <MapPin className="w-5 h-5 text-[#BD2427]" />
                             <span className="font-medium">Địa chỉ:</span>
-                            <span>{parent.address}</span>
+                            <span>{parent.address || "N/A"}</span>
                           </div>
                         </div>
                       </div>
