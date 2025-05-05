@@ -28,6 +28,7 @@ import { useAuth } from "@/hooks/context/AuthContext"
 import { Fancybox } from "@fancyapps/ui";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import RemoveConfirmDialog from "@/components/ui/RemoveConfirmDialog"
 
 export default function MatchDetailPage() {
   const params = useParams()
@@ -43,6 +44,9 @@ export default function MatchDetailPage() {
   const [isUpdate, setIsUpdate] = useState(false)
   const [startingCount, setStartingCount] = useState(0)
   const [playersCount, setPlayersCount] = useState(0)
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false)
+  const [deletedId, setDeletedId] = useState(null)
+  const [context, setContext] = useState(null)
 
   useEffect(() => {
     fetchMatchDetails();
@@ -118,6 +122,27 @@ export default function MatchDetailPage() {
       if (error.status == 401) {
         addToast({ message: "Phiên đăng nhập của bạn đã hết", type: "error" });
       }
+    }
+  }
+
+  const handleShowRemoveDialog = (id, context) => {
+    setShowRemoveDialog(true)
+    setDeletedId(id)
+    setContext(context)
+  }
+
+  const handleRemovePlayer = async (userId) => {
+    try {
+      const response = await matchApi.removePlayer(params.id, userId)
+      console.log(response?.data);
+      addToast({ message: response?.data.message, type: response?.data.status })
+    } catch (error) {
+      console.error("Error removing player:", error)
+    } finally {
+      setShowRemoveDialog(false)
+      setDeletedId(null)
+      setContext(null)
+      setIsUpdate(true)
     }
   }
 
@@ -465,8 +490,12 @@ export default function MatchDetailPage() {
                         </Avatar>
                         <div>
                           <div className="font-medium">{player.playerName} <span className="text-[#BD2427]">{player.isStarting ? "(xuất phát)" : ""}</span></div>
-                          <div className="text-sm text-gray-500">#{player.shirtNumber}</div>
+                          <div className="text-sm text-gray-500">#{player.shirtNumber || "N/A"}</div>
                         </div>
+                        {userInfo.roleCode === "Coach" && match?.status === "Sắp diễn ra" && userInfo?.roleInformation.teamId === match?.homeTeamId && <Button variant="outline" size="sm" className="ml-auto"
+                          onClick={() => handleShowRemoveDialog(player.userId, `cầu thủ ${player.playerName}`)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>}
                       </div>
                     ))}
                   </div>
@@ -507,6 +536,10 @@ export default function MatchDetailPage() {
                           <div className="font-medium">{player.playerName} <span className="text-[#BD2427]">{player.isStarting ? "(xuất phát)" : ""}</span></div>
                           <div className="text-sm text-gray-500">#{player.shirtNumber}</div>
                         </div>
+                        {userInfo.roleCode === "Coach" && match?.status === "Sắp diễn ra" && userInfo?.roleInformation.teamId === match?.awayTeamId && <Button variant="outline" size="sm" className="ml-auto"
+                          onClick={() => handleShowRemoveDialog(player.userId, `cầu thủ ${player.playerName}`)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>}
                       </div>
                     ))}
                   </div>
@@ -528,6 +561,14 @@ export default function MatchDetailPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      {deletedId && context && <RemoveConfirmDialog
+        deleteConfirmOpen={showRemoveDialog}
+        onClose={() => setShowRemoveDialog(false)}
+        onConfirm={handleRemovePlayer}
+        context={context}
+        deletedId={deletedId}
+      />}
     </div>
   )
 }
