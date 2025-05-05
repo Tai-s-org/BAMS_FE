@@ -39,7 +39,7 @@ export default function CheckLogin() {
     }
 
     if (user?.roleCode === "Parent") {
-      router.push('/schedules');
+      router.push('/contact-tracker');
     }
   }, [user, router]);
 

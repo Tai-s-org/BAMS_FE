@@ -120,7 +120,7 @@ export default function PlayerSelector({ team, onSave, onCancel, availablePlayer
                   <div className="flex items-center">
                     <Avatar className="h-8 w-8 mr-3">
                       <AvatarImage src={"/placeholder.svg?height=40&width=40"} alt={player.playerName} />
-                      <AvatarFallback>{player.playerName}</AvatarFallback>
+                      <AvatarFallback className={"bg-[#BD2427]/80 text-white"}>{player?.playerName.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="font-medium">{player.playerName}</div>
@@ -148,7 +148,7 @@ export default function PlayerSelector({ team, onSave, onCancel, availablePlayer
                       checked={isPlayerStarting(player.userId)}
                       onCheckedChange={() => handleToggleStarting(player.userId)}
                       disabled={!isPlayerSelected(player.userId)}
-                      className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                      className="data-[state=checked]:bg-gray-600 data-[state=checked]:border-gray-600"
                     />
                   </div>
                 </div>
