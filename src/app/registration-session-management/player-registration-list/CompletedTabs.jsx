@@ -4,11 +4,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/Badge"
 import { format } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card"
-import { CalendarDays, CheckCircle2, ClipboardCheck, Mail, Phone, Star, User, XCircle } from 'lucide-react'
+import { CalendarDays, CheckCircle2, ClipboardCheck, Mail, Phone, Star, User, XCircle, Eye } from 'lucide-react'
+import { PlayerScoreDetailsModal } from "./PlayerDetailScore"
+import { useState } from "react"
+import { Button } from "@/components/ui/Button"
 
 export function CompletedTab({ players }) {
+  const [isScoreDetailsOpen, setIsScoreDetailsOpen] = useState(false)
+  const [selectedPlayerId, setSelectedPlayerId] = useState(null)
   const approvedCount = players.filter(player => player.status === "Approved").length
   const rejectedCount = players.filter(player => player.status === "Rejected").length
+
+  const handleViewScoreDetails = (playerId) => {
+    setSelectedPlayerId(playerId)
+    setIsScoreDetailsOpen(true)
+  }
 
   // return (
   //   <div>
@@ -84,9 +94,8 @@ export function CompletedTab({ players }) {
                 <TableHead className="font-semibold text-gray-700 py-3">Họ và tên</TableHead>
                 <TableHead className="font-semibold text-gray-700 py-3">Email</TableHead>
                 <TableHead className="font-semibold text-gray-700 py-3">Số điện thoại</TableHead>
-                <TableHead className="font-semibold text-gray-700 py-3 text-center">Điểm trung bình</TableHead>
                 <TableHead className="font-semibold text-gray-700 py-3 text-center">Trạng thái</TableHead>
-                <TableHead className="font-semibold text-gray-700 py-3">Ngày cập nhật</TableHead>
+                <TableHead className="font-semibold text-gray-700 py-3"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -115,19 +124,6 @@ export function CompletedTab({ players }) {
                       {player.phoneNumber}
                     </TableCell>
                     <TableCell className="py-3 text-center">
-                      {player.scores?.total ? (
-                        <Badge
-                          className={`flex items-center justify-center gap-1 font-medium ${getScoreColorClass(player.scores.total)
-                            }`}
-                        >
-                          <Star className="w-3 h-3" />
-                          {player.scores.total.toFixed(2)}
-                        </Badge>
-                      ) : (
-                        <span className="text-gray-500 text-sm">N/A</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="py-3 text-center">
                       {player.status === "Approved" ? (
                         <Badge className="bg-green-100 text-green-800 border-green-200 font-medium flex items-center justify-center gap-1">
                           <CheckCircle2 className="w-3 h-3" />
@@ -141,8 +137,15 @@ export function CompletedTab({ players }) {
                       )}
                     </TableCell>
                     <TableCell className="py-3 text-gray-600 flex items-center">
-                      <CalendarDays className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-                      {player.updatedDate ? format(new Date(player.updatedDate), "dd/MM/yyyy") : "N/A"}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleViewScoreDetails(player.playerRegistrationId)}
+                        title="Xem chi tiết điểm"
+                        className="h-9 w-9 p-0"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -161,6 +164,12 @@ export function CompletedTab({ players }) {
           </Table>
         </div>
       </CardContent>
+
+      <PlayerScoreDetailsModal
+        open={isScoreDetailsOpen}
+        onClose={() => setIsScoreDetailsOpen(false)}
+        playerId={selectedPlayerId}
+      />
     </Card>
   )
 

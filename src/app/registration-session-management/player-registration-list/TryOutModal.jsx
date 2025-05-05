@@ -25,7 +25,13 @@ export function TryoutModal({ open, onClose, selectedCount, selectedPlayers }) {
         const dateTime = new Date(date)
         dateTime.setHours(parseInt(hours))
         dateTime.setMinutes(parseInt(minutes))
-        const isoString = dateTime.toISOString()
+        // const isoString = dateTime.toISOString()
+        const formatDateToYMD = (dateObj) => {
+            return dateObj.toLocaleDateString("en-CA").slice(0, 10) // lấy yyyy-mm-dd
+        }
+
+        const dateStr = formatDateToYMD(date)
+        const isoString = `${dateStr}T${time}:00.000`
 
         try {
             // Gửi dữ liệu buổi thử việc
@@ -34,27 +40,30 @@ export function TryoutModal({ open, onClose, selectedCount, selectedPlayers }) {
                 location,
                 tryOutDateTime: isoString
             })
+            
             if (response.data.status === "Success") {
                 addToast({
                     message: response.data.message || "Cầu thủ đã được mời thử việc thành công",
                     type: "success",
                 })
+
+                console.log(response.data);
+                onClose() // đóng dialog sau khi xử lý xong
+                setTimeout(() => {
+                    window.location.reload() // reload trang sau một chút delay
+                }, 500)
+
             } else {
                 addToast({
-                    message: response.data.message || "Có lỗi xảy ra khi mời thử việc",
+                    message: response.data.message,
                     type: "error",
                 })
             }
-
-            console.log(response.data);
-            onClose() // đóng dialog sau khi xử lý xong
-            setTimeout(() => {
-                window.location.reload() // reload trang sau một chút delay
-            }, 500)
-
         } catch (error) {
+            console.log(error);
+            
             addToast({
-                message: error.response?.data?.message || "Có lỗi xảy ra khi mời thử việc",
+                message: error.response?.data?.message,
                 type: "error",
             })
         }
@@ -64,7 +73,7 @@ export function TryoutModal({ open, onClose, selectedCount, selectedPlayers }) {
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Mời tham gia buổi thử việc</DialogTitle>
+                    <DialogTitle>Mời tham gia buổi đánh giá năng lực đầu vào</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">

@@ -9,14 +9,6 @@ import { TbPlayBasketball } from "react-icons/tb";
 export default function PlayerSidebar() {
     const pathname = usePathname(); // Lấy đường dẫn hiện tại
 
-    const mainMenuItems = [
-        {
-            title: "Trang chủ",
-            icon: Home,
-            url: "/dashboard",
-        },
-    ];
-
     const menuItems = [
         { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
         { title: "Thanh toán", icon: CreditCard, url: "/payment" },
@@ -36,25 +28,6 @@ export default function PlayerSidebar() {
                         <span className="text-xs text-gray-400">Cầu thủ</span>
                     </div>
                 </div>
-                <SidebarMenu>
-                    {mainMenuItems.map((item) => {
-                        const isActive = pathname === item.url;
-                        return (
-                            <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton
-                                    asChild
-                                    className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
-                                        }`}
-                                >
-                                    <a href={item.url} className="flex items-center gap-2">
-                                        <item.icon className="h-5 w-5" />
-                                        <span>{item.title}</span>
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        );
-                    })}
-                </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>

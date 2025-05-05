@@ -11,13 +11,6 @@ import Link from "next/link";
 export default function CoachSidebar() {
     const pathname = usePathname(); // Lấy đường dẫn hiện tại
 
-    const mainMenuItems = [
-        {
-            title: "Home",
-            icon: Home,
-            url: "/home",
-        },
-    ];
 
     const menuItems = [
         { title: "Trang chủ", icon: LayoutDashboard, url: "/team-dashboard" },
@@ -40,25 +33,6 @@ export default function CoachSidebar() {
                         <span className="text-xs text-gray-400">Huấn luyện viên</span>
                     </div>
                 </div>
-                <SidebarMenu>
-                    {mainMenuItems.map((item) => {
-                        const isActive = pathname === item.url;
-                        return (
-                            <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton
-                                    asChild
-                                    className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
-                                        }`}
-                                >
-                                    <a href={item.url} className="flex items-center gap-2">
-                                        <item.icon className="h-5 w-5" />
-                                        <span>{item.title}</span>
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        );
-                    })}
-                </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import {
   Dialog,
@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ImageUpload from "@/components/ImageUpload"
 import courtApi from "@/api/court"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import { debounce } from "lodash"
 
 export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court }) {
   const router = useRouter()
@@ -34,6 +35,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
   const { addToast } = useToasts();
   const [imageWarning, setImageWarning] = useState(null);
   const [priceWarning, setPriceWarning] = useState(null);
+  const [courtNameWarining, setCourtNameWarining] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Update form data when court changes
@@ -44,9 +46,34 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
     }
   }, [court])
 
+  const debouncedCheckCourtName = useCallback(
+    debounce(async (value, setCourtNameWarining) => {
+      const isValid = await checkCourtName(value);
+      if (isValid) {
+        setCourtNameWarining(null);
+      } else {
+        setCourtNameWarining("Đã tồn tại sân với tên này");
+      }
+    }, 500),
+    []
+  );
+  
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  
+    if (name === "courtName") {
+      debouncedCheckCourtName(value, setCourtNameWarining);
+    }
+  };
+
+  const checkCourtName = async (courtName) => {
+    try {
+      const response = await courtApi.checkCourtName({CourtName: courtName.trim()});
+      return response?.data.status === "Success" ? true : false;
+    } catch (error) {
+      return false;
+    }
   }
 
   const handleNumberChange = (e) => {
@@ -146,6 +173,7 @@ export default function UpdateCourtModal({ isOpen, onClose, onUpdateCourt, court
               placeholder="Main Arena Court"
               required
             />
+            {courtNameWarining && <div className="text-red-500 text-sm">{courtNameWarining}</div>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

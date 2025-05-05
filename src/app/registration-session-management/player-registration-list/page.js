@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
-import { Eye, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Eye, Search, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select"
@@ -20,6 +20,7 @@ import { CheckInTab } from "./CheckinTabs"
 import { ScoringTab } from "./ScoringTabs"
 import { ApprovalTab } from "./ApproveTabs"
 import { CompletedTab } from "./CompletedTabs"
+import { useRouter } from "next/navigation"
 
 
 export default function PlayerRegistrationPage() {
@@ -77,7 +78,9 @@ export default function PlayerRegistrationPage() {
 
     const handleTabChange = (value) => {
         setActiveTab(value)
-      }
+    }
+
+    const router = useRouter();
 
     // return (
     //     <div className="container mx-auto py-8">
@@ -141,34 +144,13 @@ export default function PlayerRegistrationPage() {
     // )
     return (
         <div className="container mx-auto py-8 px-4 md:px-6">
+            <Button variant="ghost" size="sm" className="gap-1 hover:bg-[#F4F4F5]" onClick={() => router.back()}>
+                <ArrowLeft className="h-4 w-4" /> Quay lại
+            </Button>
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Quản lý đăng ký cầu thủ</h1>
                     <p className="text-gray-500 mt-1">Quản lý và theo dõi quá trình đăng ký của cầu thủ</p>
-                </div>
-
-                <div className="flex items-center space-x-3 mt-4 md:mt-0">
-                    {/* <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                        <Input
-                            placeholder="Tìm kiếm cầu thủ..."
-                            value={searchTerm}
-                            onChange={handleSearch}
-                            className="pl-10 w-[200px] md:w-[250px]"
-                        />
-                    </div> */}
-
-                    {/* <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" className="flex items-center gap-2">
-                                <CalendarIcon className="h-4 w-4" />
-                                {dateFilter ? format(dateFilter, "dd/MM/yyyy") : "Chọn ngày"}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="end">
-                            <Calendar mode="single" selected={dateFilter} onSelect={handleDateChange} initialFocus />
-                        </PopoverContent>
-                    </Popover> */}
                 </div>
             </div>
 

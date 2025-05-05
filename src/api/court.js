@@ -29,7 +29,12 @@ const courtApi = {
         return api.get('/training-session/available-courts', {
             params: data,
         });
-    }
+    },
+    checkCourtName: (data) => {
+        return api.post('/court/validate-court-name', null,{
+            params: data,
+        });
+    },
 };
 
 export default courtApi;

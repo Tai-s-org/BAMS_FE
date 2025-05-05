@@ -16,6 +16,7 @@ export function FaceDetectionPreview({
     const [expandedFace, setExpandedFace] = useState(null)
     const [assignedPlayers, setAssignedPlayers] = useState({})
     const [searchTerm, setSearchTerm] = useState('')
+    const [loading, setLoading] = useState(false)
 
     // Hàm tạo faceKey từ tọa độ boundingBox
     const getFaceKey = (face) => {
@@ -123,6 +124,7 @@ export function FaceDetectionPreview({
     }
 
     const handleConfirm = async () => {
+        setLoading(true)
         try {
             // Tạo bản sao tạm thời
             const tempProcessedFaces = [...processedFaces];
@@ -225,6 +227,8 @@ export function FaceDetectionPreview({
             onConfirm(allAttendedPlayers);
         } catch (error) {
             console.error("Unexpected error in handleConfirm:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -403,12 +407,13 @@ export function FaceDetectionPreview({
 
                 {/* Footer */}
                 <div className="bg-gray-50 px-6 py-4 flex justify-end gap-3">
-                    <Button variant="outline" onClick={onClose}>
+                    <Button variant="outline" onClick={onClose} disabled={loading}>
                         Hủy
                     </Button>
                     <Button
                         onClick={handleConfirm}
                         className="bg-[#BD2427] hover:bg-[#A61F22]"
+                        disabled={loading}
                     >
                         <Check className="mr-2" size={18} />
                         Xác nhận

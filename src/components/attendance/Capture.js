@@ -16,6 +16,7 @@ const CameraCapture = ({ handleAICapture }) => {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const [createHover, setCreateHover] = useState(false)
+  const [loading, setLoading] = useState(false)
   const {addToast} = useToasts()
 
   useEffect(() => {
@@ -70,8 +71,9 @@ const CameraCapture = ({ handleAICapture }) => {
     setCapturedImage(dataUrl)
   }
 
-  const handleUpload = async () => {
+  const handleUpload = async () => {    
     if (!capturedImage) return
+    setLoading(true)
 
     const blob = await (await fetch(capturedImage)).blob()
     const file = new File([blob], "captured.png", { type: "image/png" })
@@ -92,6 +94,7 @@ const CameraCapture = ({ handleAICapture }) => {
     } finally {
       setShowModal(false)
       setCapturedImage(null)
+      setLoading(false)
     }
   }
 
@@ -147,6 +150,7 @@ const CameraCapture = ({ handleAICapture }) => {
                   <Button
                     onClick={handleCapture}
                     className="px-6 py-3 bg-[#BD2427] text-white rounded-lg hover:bg-red-900 font-medium text-lg flex items-center"
+                    disabled={loading}
                   >
                     <span className="mr-2"><FaCamera /></span> Chụp ảnh
                   </Button>
@@ -158,12 +162,14 @@ const CameraCapture = ({ handleAICapture }) => {
                         setCapturedImage(null)
                       }}
                       className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium text-lg flex items-center"
+                      disabled={loading}
                     >
                       <span className="mr-2"><MdOutlineCameraswitch /></span> Chụp lại
                     </Button>
                     <Button
                       onClick={handleUpload}
                       className="px-6 py-3 bg-[#BD2427] text-white rounded-lg hover:bg-red-700 font-medium text-lg flex items-center"
+                      disabled={loading}
                     >
                       <span className="mr-2"><TiUpload /></span> Gửi ảnh
                     </Button>
