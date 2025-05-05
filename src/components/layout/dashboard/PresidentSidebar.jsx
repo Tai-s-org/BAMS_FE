@@ -11,14 +11,6 @@ import Link from "next/link";
 export default function PresidentSidebar() {
     const pathname = usePathname(); // Lấy đường dẫn hiện tại
 
-    const mainMenuItems = [
-        {
-            title: "Home",
-            icon: Home,
-            url: "/dashboard",
-        },
-    ];
-
     const menuItems = [
         { title: "Đội bóng", icon: RiGroup2Fill, url: "/team-management" },
         { title: "Thanh toán", icon: CreditCard, url: "/payment" },
@@ -40,25 +32,6 @@ export default function PresidentSidebar() {
                         <span className="text-xs text-gray-400">Chủ tịch</span>
                     </div>
                 </div>
-                <SidebarMenu>
-                    {mainMenuItems.map((item) => {
-                        const isActive = pathname.includes(item.url);
-                        return (
-                            <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton
-                                    asChild
-                                    className={`hover:bg-[#bd2427]/30 ${isActive ? "bg-[#bd2427] text-white" : "text-white"
-                                        }`}
-                                >
-                                    <a href={item.url} className="flex items-center gap-2">
-                                        <item.icon className="h-5 w-5" />
-                                        <span>{item.title}</span>
-                                    </a>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        );
-                    })}
-                </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>

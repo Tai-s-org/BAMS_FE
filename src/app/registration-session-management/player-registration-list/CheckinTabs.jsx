@@ -20,6 +20,7 @@ export function CheckInTab({ players, onStatusChange }) {
         setSelectedPlayer(player)
         setIsConfirmOpen(true)
     }
+    console.log(players, "players");
 
     const confirmCheckIn = async () => {
         try {
@@ -131,7 +132,7 @@ export function CheckInTab({ players, onStatusChange }) {
                                         key={player.playerRegistrationId}
                                         className="hover:bg-gray-50 transition-colors border-b border-gray-100"
                                     >
-                                        <TableCell className="py-3 font-medium text-gray-900 ">
+                                        <TableCell className="py-3 font-medium text-gray-900 min-w-[180px] ">
                                             <div className="flex items-center">
                                                 <User className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
                                                 {player.fullName}
@@ -158,20 +159,26 @@ export function CheckInTab({ players, onStatusChange }) {
                                             <div className="flex items-center">
                                                 <CalendarDays className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
                                                 {player.submitedDate
-                                                    ? format(new Date(player.submitedDate), "dd/MM/yyyy")
-                                                    : "N/A"}
+                                                    ? format(new Date(player?.tryOutDate), "dd/MM/yyyy")
+                                                    : "-"}
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-3 text-gray-600">
                                             <div className="flex items-center">
                                                 <Clock className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-                                                {player.submitedDate?.time || "N/A"}
+                                                {player.tryOutDate
+                                                    ? new Date(player.tryOutDate).toLocaleTimeString('vi-VN', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                        hour12: false
+                                                    })
+                                                    : "-"}
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-3 text-gray-600">
                                             <div className="flex items-center">
                                                 <MapPin className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-                                                {player.tryoutDetails?.location || "N/A"}
+                                                {player.tryOutLocation || "-"}
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-3 text-center">

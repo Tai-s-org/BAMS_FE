@@ -92,20 +92,23 @@ export function ScoringTab({ players, onStatusChange }) {
                                         key={player.playerRegistrationId}
                                         className="hover:bg-gray-50 transition-colors border-b border-gray-100"
                                     >
-                                        <TableCell className="py-3 font-medium text-gray-900 flex items-center">
-                                            <User className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-                                            {player.fullName}
+                                        <TableCell className="py-3 font-medium text-gray-900 ">
+                                            <div className="flex items-center">
+                                                <User className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+                                                {player.fullName}
+                                            </div>
                                         </TableCell>
                                         <TableCell className="py-3 text-gray-600 ">
                                             <div className="flex items-center">
                                                 <Mail className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
                                                 {player.email}
                                             </div>
-
                                         </TableCell>
-                                        <TableCell className="py-3 text-gray-600 flex items-center">
-                                            <Phone className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-                                            {player.phoneNumber}
+                                        <TableCell className="py-3 text-gray-600">
+                                            <div className="flex items-center">
+                                                <Phone className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+                                                {player.phoneNumber}
+                                            </div>
                                         </TableCell>
                                         <TableCell className="py-3 text-center">
                                             <Badge variant="outline" className="bg-gray-100 text-gray-800 font-medium">

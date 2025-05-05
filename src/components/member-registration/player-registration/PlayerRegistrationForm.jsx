@@ -18,6 +18,7 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
     const router = useRouter();
     const [registrationSessionId, setRegistrationSessionId] = useState("");
     const { addToast } = useToasts();
+    const [isUnder18, setIsUnder18] = useState(null);
 
 
     const [formData, setFormData] = useState({
@@ -61,6 +62,17 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
                 dateOfBirth: date ? date.toISOString().split('T')[0] : null,
             }));
         }
+
+        if (date) {
+            const today = new Date();
+            const birthDate = new Date(date);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            setIsUnder18(age < 18);
+        }
         setRegistrationSessionId(sessionId || "");
     }, [data, email, sessionId, date]);
 
@@ -88,15 +100,14 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
                 const response = (data ? await registerApi.updatePlayerForm({
                     ...formData,
                     "memberRegistrationSessionId": registrationSessionId,
-                }) : await registerApi.playerRegister({
-                    ...formData,
-                    "memberRegistrationSessionId": registrationSessionId,
-                }))
+                }) : await registerApi.playerRegister(formData))
                 addToast({ message: response.data.message, type: "success" });
                 setTimeout(() => {
                     router.push("/");
                 }, 1500);
             } catch (error) {
+                console.log(error, "error");
+
                 if (error.response.data?.message === null) {
                     Object.entries(error.response.data?.errors).forEach(([key, value]) => {
                         const msg = String(`${key}: ${value}`).split(":")[1]?.trim();
@@ -107,7 +118,7 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
                 }
             }
         }
-        
+
     }
 
     return (
@@ -146,17 +157,28 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Giới Tính</Label>
-                            <RadioGroup defaultValue={true} className="flex space-x-4" onChange={handleChange}>
+                            <RadioGroup
+                                defaultValue="true"
+                                name="gender"
+                                className="flex space-x-4"
+                                onValueChange={(value) =>
+                                    setFormData((prevData) => ({
+                                        ...prevData,
+                                        gender: value === "true" // ép kiểu về boolean
+                                    }))
+                                }
+                            >
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value={true} id="male" />
+                                    <RadioGroupItem value="true" id="male" />
                                     <Label htmlFor="male">Nam</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value={false} id="female" />
+                                    <RadioGroupItem value="false" id="female" />
                                     <Label htmlFor="female">Nữ</Label>
                                 </div>
                             </RadioGroup>
                         </div>
+
                         <div className="space-y-2">
                             <Label>Ngày sinh</Label>
                             <DatePicker
@@ -193,7 +215,7 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
 
                     <div className="space-y-2">
                         <Label htmlFor="knowledgeAboutAcademy">Bạn biết về học viện của chúng tôi như thế nào?</Label>
-                        <Textarea id="knowledgeAboutAcademy" name="knowledgeAboutAcademy" value={formData.knowledgeAboutAcademy} onChange={handleChange} required />
+                        {/* <Textarea id="knowledgeAboutAcademy" name="knowledgeAboutAcademy" value={formData.knowledgeAboutAcademy} onChange={handleChange} required /> */}
                         <TextEditor
                             content={formData.knowledgeAboutAcademy}
                             onChange={(content) => handleDescriptionChange("knowledgeAboutAcademy", content)}
@@ -202,7 +224,7 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
 
                     <div className="space-y-2">
                         <Label htmlFor="reasonToChooseUs">Tại sao bạn chọn chúng tôi?</Label>
-                        <Textarea id="reasonToChooseUs" name="reasonToChooseUs" value={formData.reasonToChooseUs} onChange={handleChange} required />
+                        {/* <Textarea id="reasonToChooseUs" name="reasonToChooseUs" value={formData.reasonToChooseUs} onChange={handleChange} required /> */}
                         <TextEditor
                             content={formData.reasonToChooseUs}
                             onChange={(content) => handleDescriptionChange("reasonToChooseUs", content)}
@@ -234,7 +256,7 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
 
                     <div className="space-y-2">
                         <Label htmlFor="experience">Kinh Nghiệm</Label>
-                        <Textarea id="experience" name="experience" value={formData.experience} onChange={handleChange} required />
+                        {/* <Textarea id="experience" name="experience" value={formData.experience} onChange={handleChange} required /> */}
                         <TextEditor
                             content={formData.experience}
                             onChange={(content) => handleDescriptionChange("experience", content)}
@@ -244,7 +266,7 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
 
                     <div className="space-y-2">
                         <Label htmlFor="achievement">Thành Tích</Label>
-                        <Textarea id="achievement" name="achievement" value={formData.achievement} onChange={handleChange} />
+                        {/* <Textarea id="achievement" name="achievement" value={formData.achievement} onChange={handleChange} /> */}
                         <TextEditor
                             content={formData.achievement}
                             onChange={(content) => handleDescriptionChange("achievement", content)}
@@ -253,38 +275,43 @@ export default function PlayerRegistrationForm({ email, sessionId, data }) {
                 </div>
 
                 {/* Parent Information */}
-                <div className="space-y-4">
-                    <h3 className="text-lg font-medium border-b pb-2" style={{ color: "#bd2427" }}>
-                        Thông Tin Phụ Huynh
-                    </h3>
+                {isUnder18 && (
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-medium border-b pb-2" style={{ color: "#bd2427" }}>
+                            Thông Tin Phụ Huynh (Đối với cầu thủ dưới 18 tuổi)
+                        </h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="parentName">Tên Phụ Huynh</Label>
-                            <Input id="parentName" name="parentName" value={formData.parentName} onChange={handleChange} required />
-                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="parentName">Tên Phụ Huynh</Label>
+                                <Input id="parentName" name="parentName" value={formData.parentName} onChange={handleChange} required={isUnder18} />
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="parentPhoneNumber">Số Điện Thoại Phụ Huynh</Label>
-                            <Input id="parentPhoneNumber" name="parentPhoneNumber" value={formData.parentPhoneNumber} onChange={handleChange} required />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="parentPhoneNumber">Số Điện Thoại Phụ Huynh</Label>
+                                <Input id="parentPhoneNumber" name="parentPhoneNumber" value={formData.parentPhoneNumber} onChange={handleChange} required={isUnder18} />
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="parentEmail">Email Phụ Huynh</Label>
-                            <Input id="parentEmail" name="parentEmail" value={formData.parentEmail} onChange={handleChange} required />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="parentEmail">Email Phụ Huynh</Label>
+                                <Input id="parentEmail" name="parentEmail" value={formData.parentEmail} onChange={handleChange} required={isUnder18} />
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="parentCitizenId">Căn cước công dân Phụ Huynh</Label>
-                            <Input id="parentCitizenId" name="parentCitizenId" value={formData.parentCitizenId} onChange={handleChange} required />
-                        </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="parentCitizenId">Căn cước công dân Phụ Huynh</Label>
+                                <Input id="parentCitizenId" name="parentCitizenId" value={formData.parentCitizenId} onChange={handleChange} required={isUnder18} />
+                            </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="relationshipWithParent">Mối quan hệ với Phụ Huynh</Label>
-                            <Input id="relationshipWithParent" name="relationshipWithParent" value={formData.relationshipWithParent} onChange={handleChange} required />
+                            <div className="space-y-2">
+                                <Label htmlFor="relationshipWithParent">Mối quan hệ với Phụ Huynh</Label>
+                                <Input id="relationshipWithParent" name="relationshipWithParent" value={formData.relationshipWithParent} onChange={handleChange} required={isUnder18} />
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
+
+
+
                 {data ? (
                     <Button type="submit" className="w-full bg-[#bd2427] hover:bg-[#a01e21]">
                         Cập nhật đơn đăng kí
