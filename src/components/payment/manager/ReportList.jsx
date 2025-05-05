@@ -56,7 +56,7 @@ export function ReportsList({ reports }) {
                         </div>
                         <div>
                             <div className="font-medium">{report.description}</div>
-                            <div className="text-sm text-muted-foreground">Hoàn thành vào ngày {report.endDate}</div>
+                            <div className="text-sm text-muted-foreground">Hoàn thành vào ngày {formatDate(report.endDate)}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">

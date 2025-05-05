@@ -11,13 +11,24 @@ import { useAuth } from "@/hooks/context/AuthContext"
 import { useEffect, useState } from "react"
 import teamFundApi from "@/api/teamFund"
 import paymentApi from "@/api/payment"
+import playerApi from "@/api/player"
+import { format, parseISO, startOfMonth, endOfMonth } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 export default function ManagerPayment() {
+    const [allPlayers, setAllPlayers] = useState([])
     const { userInfo } = useAuth();
     const [teamFunds, setTeamFunds] = useState([]);
     const [payments, setPayments] = useState([]);
+    const [monthOptions, setMonthOptions] = useState([]);
+    const [selectedMonth, setSelectedMonth] = useState("");
     //console.log(userInfo?.roleInformation.teamId);
     const teamId = userInfo?.roleInformation.teamId;
+
+    const filter = {
+        StartDate: "",
+        EndDate: ""
+    }
 
     useEffect(() => {
         const fetchManagerInfo = async () => {
@@ -38,8 +49,47 @@ export default function ManagerPayment() {
             }
         };
 
+        const fetchPlayers = async () => {
+            try {
+                const data = {
+                    TeamId: userInfo?.roleInformation.teamId
+                }
+                console.log(data);
+                
+                const response = await playerApi.getAllPlayerWithTeam(data);
+                
+                setAllPlayers(response?.data?.data.items);
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        fetchPlayers();
         fetchManagerInfo();
     }, [teamId]);
+
+    useEffect(() => {
+        if (teamFunds.length > 0) {
+            const uniqueMonths = Array.from(
+                new Set(teamFunds.map((fund) => format(new Date(fund.endDate), "yyyy-MM")))
+            )
+            setMonthOptions(uniqueMonths)
+            if (uniqueMonths.length > 0) {
+                setSelectedMonth(uniqueMonths[0])
+            }
+        }
+    }, [teamFunds]);
+
+    useEffect(() => {
+        if (selectedMonth) {
+            const [month, year] = selectedMonth.split("-");
+            const start = startOfMonth(new Date(`${year}-${month}-01`));
+            const end = endOfMonth(start);
+            //setFilters({ startDate: start.toISOString(), endDate: end.toISOString() });
+        }
+    }, [selectedMonth]);
+
+    const pendingTeamFund = teamFunds.filter((teamfund) => teamfund.status === 0)
 
     return (
         <div className="container mx-auto py-6">
@@ -60,7 +110,7 @@ export default function ManagerPayment() {
                         <CardTitle className="text-sm font-medium">Số thành viên hiện tại</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">4</div>
+                        <div className="text-2xl font-bold">{allPlayers.length}</div>
                     </CardContent>
                 </Card>
 
@@ -69,7 +119,7 @@ export default function ManagerPayment() {
                         <CardTitle className="text-sm font-medium">Báo cáo quỹ đội đang chờ</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">1</div>
+                        <div className="text-2xl font-bold">{pendingTeamFund.length}</div>
                     </CardContent>
                 </Card>
 
@@ -94,31 +144,31 @@ export default function ManagerPayment() {
 
                             <div className="flex gap-2 items-center">
                                 <Filter className="h-4 w-4 text-muted-foreground" />
-                                <Select defaultValue="april-2025">
+                                <Select value={selectedMonth} onValueChange={(val) => setSelectedMonth(val)}>
                                     <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Select month" />
+                                        <SelectValue placeholder="Chọn tháng" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="april-2025">Tháng 4 2025</SelectItem>
-                                        <SelectItem value="march-2025">March 2025</SelectItem>
-                                        <SelectItem value="february-2025">February 2025</SelectItem>
-                                        <SelectItem value="january-2025">January 2025</SelectItem>
-                                        <SelectItem value="december-2024">December 2024</SelectItem>
+                                        {monthOptions.map((monthVal) => (
+                                            <SelectItem key={monthVal} value={monthVal}>
+                                                Tháng {format(new Date(`${monthVal}-01`), "MM yyyy", { locale: vi })}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
                         </div>
 
                         {/* <TabsContent value="reports"> */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Báo cáo thu chi</CardTitle>
-                                    <CardDescription>Xem và quản lý báo cáo chi phí của đội</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <ReportsList  reports={teamFunds}/>
-                                </CardContent>
-                            </Card>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Báo cáo thu chi</CardTitle>
+                                <CardDescription>Xem và quản lý báo cáo chi phí của đội</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ReportsList reports={teamFunds} />
+                            </CardContent>
+                        </Card>
                         {/* </TabsContent> */}
 
                         {/* <TabsContent value="payments">
@@ -134,20 +184,6 @@ export default function ManagerPayment() {
                         </TabsContent> */}
                     </Tabs>
                 </div>
-
-                {/* <div>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle>Team Members</CardTitle>
-                                <CardDescription>Current month payment status</CardDescription>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <TeamMembersList />
-                        </CardContent>
-                    </Card>
-                </div> */}
             </div>
         </div>
     )

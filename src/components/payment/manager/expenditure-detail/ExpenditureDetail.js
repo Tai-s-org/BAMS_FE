@@ -47,7 +47,7 @@ export default function ExpenditureDetail({ open, onClose, expenditure }) {
         setPlayerToDelete(player)
         setIsDeleteDialogOpen(true)
     }
-
+ 
     const fetchPlayers = async () => {
         try {
             const data = {
