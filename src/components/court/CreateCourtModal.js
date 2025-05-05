@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,11 +14,13 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/Select";
 import ImageUpload from "@/components/ImageUpload";
+import courtApi from "@/api/court";
+import { debounce } from "lodash";
 
 export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
-  const router = useRouter();
   const [imageWarning, setImageWarning] = useState(null);
   const [priceWarning, setPriceWarning] = useState(null);
+  const [courtNameWarining, setCourtNameWarining] = useState(null);
   const [formData, setFormData] = useState({
     courtName: "",
     type: "Indoor",
@@ -33,10 +34,35 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const debouncedCheckCourtName = useCallback(
+    debounce(async (value, setCourtNameWarining) => {
+      const isValid = await checkCourtName(value);
+      if (isValid) {
+        setCourtNameWarining(null);
+      } else {
+        setCourtNameWarining("Đã tồn tại sân với tên này");
+      }
+    }, 500),
+    []
+  );
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  
+    if (name === "courtName") {
+      debouncedCheckCourtName(value, setCourtNameWarining);
+    }
   };
+
+  const checkCourtName = async (courtName) => {
+    try {
+      const response = await courtApi.checkCourtName({CourtName: courtName.trim()});
+      return response?.data.status === "Success" ? true : false;
+    } catch (error) {
+      return false;
+    }
+  }
 
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
@@ -109,6 +135,7 @@ export default function CreateCourtModal({ isOpen, onClose, onCreateCourt }) {
               placeholder="Sân Mydit"
               required
             />
+            {courtNameWarining && <div className="text-red-500 text-sm">{courtNameWarining}</div>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
