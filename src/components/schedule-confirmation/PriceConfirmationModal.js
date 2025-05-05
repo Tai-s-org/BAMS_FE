@@ -33,8 +33,8 @@ export default function PriceConfirmationModal({
   const [error, setError] = useState("")
 
   const handleConfirm = () => {
-    if (price <= 0) {
-      setError("Giá phải lớn hơn 0")
+    if (price < 0) {
+      setError("Giá phải lớn hơn hoặc bằng 0")
       return
     }
 
@@ -91,7 +91,7 @@ export default function PriceConfirmationModal({
               value={price}
               onChange={(e) => {
                 setPrice(Number(e.target.value))
-                if (Number(e.target.value) > 0) setError("")
+                if (Number(e.target.value) >= 0) setError("")
               }}
             />
             {error && <p className="text-sm text-[#BD2427]">{error}</p>}
