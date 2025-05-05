@@ -3,118 +3,19 @@
 import { useState, useEffect } from "react"
 import { Calendar, ChevronLeft, ChevronRight, MapPin, Clock, Trophy, AlertCircle, User } from "lucide-react"
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, parseISO, isSameMonth } from "date-fns"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/Select"
 import { vi } from "date-fns/locale"
-
-// Mock data for matches - in a real app, this would come from an API
-const mockMatches = [
-  {
-    matchId: 1,
-    matchName: "Giao hữu đầu mùa",
-    scheduledDate: "2025-05-06",
-    scheduledStartTime: "14:02:00",
-    scheduledEndTime: "15:02:00",
-    homeTeamId: "30517058-1cb6-4ede-8818-bfe559e479cc",
-    homeTeamName: "Nam A",
-    scoreHome: 0,
-    awayTeamId: "9fedde57-97a7-4c26-a5c5-423c0edf13be",
-    awayTeamName: "Nam B",
-    scoreAway: 0,
-    status: "Sắp diễn ra",
-    courtId: "88ec0f27-f00f-4061-a87c-c18bf2d98638",
-    courtName: "An Dương",
-    courtAddress: "70 An Dương, quận Tây Hồ",
-    createdByCoachId: "37d46080-f527-43a8-8d33-cc9902f9b5e0",
-    homeTeamPlayers: [],
-    awayTeamPlayers: [],
-    matchArticles: [],
-  },
-  {
-    matchId: 2,
-    matchName: "Giải đấu mùa hè",
-    scheduledDate: "2025-05-12",
-    scheduledStartTime: "16:00:00",
-    scheduledEndTime: "17:30:00",
-    homeTeamId: "30517058-1cb6-4ede-8818-bfe559e479cc",
-    homeTeamName: "Nam A",
-    scoreHome: 78,
-    awayTeamId: "9fedde57-97a7-4c26-a5c5-423c0edf13be",
-    awayTeamName: "Đội Hoàng Gia",
-    scoreAway: 72,
-    status: "Đã kết thúc",
-    courtId: "88ec0f27-f00f-4061-a87c-c18bf2d98638",
-    courtName: "Nhà thi đấu Bách Khoa",
-    courtAddress: "Số 1 Đại Cồ Việt, Hai Bà Trưng",
-    createdByCoachId: "37d46080-f527-43a8-8d33-cc9902f9b5e0",
-    homeTeamPlayers: [],
-    awayTeamPlayers: [],
-    matchArticles: [],
-  },
-  {
-    matchId: 3,
-    matchName: "Vòng loại giải U16",
-    scheduledDate: "2025-05-20",
-    scheduledStartTime: "09:30:00",
-    scheduledEndTime: "11:00:00",
-    homeTeamId: "9fedde57-97a7-4c26-a5c5-423c0edf13be",
-    homeTeamName: "Đội Sao Đỏ",
-    scoreHome: 0,
-    awayTeamId: "30517058-1cb6-4ede-8818-bfe559e479cc",
-    awayTeamName: "Nam A",
-    scoreAway: 0,
-    status: "Sắp diễn ra",
-    courtId: "88ec0f27-f00f-4061-a87c-c18bf2d98638",
-    courtName: "Cung thể thao Quần Ngựa",
-    courtAddress: "30 Văn Cao, Ba Đình",
-    createdByCoachId: "37d46080-f527-43a8-8d33-cc9902f9b5e0",
-    homeTeamPlayers: [],
-    awayTeamPlayers: [],
-    matchArticles: [],
-  },
-]
-
-// Mock data for children - in a real app, this would come from an API
-const mockChildren = [
-  {
-    userId: "1f0e5627-988a-4313-8714-58081655488a",
-    fullname: "Nguyễn Huy Hoàng",
-    email: "tainghe171475@fpt.edu.vn",
-    phone: "091234567",
-    teamId: "30517058-1cb6-4ede-8818-bfe559e479cc",
-    teamName: "Nam A",
-    profileImage: null,
-    address: "N/A",
-    dateOfBirth: "2004-06-01",
-    weight: null,
-    height: null,
-    position: null,
-    shirtNumber: null,
-    relationshipWithParent: null,
-    clubJoinDate: "2025-05-04",
-  },
-  {
-    userId: "2a1b3c4d-5e6f-7g8h-9i0j-1k2l3m4n5o6p",
-    fullname: "Trần Minh Đức",
-    email: "duc.tran@example.com",
-    phone: "0987654321",
-    teamId: "9fedde57-97a7-4c26-a5c5-423c0edf13be",
-    teamName: "Nam B",
-    profileImage: null,
-    address: "N/A",
-    dateOfBirth: "2005-03-15",
-    weight: null,
-    height: null,
-    position: null,
-    shirtNumber: null,
-    relationshipWithParent: null,
-    clubJoinDate: "2024-11-10",
-  },
-]
+import parentApi from "@/api/parent"
+import { useAuth } from "@/hooks/context/AuthContext"
+import matchApi from "@/api/match"
 
 export default function MatchTracker() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [matches, setMatches] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedChildId, setSelectedChildId] = useState("all")
+  const [selectedChildId, setSelectedChildId] = useState(null)
+  const [mockChildren, setMockChildren] = useState([])
+  const { user } = useAuth()
 
   const startDate = startOfMonth(currentMonth)
   const endDate = endOfMonth(currentMonth)
@@ -123,47 +24,40 @@ export default function MatchTracker() {
     fetchMatches()
   }, [currentMonth, selectedChildId])
 
+  useEffect(() => {
+    fetchChild()
+  }, [])
+
   const fetchMatches = async () => {
     setIsLoading(true)
     try {
-      // In a real app, you would call your API here
-      // const response = await fetch('/api/matches', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     startDate: format(startDate, 'yyyy-MM-dd'),
-      //     endDate: format(endDate, 'yyyy-MM-dd'),
-      //     teamId: selectedChildId !== 'all'
-      //       ? mockChildren.find(child => child.userId === selectedChildId)?.teamId
-      //       : undefined
-      //   })
-      // });
-      // const data = await response.json();
-
-      // For demo purposes, we'll just set mock data
-      setTimeout(() => {
-        // Filter matches for the current month
-        let filteredMatches = mockMatches.filter((match) => {
-          const matchDate = parseISO(match.scheduledDate)
-          return isSameMonth(matchDate, currentMonth)
-        })
-
-        // Filter by team if a child is selected
-        if (selectedChildId !== "all") {
-          const selectedChild = mockChildren.find((child) => child.userId === selectedChildId)
-          if (selectedChild) {
-            filteredMatches = filteredMatches.filter(
-              (match) => match.homeTeamId === selectedChild.teamId || match.awayTeamId === selectedChild.teamId,
-            )
-          }
-        }
-
-        setMatches(filteredMatches)
-        setIsLoading(false)
-      }, 500)
+      const data = {
+        startDate: format(startDate, "yyyy-MM-dd"),
+        endDate: format(endDate, "yyyy-MM-dd"),
+        teamId: selectedChildId !== null
+          ? mockChildren.find((child) => child.userId === selectedChildId)?.teamId
+          : null,
+      }
+      const response = await matchApi.getMatch(data)
+      setMatches(response?.data?.data || [])
+      setIsLoading(false)
     } catch (error) {
       console.error("Error fetching matches:", error)
       setIsLoading(false)
+    }
+  }
+
+  const fetchChild = async () => {
+    try {
+      const response = await parentApi.getChildList(user?.userId);
+      if (response?.data?.data && response?.data?.data.length > 0) {
+        setMockChildren(response?.data?.data);
+        setSelectedChildId(response?.data?.data[0]?.userId);
+      } else {
+        setMockChildren([]);
+      }
+    } catch (error) {
+      console.error("Error fetching children:", error)
     }
   }
 
@@ -191,7 +85,7 @@ export default function MatchTracker() {
   }
 
   const isChildTeam = (teamId) => {
-    if (selectedChildId === "all") return false
+    if (!selectedChildId) return false
     const selectedChild = mockChildren.find((child) => child.userId === selectedChildId)
     return selectedChild?.teamId === teamId
   }
@@ -225,21 +119,23 @@ export default function MatchTracker() {
             </div>
 
             {/* Child Filter */}
-            <div className="flex items-center">
+            {selectedChildId && <div className="flex items-center">
               <User className="mr-2 h-5 w-5 text-[#BD2427]" />
-              <select
+              <Select className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#BD2427] focus:border-transparent"
                 value={selectedChildId}
-                onChange={(e) => setSelectedChildId(e.target.value)}
-                className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#BD2427] focus:border-transparent"
-              >
-                <option value="all">Tất cả các con</option>
-                {mockChildren.map((child) => (
-                  <option key={child.userId} value={child.userId}>
-                    {child.fullname} - {child.teamName}
-                  </option>
-                ))}
-              </select>
-            </div>
+                onValueChange={(value) => setSelectedChildId(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn con" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockChildren.map((child) => (
+                    <SelectItem key={child.userId} value={child.userId}>
+                      {child.fullname} - {child.teamName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>}
           </div>
         </div>
 
@@ -303,9 +199,8 @@ export default function MatchTracker() {
                         {/* Home Team */}
                         <div className="text-center sm:w-1/3">
                           <div
-                            className={`w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center ${
-                              isChildTeam(match.homeTeamId) ? "bg-[#BD2427] text-white" : "bg-gray-200"
-                            }`}
+                            className={`w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center ${isChildTeam(match.homeTeamId) ? "bg-[#BD2427] text-white" : "bg-gray-200"
+                              }`}
                           >
                             <span className="text-xl font-bold">{match.homeTeamName.charAt(0)}</span>
                           </div>
@@ -349,9 +244,8 @@ export default function MatchTracker() {
                         {/* Away Team */}
                         <div className="text-center sm:w-1/3">
                           <div
-                            className={`w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center ${
-                              isChildTeam(match.awayTeamId) ? "bg-[#BD2427] text-white" : "bg-gray-200"
-                            }`}
+                            className={`w-16 h-16 rounded-full mx-auto mb-2 flex items-center justify-center ${isChildTeam(match.awayTeamId) ? "bg-[#BD2427] text-white" : "bg-gray-200"
+                              }`}
                           >
                             <span className="text-xl font-bold">{match.awayTeamName.charAt(0)}</span>
                           </div>
