@@ -2,7 +2,7 @@
 import { usePathname } from "next/navigation";
 import { BarChart3, Grid } from "lucide-react";
 import { FaCalendarCheck } from "react-icons/fa";
-import { RiBasketballFill } from "react-icons/ri";
+import { RiBasketballFill, RiContactsBook3Fill } from "react-icons/ri";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar/Sidebar";
 import SidebarRail from "@/components/ui/sidebar/SidebarRail";
 import Link from "next/link";
@@ -11,6 +11,7 @@ export default function ParentSidebar() {
     const pathname = usePathname(); 
 
     const menuItems = [
+        { title: "Thông tin liên lạc", icon: RiContactsBook3Fill, url: "/contact-tracker" },
         { title: "Lịch tập luyện", icon: BarChart3, url: "/schedules" },
         { title: "Tình trạng điểm danh", icon: FaCalendarCheck, url: "/attendance-tracker" },
         { title: "Lịch thi đấu", icon: RiBasketballFill, url: "/match-tracker" },
