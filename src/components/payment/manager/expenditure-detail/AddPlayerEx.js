@@ -20,7 +20,7 @@ export default function AddPlayersExDialog({ isOpen, onClose, onConfirm, availab
   const [selectedPlayerIds, setSelectedPlayerIds] = useState([])
 
   // Filter players by search term
-  const filteredPlayers = availablePlayers.filter((player) =>
+  const filteredPlayers = availablePlayers.filter((player) => 
     player.fullname.toLowerCase().includes(searchTerm.toLowerCase())
   )
 

@@ -2,10 +2,10 @@ import api from "./axios";
 
 const teamFundApi = {
     addExpenditure: (teamFundId, data) => {
-        return api.post(`/team-fund/add-expenditure?teamFundId=${teamFundId}`, data);
+        return api.post(`/team-fund/add-expenditure-has-user-id?teamFundId=${teamFundId}`, data);
     },
     updateExpenditure: (teamFundId, data) => {
-        return api.put(`/team-fund/edit-expenditure?teamFundId=${teamFundId}`, data);
+        return api.put(`/team-fund/edit-expenditure-has-user-id?teamFundId=${teamFundId}`, data);
     },
     listExpenditure: (teamFundId) => {
         return api.get(`/team-fund/list-expenditure?teamFundId=${teamFundId}`);
@@ -31,8 +31,9 @@ const teamFundApi = {
     updatePaymentStatus: (data) => {
         return api.put(`/team-fund/update-payment-status`, data);
     },
-
-
+    deleteExpenditure: (id) => {
+        return api.delete(`/team-fund/delete-expenditure?expenditureId=${id}`)
+    }
 }
 
 export default teamFundApi;
