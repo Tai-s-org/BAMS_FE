@@ -21,8 +21,6 @@ export default function AttendanceTracker() {
     const startDate = startOfMonth(currentMonth)
     const endDate = endOfMonth(currentMonth)
 
-
-
     useEffect(() => {
         if (selectedChild)
         fetchAttendanceData()
