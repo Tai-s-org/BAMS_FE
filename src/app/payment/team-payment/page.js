@@ -103,7 +103,7 @@ export default function ManagerPayments() {
     }
 
     const formatDate = (dateString) => {
-        if (!dateString) return "N/A"
+        if (!dateString) return "-"
         const date = new Date(dateString)
         return date.toLocaleString("vi-VN", {
             day: "2-digit",

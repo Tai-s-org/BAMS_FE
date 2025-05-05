@@ -396,6 +396,7 @@ import { Badge } from "@/components/ui/Badge"
 import { ArrowLeft, Download, ExternalLink, Search } from "lucide-react"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 import tryOutApi from "@/api/tryOutScore"
+import registrationSessionApi from "@/api/registrationSession"
 
 export default function AllScoresPage() {
     const { sessionId } = useParams()
@@ -406,6 +407,7 @@ export default function AllScoresPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState("summary") // Default to summary view
+    const [sessionData, setSessionData] = useState("")
 
     // Group scores by category for column headers
     const getBasketballSkills = () => {
@@ -485,7 +487,7 @@ export default function AllScoresPage() {
             try {
                 setLoading(true)
                 const res = await tryOutApi.getAllPlayerScoreByReport(sessionId)
-
+                
                 // For demo purposes, use the sample data
                 setTimeout(() => {
                     setScores(res.data.data)
@@ -501,7 +503,18 @@ export default function AllScoresPage() {
             }
         }
 
+        const fetchSession = async () => {
+            try {
+                const res = await registrationSessionApi.getRegistrationSessionById(sessionId);
+                console.log(res.data);
+                setSessionData(res.data)
+            } catch (error) {
+                console.error("Error fetching session data:", error)
+            }
+        }
+
         fetchScores()
+        fetchSession()
     }, [sessionId, addToast])
 
     useEffect(() => {
@@ -513,9 +526,58 @@ export default function AllScoresPage() {
         }
     }, [searchTerm, scores])
 
+    // const exportToCSV = async () => {
+    //     try {
+    //         const response = await tryOutApi.exportPlayerScore(sessionId)
+    //         console.log(response.data);
+
+    //         // Create a blob from the response data
+    //         const blob = new Blob([response.data], {
+    //             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    //         })
+
+    //         // Create a URL for the blob
+    //         const url = window.URL.createObjectURL(blob)
+
+    //         // Create a temporary anchor element
+    //         const a = document.createElement("a")
+    //         a.href = url
+
+    //         // Extract filename from content-disposition header if available
+    //         let filename = "player-scores.xlsx"
+    //         const contentDisposition = response.headers?.["content-disposition"]
+    //         if (contentDisposition) {
+    //             const filenameMatch = contentDisposition.match(/filename="(.+?)"/)
+    //             if (filenameMatch && filenameMatch[1]) {
+    //                 filename = filenameMatch[1]
+    //             }
+    //         }
+
+    //         a.download = filename
+    //         document.body.appendChild(a)
+    //         a.click()
+
+    //         // Clean up
+    //         window.URL.revokeObjectURL(url)
+    //         document.body.removeChild(a)
+
+    //         addToast({
+    //             message: "Xuất dữ liệu thành công",
+    //             type: "success",
+    //         })
+    //     } catch (error) {
+    //         console.error("Export error:", error)
+    //         addToast({
+    //             message: "Lỗi khi xuất dữ liệu",
+    //             type: "error",
+    //         })
+    //     }
+    // }
+
     const exportToCSV = async () => {
         try {
             const response = await tryOutApi.exportPlayerScore(sessionId)
+            console.log(response)
 
             // Create a blob from the response data
             const blob = new Blob([response.data], {
@@ -530,12 +592,18 @@ export default function AllScoresPage() {
             a.href = url
 
             // Extract filename from content-disposition header if available
-            let filename = "player-scores.xlsx"
+            let filename = `BÁO CÁO KẾT QUẢ ĐÁNH GIÁ NĂNG LỰC YHBT ${sessionData?.registrationName.toUpperCase()}.xlsx`
             const contentDisposition = response.headers?.["content-disposition"]
             if (contentDisposition) {
-                const filenameMatch = contentDisposition.match(/filename="(.+?)"/)
-                if (filenameMatch && filenameMatch[1]) {
-                    filename = filenameMatch[1]
+                // Prefer UTF-8 filename* if available
+                const utf8FilenameMatch = contentDisposition.match(/filename\*\=UTF-8''(.+)/)
+                if (utf8FilenameMatch && utf8FilenameMatch[1]) {
+                    filename = decodeURIComponent(utf8FilenameMatch[1])
+                } else {
+                    const asciiFilenameMatch = contentDisposition.match(/filename="(.+?)"/)
+                    if (asciiFilenameMatch && asciiFilenameMatch[1]) {
+                        filename = asciiFilenameMatch[1]
+                    }
                 }
             }
 
@@ -560,6 +628,8 @@ export default function AllScoresPage() {
         }
     }
 
+
+
     const goBack = () => {
         router.push("/registration-session-management/player-registration-list")
     }
@@ -582,17 +652,17 @@ export default function AllScoresPage() {
                         <CardDescription>Điểm đánh giá của tất cả cầu thủ tham gia kiểm tra</CardDescription>
                     </div>
                     <div className="flex space-x-2">
-                        <Button
+                        {/* <Button
                             onClick={goToDetailedView}
                             variant="outline"
                             className="border-[#bd2427] text-[#bd2427] hover:bg-[#bd2427] hover:text-white"
                         >
                             <ExternalLink className="mr-2 h-4 w-4" />
                             Xem theo tab
-                        </Button>
+                        </Button> */}
                         <Button onClick={exportToCSV} className="bg-[#bd2427] hover:bg-[#a01e21]">
                             <Download className="mr-2 h-4 w-4" />
-                            Xuất CSV
+                            Xuất Excel
                         </Button>
                     </div>
                 </CardHeader>
@@ -659,28 +729,28 @@ export default function AllScoresPage() {
                                     <TableHeader className="bg-slate-50 sticky top-0 z-10">
                                         <TableRow>
                                             {/* Fixed columns */}
-                                            <TableHead className="font-semibold sticky left-0 bg-slate-50 z-20 min-w-[80px] whitespace-nowrap">
+                                            <TableHead className="font-semibold sticky left-0 bg-slate-50 z-20 w-[30px] whitespace-nowrap">
                                                 SBD
                                             </TableHead>
-                                            <TableHead className="font-semibold sticky left-[80px] bg-slate-50 z-20 min-w-[200px] whitespace-nowrap">
+                                            <TableHead className="font-semibold sticky left-[30px] bg-slate-50 z-20 w-[150px] whitespace-nowrap">
                                                 Họ và tên
                                             </TableHead>
-                                            <TableHead className="font-semibold text-center sticky left-[280px] bg-slate-50 z-20 min-w-[100px] whitespace-nowrap">
+                                            <TableHead className="font-semibold text-center sticky left-[200px] bg-slate-50 z-20 w-[50px] whitespace-nowrap">
                                                 Giới tính
                                             </TableHead>
-                                            <TableHead className="font-semibold sticky left-[380px] bg-slate-50 z-20 min-w-[120px] whitespace-nowrap">
+                                            <TableHead className="font-semibold sticky left-[300px] bg-slate-50 z-20 w-[100px] whitespace-nowrap">
                                                 Ngày sinh
                                             </TableHead>
 
                                             {/* Dynamic category header */}
                                             <TableHead
                                                 className={`font-semibold text-center ${selectedCategory === "basketball"
-                                                        ? "bg-green-50"
-                                                        : selectedCategory === "scrimmage"
-                                                            ? "bg-blue-50"
-                                                            : selectedCategory === "physical"
-                                                                ? "bg-yellow-50"
-                                                                : "bg-red-50"
+                                                    ? "bg-green-50"
+                                                    : selectedCategory === "scrimmage"
+                                                        ? "bg-blue-50"
+                                                        : selectedCategory === "physical"
+                                                            ? "bg-yellow-50"
+                                                            : "bg-red-50"
                                                     }`}
                                                 colSpan={getSelectedCategoryScores().length}
                                             >
@@ -697,21 +767,21 @@ export default function AllScoresPage() {
                                         <TableRow>
                                             {/* Fixed columns */}
                                             <TableHead className="font-semibold sticky left-0 bg-slate-50 z-20"></TableHead>
-                                            <TableHead className="font-semibold sticky left-[80px] bg-slate-50 z-20"></TableHead>
+                                            <TableHead className="font-semibold sticky left-[30px] bg-slate-50 z-20"></TableHead>
                                             <TableHead className="font-semibold text-center sticky left-[280px] bg-slate-50 z-20"></TableHead>
-                                            <TableHead className="font-semibold sticky left-[380px] bg-slate-50 z-20"></TableHead>
+                                            <TableHead className="font-semibold sticky left-[300px] bg-slate-50 z-20"></TableHead>
 
                                             {/* Dynamic category columns */}
                                             {getSelectedCategoryScores().map((code) => (
                                                 <TableHead
                                                     key={`header-${code}`}
                                                     className={`font-semibold text-center min-w-[100px] whitespace-nowrap ${selectedCategory === "basketball"
-                                                            ? "bg-green-50"
-                                                            : selectedCategory === "scrimmage"
-                                                                ? "bg-blue-50"
-                                                                : selectedCategory === "physical"
-                                                                    ? "bg-yellow-50"
-                                                                    : "bg-red-50"
+                                                        ? "bg-green-50"
+                                                        : selectedCategory === "scrimmage"
+                                                            ? "bg-blue-50"
+                                                            : selectedCategory === "physical"
+                                                                ? "bg-yellow-50"
+                                                                : "bg-red-50"
                                                         }`}
                                                 >
                                                     {selectedCategory === "summary" ? getSummaryScoreName(code) : getScoreNameByCode(code)}
@@ -724,13 +794,13 @@ export default function AllScoresPage() {
                                             filteredScores.map((player) => (
                                                 <TableRow key={player.playerRegistrationId} className="hover:bg-slate-50">
                                                     {/* Fixed columns */}
-                                                    <TableCell className="sticky left-0 bg-white z-10 min-w-[80px] whitespace-nowrap">
+                                                    <TableCell className="sticky left-0 bg-white z-10 min-w-[30px] whitespace-nowrap">
                                                         {player.candidateNumber}
                                                     </TableCell>
-                                                    <TableCell className="font-medium sticky left-[80px] bg-white z-10 min-w-[200px] whitespace-nowrap">
+                                                    <TableCell className="font-medium sticky left-[30px] bg-white z-10 min-w-[150px] whitespace-nowrap">
                                                         {player.fullName}
                                                     </TableCell>
-                                                    <TableCell className="text-center sticky left-[280px] bg-white z-10 min-w-[100px] whitespace-nowrap">
+                                                    <TableCell className="text-center sticky left-[200px] bg-white z-10 min-w-[50px] whitespace-nowrap">
                                                         <Badge
                                                             variant="outline"
                                                             className={
@@ -740,7 +810,7 @@ export default function AllScoresPage() {
                                                             {player.gender ? "Nam" : "Nữ"}
                                                         </Badge>
                                                     </TableCell>
-                                                    <TableCell className="sticky left-[380px] bg-white z-10 min-w-[120px] whitespace-nowrap">
+                                                    <TableCell className="sticky left-[300px] bg-white z-10 min-w-[100px] whitespace-nowrap">
                                                         {new Date(player.dateOfBirth).toLocaleDateString("vi-VN")}
                                                     </TableCell>
 
@@ -749,12 +819,12 @@ export default function AllScoresPage() {
                                                         <TableCell
                                                             key={`${player.playerRegistrationId}-${code}`}
                                                             className={`text-center min-w-[100px] whitespace-nowrap ${selectedCategory === "basketball"
-                                                                    ? "bg-green-50/30"
-                                                                    : selectedCategory === "scrimmage"
-                                                                        ? "bg-blue-50/30"
-                                                                        : selectedCategory === "physical"
-                                                                            ? "bg-yellow-50/30"
-                                                                            : "bg-red-50/30"
+                                                                ? "bg-green-50/30"
+                                                                : selectedCategory === "scrimmage"
+                                                                    ? "bg-blue-50/30"
+                                                                    : selectedCategory === "physical"
+                                                                        ? "bg-yellow-50/30"
+                                                                        : "bg-red-50/30"
                                                                 }`}
                                                         >
                                                             <Badge
@@ -785,10 +855,6 @@ export default function AllScoresPage() {
                                         )}
                                     </TableBody>
                                 </Table>
-                                <div className="text-center text-sm text-muted-foreground py-2 border-t bg-slate-50">
-                                    <span className="hidden md:inline">← Kéo ngang để xem thêm →</span>
-                                    <span className="md:hidden">← Kéo ngang →</span>
-                                </div>
                             </div>
                         </div>
                     )}

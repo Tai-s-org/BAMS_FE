@@ -648,7 +648,7 @@ export function ScorePopup({ open, onClose, player, onStatusChange }) {
 
   // Add a view function after the handleNoteChange function
   const handleView = (skillCode) => {
-    window.open(`http://localhost:3000/dashboard/tryout-score?measurementScaleCode=${skillCode}`, "_blank")
+    window.open(`https://yenhoastorm.com/dashboard/tryout-score?measurementScaleCode=${skillCode}`, "_blank")
   }
 
   // Function to handle form submission
