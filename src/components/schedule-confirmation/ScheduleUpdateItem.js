@@ -3,8 +3,32 @@
 import { Card, CardContent } from "@/components/ui/Card"
 import { Button } from "@/components/ui/Button"
 import { CheckCircle, XCircle } from "lucide-react"
+import { useEffect, useState } from "react";
 
 export default function ScheduleUpdateItem({ schedule, onApprove, onReject, userRole }) {
+  const [remainingSeconds, setRemainingSeconds] = useState(schedule?.requestRemainingTime);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRemainingSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTime = (seconds) => {
+    const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+    const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
+    return `${hrs}:${mins}:${secs}`;
+  };
+
   return (
     <Card className="overflow-hidden border-[#BD2427]/20 hover:border-[#BD2427]/40 transition-colors">
       <CardContent className="p-0">
@@ -29,16 +53,20 @@ export default function ScheduleUpdateItem({ schedule, onApprove, onReject, user
               </div>
               <div className="flex justify-between sm:block">
                 <span className="font-medium text-muted-foreground">Địa chỉ:</span>
-                {((schedule.newCourtAddress !== schedule.oldCourtAddress)) ? <span className="sm:ml-2 text-red-500">{schedule.newCourtAddress}</span> : <span className="sm:ml-2">{schedule.newCourtAddress}</span>}
+                {((schedule.newCourtAddress !== schedule.oldCourtAddress)) ? <span className="sm:ml-2 text-red-500">{schedule.oldCourtAddress} thành {schedule.newCourtAddress}</span> : <span className="sm:ml-2">{schedule.newCourtAddress}</span>}
               </div>
               <div className="flex justify-between sm:block">
                 <span className="font-medium text-muted-foreground">Liên hệ sân:</span>
                 <span className="sm:ml-2">{schedule.oldCourtContact}</span>
               </div>
+              <div className="flex justify-between sm:block">
+                <span className="font-medium text-muted-foreground">Thời gian còn lại:</span>
+                <span className="sm:ml-2  text-red-500 font-semibold">{formatTime(remainingSeconds)}</span>
+              </div>
             </div>
           </div>
 
-          { userRole === "Manager" ? (<div className="flex items-center justify-end gap-2 p-4 bg-gray-50">
+          {userRole === "Manager" ? (<div className="flex items-center justify-end gap-2 p-4 bg-gray-50">
             <Button
               variant="outline"
               className="border-[#BD2427] text-[#BD2427] hover:bg-[#BD2427]/10 hover:text-[#BD2427]"
@@ -52,7 +80,7 @@ export default function ScheduleUpdateItem({ schedule, onApprove, onReject, user
               Phê duyệt
             </Button>
           </div>)
-          : (<div className="flex items-center justify-end gap-2 p-4 bg-gray-50">Vui lòng chờ phê duyệt</div>) }
+            : (<div className="flex items-center justify-end gap-2 p-4 bg-gray-50">Vui lòng chờ phê duyệt</div>)}
         </div>
       </CardContent>
     </Card>
