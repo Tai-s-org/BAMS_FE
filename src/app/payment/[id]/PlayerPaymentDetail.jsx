@@ -14,6 +14,7 @@ import paymentApi from "@/api/payment"
 import teamFundApi from "@/api/teamFund"
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import { differenceInDays, addDays, format, parseISO } from "date-fns";
+import { useToasts } from "@/hooks/providers/ToastProvider"
 
 export default function PaymentDetail({ id }) {
     const [payment, setPayment] = useState()
@@ -23,6 +24,8 @@ export default function PaymentDetail({ id }) {
     const [paymentItems, setPaymentItems] = useState([]);
     const [qrCode, setqrCode] = useState()
     const [remainingTime, setRemainingTime] = useState(600); // 10 phút = 600 giây
+    const { addToast } = useToasts()
+    const [isAutoPayment, setIsAutoPayment] = useState(false);
 
 
     const fetchPaymentDetails = async () => {
@@ -53,7 +56,8 @@ export default function PaymentDetail({ id }) {
 
     const handlePay = () => {
         if (selectedPaymentMethod === "qr") {
-            const isAutoPayment = paymentMethod.paymentMethod === 1;
+            const auto = paymentMethod.paymentMethod === 1;
+            setIsAutoPayment(auto);
 
             const generateQR = async () => {
                 console.log("id: ", id);
@@ -66,34 +70,9 @@ export default function PaymentDetail({ id }) {
                     setqrCode(response.data.data.qrCode)
                     setShowQR(true);
 
-                    if (isAutoPayment && showQR) {
 
-                        // Polling every 5s to check payment status
-                        const intervalId = setInterval(async () => {
-                            try {
-                                const statusResponse = await paymentApi.getPaymentDetail(id);
-                                const updatedStatus = statusResponse.data.data.status;
-                                console.log("Checking payment status:", updatedStatus);
-
-                                if (updatedStatus === 1) {
-                                    clearInterval(intervalId);
-                                    clearTimeout(timeoutId);
-                                    payment.status = 1
-                                    setShowQR(false);
-                                }
-                            } catch (error) {
-                                console.error("Error checking payment status:", error);
-                            }
-                        }, 5000);
-
-                        // Stop polling after 10 minutes
-                        const timeoutId = setTimeout(() => {
-                            clearInterval(intervalId);
-                            setShowQR(false);
-                            console.log("QR code timeout after 10 minutes");
-                        }, 10 * 60 * 1000);
-                    }
                 } catch (error) {
+                    addToast({ message: error?.response?.data?.message, type: "error" })
                     console.error("Error generating QR:", error);
                 }
             };
@@ -119,6 +98,37 @@ export default function PaymentDetail({ id }) {
         // }
     };
 
+    useEffect(() => {
+        if (isAutoPayment && showQR) {
+
+            // Polling every 5s to check payment status
+            const intervalId = setInterval(async () => {
+                try {
+                    const statusResponse = await paymentApi.getPaymentDetail(id);
+                    const updatedStatus = statusResponse.data.data.status;
+                    console.log("Checking payment status:", updatedStatus);
+
+                    if (updatedStatus === 1) {
+                        clearInterval(intervalId);
+                        clearTimeout(timeoutId);
+                        payment.status = 1
+                        setShowQR(false);
+                    }
+                } catch (error) {
+                    console.error("Error checking payment status:", error);
+                }
+            }, 5000);
+
+            // Stop polling after 10 minutes
+            const timeoutId = setTimeout(() => {
+                clearInterval(intervalId);
+                setShowQR(false);
+                console.log("QR code timeout after 10 minutes");
+            }, 10 * 60 * 1000);
+        }
+    }, [isAutoPayment, showQR]);
+
+
 
     const handleQrPay = async () => {
         try {
@@ -130,7 +140,7 @@ export default function PaymentDetail({ id }) {
             })
             fetchPaymentDetails()
         } catch (err) {
-
+            add
         }
         setShowQR(false)
     }
@@ -462,12 +472,6 @@ export default function PaymentDetail({ id }) {
                                                         )}
                                                     </div>
                                                 </div>
-                                                {selectedPaymentMethod !== "cash" && (
-                                                    <div className="grid grid-cols-2 p-2 bg-slate-50 rounded-md">
-                                                        <div className="text-muted-foreground">Mã giao dịch:</div>
-                                                        <div className="font-medium">TXN-2025-04-28-123</div>
-                                                    </div>
-                                                )}
                                             </div>
                                         </div>
                                     </>

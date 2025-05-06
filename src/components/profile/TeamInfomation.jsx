@@ -7,12 +7,14 @@ export default function TeamInformation({ user }) {
     const [teamName, setTeamName] = useState("")
 
     const formatDate = (dateString) => {
-        const date = new Date(dateString?.split(" ")[0])
-        return date.toLocaleDateString("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-        })
+        const date = dateString?.split(" ")[0]
+        const time = dateString?.split(" ")[1]
+        // return date.toLocaleDateString("vi-VN", {
+        //     day: "2-digit",
+        //     month: "2-digit",
+        //     year: "numeric",
+        // })\
+        return time + " " +date
     }
 
     useEffect(() => {
@@ -63,14 +65,14 @@ export default function TeamInformation({ user }) {
                         <Clock className="h-5 w-5 text-red-800" />
                         <div>
                             <p className="text-sm text-gray-500">Ngày tham gia</p>
-                            <p className="font-medium text-gray-900">{(user.createdAt) || "N/A"}</p>
+                            <p className="font-medium text-gray-900">{formatDate(user.createdAt) || "-"}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <Clock className="h-5 w-5 text-red-700" />
                         <div>
                             <p className="text-sm text-gray-500">Cập nhật lần cuối</p>
-                            <p className="font-medium text-gray-900">{formatDate(user.updatedAt)}</p>
+                            <p className="font-medium text-gray-900">{user.updatedAt ? formatDate(user.updatedAt) : "-"}</p>
                         </div>
                     </div>
                 </div>

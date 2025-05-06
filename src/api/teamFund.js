@@ -33,6 +33,9 @@ const teamFundApi = {
     },
     deleteExpenditure: (id) => {
         return api.delete(`/team-fund/delete-expenditure?expenditureId=${id}`)
+    },
+    listPlayerByTeamId: (id, date) => {
+        return api.get(`/team-fund/players-by-date/${id}?targetDate=${date}`)
     }
 }
 
