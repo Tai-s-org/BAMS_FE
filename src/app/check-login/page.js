@@ -9,13 +9,14 @@ export default function CheckLogin() {
   const { user, userInfo } = useAuth();
   const { addToast } = useToasts();
   const router = useRouter();
-
+ 
   useEffect(() => {
     if (!user) {
       addToast({
         type: "error",
         message: "Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.",
       });
+      router.push("/login")
       return;
     }
 

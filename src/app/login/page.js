@@ -11,7 +11,7 @@ import { useEffect } from "react";
 export default function LoginPage() {
     const { user } = useAuth();
     const router = useRouter();
-
+ 
     useEffect(() => {
         if (user) {
             router.push("/check-login"); // Redirect to check-login page if user is already logged in

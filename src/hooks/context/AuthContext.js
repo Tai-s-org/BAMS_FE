@@ -34,8 +34,9 @@ export const AuthProvider = ({ children }) => {
             setUserInfo(response.data);
         } catch (error) {
             console.error("Error fetching user info:", error);
-            document.cookie = "AccessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            document.cookie = "RefreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            setUser(null);
+            localStorage.removeItem("user");
+            await authApi.logout();
             window.location.href = "/login";
         }
     };
@@ -46,7 +47,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("user", JSON.stringify(userData));
     };
 
-    // Hàm logout
+    // Hàm logout 
     const logout = () => {
         setUser(null);
         localStorage.removeItem("user");
