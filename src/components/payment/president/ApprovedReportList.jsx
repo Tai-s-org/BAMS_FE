@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button"
 import Link from "next/link"
 import { FileText, ArrowRight } from "lucide-react"
 
-export function ApprovedReportsList({approvedReports}) {
+export function ApprovedReportsList({ approvedReports }) {
     // const approvedReports = [
     //     {
     //         id: "120",
@@ -40,6 +40,15 @@ export function ApprovedReportsList({approvedReports}) {
         return number.toLocaleString('vi-VN');
     }
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        })
+    }
+
     return (
         <div className="space-y-4">
             {approvedReports.map((report) => (
@@ -52,7 +61,7 @@ export function ApprovedReportsList({approvedReports}) {
                             <div className="font-medium">
                                 {report.teamName} - {report.description}
                             </div>
-                            <div className="text-sm text-muted-foreground">Duyệt vào ngày {report.approvedDate}</div>
+                            <div className="text-sm text-muted-foreground">Duyệt vào ngày {report.approveAt ? formatDate(report.approveAt) : "-"}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">

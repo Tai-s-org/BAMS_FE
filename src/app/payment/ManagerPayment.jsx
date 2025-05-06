@@ -124,14 +124,14 @@ export default function ManagerPayment() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                {/* <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium">Tỷ lệ thanh toán thành công</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">75%</div>
                     </CardContent>
-                </Card>
+                </Card> */}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

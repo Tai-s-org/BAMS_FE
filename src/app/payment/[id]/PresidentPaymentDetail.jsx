@@ -12,6 +12,7 @@ import Link from "next/link"
 import { ArrowLeft, CheckCircle, FileText, Users, BanknoteIcon, XCircle, Calendar, Clock } from "lucide-react"
 import teamFundApi from "@/api/teamFund"
 import { useToasts } from "@/hooks/providers/ToastProvider"
+import { Label } from "@/components/ui/Label"
 
 export default function PresidentReportDetail({ id }) {
     const [isApproved, setIsApproved] = useState(false)
@@ -42,14 +43,13 @@ export default function PresidentReportDetail({ id }) {
 
     const handleApprove = async (id) => {
         console.log(id);
-        
         try {
             const response = await teamFundApi.approveTeamFund({
                 "teamFundId": id,
             })
             console.log(response);
-            addToast({ message: response.data.message, type: "success" })
             fetchExpenseItems()
+            addToast({ message: response.data.message, type: "success" })
         } catch (err) {
             addToast({ message: err?.response.data.message, type: "error" })
             console.error("Error approving team fund:", err)
@@ -58,9 +58,20 @@ export default function PresidentReportDetail({ id }) {
         // setIsRejected(false)
     }
 
-    const handleReject = () => {
-        setIsRejected(true)
-        setIsApproved(false)
+    const handleReject = async (id, note) => {
+        console.log("id: ", id, note);
+        try {
+            const response = await teamFundApi.rejectTeamFund({
+                "teamFundId": id,
+                "reasonReject": note
+            })
+            console.log(response);
+            addToast({ message: response.data.message, type: "success" })
+            fetchExpenseItems()
+        } catch (err) {
+            addToast({ message: err?.response.data.message, type: "error" })
+            console.error("Error approving team fund:", err)
+        }
     }
 
     function formatTienVN(number) {
@@ -98,7 +109,7 @@ export default function PresidentReportDetail({ id }) {
                                 <FileText className="h-5 w-5" />
                                 {teamFund?.teamName} - {teamFund?.description}
                             </CardTitle>
-                            <CardDescription>Hoàn thành bởi quản lý Hoàng Trung Hiếu vào ngày {formatDate(teamFund?.endDate)}</CardDescription>
+                            <CardDescription>Hoàn thành bởi quản lý <span className="font-bold">{teamFund?.managerName}</span> vào ngày {formatDate(teamFund?.endDate)}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-6">
@@ -173,7 +184,7 @@ export default function PresidentReportDetail({ id }) {
                                                     </DialogDescription>
                                                 </DialogHeader>
                                                 <div className="py-4">
-                                                    {/* <Label htmlFor="comment" className="text-sm font-medium mb-2 block">
+                                                    <Label htmlFor="comment" className="text-sm font-medium mb-2 block">
                                                         Lý do từ chối (tùy chọn)
                                                     </Label>
                                                     <Textarea
@@ -182,13 +193,13 @@ export default function PresidentReportDetail({ id }) {
                                                         onChange={(e) => setComment(e.target.value)}
                                                         placeholder="Nhập lý do từ chối báo cáo này..."
                                                         className="w-full min-h-[100px]"
-                                                    /> */}
+                                                    />
                                                 </div>
                                                 <DialogFooter>
                                                     <Button variant="outline" onClick={() => { }}>
                                                         Hủy
                                                     </Button>
-                                                    <Button variant="destructive" onClick={() => handleReject(comment)}>
+                                                    <Button variant="destructive" onClick={() => handleReject(teamFund.teamFundId, comment)}>
                                                         Xác nhận từ chối
                                                     </Button>
                                                 </DialogFooter>

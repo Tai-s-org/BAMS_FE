@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/Dialog"
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/Table"
 import Link from "next/link"
-import { ArrowLeft, FileText, Users, Clock, Plus, Pencil, Save, Trash2, Check, CheckCircle, BanknoteIcon, Calendar, Eye, } from "lucide-react"
+import { ArrowLeft, FileText, Users, Clock, Plus, Pencil, Save, Trash2, Check, CheckCircle, BanknoteIcon, Calendar, Eye, LogIn, } from "lucide-react"
 import { DatePicker } from "@/components/ui/DatePicker"
 import teamFundApi from "@/api/teamFund"
 import ExpenditureDetail from "@/components/payment/manager/expenditure-detail/ExpenditureDetailDialog"
@@ -66,7 +66,17 @@ export default function ManagerReportDetail({ id }) {
     const fetchPlayers = async (date) => {
         try {
             const TeamId = userInfo?.roleInformation.teamId
-            const playersResponse = await teamFundApi.listPlayerByTeamId(TeamId, date);
+            const d = new Date(date);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+
+            const localDate = `${yyyy}-${mm}-${dd}T23:59:59`;
+            console.log(localDate);
+
+            const playersResponse = await teamFundApi.listPlayerByTeamId(TeamId, localDate);
+            console.log(playersResponse.data);
+
             setAvailablePlayers(playersResponse?.data.data || [])
         } catch (error) {
             console.error("Error fetching players:", error)
@@ -164,6 +174,15 @@ export default function ManagerReportDetail({ id }) {
             date.getMonth(),
             date.getDate()
         ));
+    }
+
+    function isAtLeastThreeDaysLater(dateStr) {
+        if (dateStr) {
+            const xDate = parseISO(dateStr); // chuyển chuỗi sang đối tượng Date
+            const today = new Date();
+            return differenceInDays(today, xDate) <= 3;
+        }
+        else return true
     }
 
 
@@ -406,7 +425,7 @@ export default function ManagerReportDetail({ id }) {
                                                                             size="sm"
                                                                             onClick={() => openPlayerDialog(item.id, item.payoutDate)}
                                                                             className={`flex items-center gap-1 ${!item.playerExpenditures || item.playerExpenditures.length === 0 ? "border-red-300 text-red-600" : ""}`}
-                                                                            disabled = {item.payoutDate === null}
+                                                                            disabled={item.payoutDate === null}
                                                                         >
                                                                             <Users className="h-4 w-4" />
                                                                             {getPlayerCountText(item)}
@@ -450,7 +469,7 @@ export default function ManagerReportDetail({ id }) {
                                                                     <TableCell className="text-right">
                                                                         {!isApproved && (
                                                                             <div className="flex justify-end gap-1">
-                                                                                {(teamFund?.status === 0 && item?.allowToEditPlayer === true) && (
+                                                                                {(item?.allowToEditPlayer === true && (teamFund?.status === 0 || (teamFund?.status === 0 && isAtLeastThreeDaysLater(teamFund?.approveAt)))) && (
                                                                                     <Button
                                                                                         variant="ghost"
                                                                                         size="icon"
@@ -468,7 +487,7 @@ export default function ManagerReportDetail({ id }) {
                                                                                 >
                                                                                     <Eye className="h-4 w-4" />
                                                                                 </Button>
-                                                                                {(teamFund?.status === 0 && item?.allowToEditPlayer === true) && (
+                                                                                {(item?.allowToEditPlayer === true && (teamFund?.status === 0 || (teamFund?.status === 0 && isAtLeastThreeDaysLater(teamFund?.approveAt)))) && (
                                                                                     <Button
                                                                                         variant="ghost"
                                                                                         size="icon"

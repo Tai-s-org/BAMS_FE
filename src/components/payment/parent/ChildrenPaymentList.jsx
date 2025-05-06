@@ -121,7 +121,7 @@ export function ChildrenPaymentsList({ childFilter }) {
                                 </Badge>
                             )}
                         </div>
-                        <Link href={`/parent/payment/${payment.id}`}>
+                        <Link href={`/payment/${payment.id}`}>
                             <Button variant="ghost" size="icon">
                                 <ArrowRight className="h-4 w-4" />
                             </Button>
