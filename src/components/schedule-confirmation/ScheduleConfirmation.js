@@ -187,9 +187,23 @@ export default function ScheduleConfirmation() {
           setCreateSchedules(createSchedules.filter((s) => s.trainingSessionId !== selectedScheduleId))
           break
         case "update":
+          try {
+            const response = await scheduleApi.rejectUpdatePendingTrainingSession(data);
+            addToast({ message: response?.data.message, type: response?.data.status });
+          } catch (error) {
+            console.error("Error approve:", error);
+            addToast({ message: error?.response?.data.message, type: "error" });
+          }
           setUpdateSchedules(updateSchedules.filter((s) => s.trainingSessionId !== selectedScheduleId))
           break
         case "cancel":
+          try {
+            const response = await scheduleApi.rejectCancelPendingTrainingSession(data);
+            addToast({ message: response?.data.message, type: response?.data.status });
+          } catch (error) {
+            console.error("Error approve:", error);
+            addToast({ message: error?.response?.data.message, type: "error" });
+          }
           setCancelSchedules(cancelSchedules.filter((s) => s.trainingSessionId !== selectedScheduleId))
           break
       }
