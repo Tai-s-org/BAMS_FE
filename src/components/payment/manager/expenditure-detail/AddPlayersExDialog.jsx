@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/Button"
 import {
     Dialog,
@@ -18,7 +18,14 @@ import { ScrollArea } from "@/components/ui/ScrollArea"
 export default function AddPlayersExDialog({ isOpen, onClose, onConfirm, availablePlayers, selectedPlayerIds = [] }) {
     const [searchTerm, setSearchTerm] = useState("")
     const [localSelectedPlayerIds, setLocalSelectedPlayerIds] = useState(selectedPlayerIds)
-
+    console.log("select", selectedPlayerIds, localSelectedPlayerIds);
+    
+    useEffect(() => {
+        if(selectedPlayerIds.length > 0) {
+            setLocalSelectedPlayerIds(selectedPlayerIds)
+        }
+    },[selectedPlayerIds])
+    
     // Filter players by search term
     const filteredPlayers = availablePlayers.filter((player) =>
         player.fullname.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -110,8 +117,7 @@ export default function AddPlayersExDialog({ isOpen, onClose, onConfirm, availab
                                     >
                                         <div>{player.fullname}</div>
                                         <div className="text-xs text-gray-500 mt-1">
-                                            {player.teamName || "Chưa có đội"}
-                                            {player.position && ` • ${player.position}`}
+                                            {player.phone}
                                         </div>
                                     </label>
                                 </div>

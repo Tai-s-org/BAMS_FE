@@ -137,17 +137,23 @@ export default function PaymentDetail({ id }) {
 
 
 
+
     const handleQrPay = async () => {
+        const currentDate = new Date();
+        currentDate.setHours(currentDate.getHours() + 7); // Thêm số giờ vào thời gian hiện tại
         try {
             const response = await teamFundApi.updatePaymentStatus({
                 "paymentId": id,
                 "status": 3,
-                "paidDate": Date.now(),
+                "paidDate": currentDate.toISOString(),
                 "paymentMethod": 0
             })
+            addToast({ message: "Đẫ xác nhận thanh toán. Chờ quản lý của bạn xác nhận", type: "success" })
             fetchPaymentDetails()
         } catch (err) {
-            add
+            console.log(err);
+
+            addToast({ message: "Không thể xác nhận thanh toán", type: "error" })
         }
         setShowQR(false)
     }
@@ -209,6 +215,17 @@ export default function PaymentDetail({ id }) {
         document.body.removeChild(link)
     }
 
+    function extractHourMinuteAndDate(isoString) {
+        if (!isoString.includes("T")) return "-";
+
+        const [datePart, timePart] = isoString.split("T");
+        const [year, month, day] = datePart.split("-");
+        const hourMinute = timePart.slice(0, 5); // "HH:mm"
+        const formattedDate = `${day}/${month}/${year}`; // "dd/mm/yyyy"
+
+        return `${hourMinute} ${formattedDate}`; // "HH:mm dd/mm/yyyy"
+    }
+
     return (
         <div className="container mx-auto py-6">
             <div className="flex items-center mb-6">
@@ -218,10 +235,10 @@ export default function PaymentDetail({ id }) {
                     </Button>
                 </Link>
                 <h1 className="text-2xl font-bold ml-4">Thanh toán #{payment?.paymentId}</h1>
-                {payment?.status === 1 && <Badge className="ml-4 bg-green-500">Đã thanh toán</Badge>}
-                {payment?.status === 0 && <Badge className="ml-4 bg-yellow-500">Chưa thanh toán</Badge>}
-                {payment?.status === 2 && <Badge className="ml-4 bg-red-500">Quá hạn</Badge>}
-                {payment?.status === 3 && <Badge className="ml-4 bg-green-500">Đã thanh toán (Chờ xác nhận)</Badge>}
+                {payment?.status === 1 && <Badge className="ml-4 bg-green-500 text-white">Đã thanh toán</Badge>}
+                {payment?.status === 0 && <Badge className="ml-4 bg-yellow-500 text-white">Chưa thanh toán</Badge>}
+                {payment?.status === 2 && <Badge className="ml-4 bg-red-500 text-white">Quá hạn</Badge>}
+                {payment?.status === 3 && <Badge className="ml-4 bg-blue-600 text-white">Đã thanh toán (Chờ xác nhận)</Badge>}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -474,7 +491,7 @@ export default function PaymentDetail({ id }) {
                                                 <div className="grid grid-cols-2 p-2 bg-slate-50 rounded-md">
                                                     <div className="text-muted-foreground">Ngày thanh toán:</div>
                                                     <div className="font-medium">
-                                                        {payment.paymentDate ? new Date(payment?.paidDate).toLocaleDateString("vi-VN") : "-"}
+                                                        {extractHourMinuteAndDate(payment.paidDate)}
                                                     </div>
                                                 </div>
                                                 <div className="grid grid-cols-2 p-2 bg-slate-50 rounded-md">
