@@ -436,16 +436,16 @@ export default function TeamDashboard() {
                   Thêm cầu thủ
                 </Button>
               </div>}
-              <div className="overflow-x-auto">
-                <Table>
+              <div className="w-full overflow-x-auto">
+                <Table >
                   <TableHeader>
                     <TableRow>
                       <TableHead>Tên</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Vị trí</TableHead>
-                      <TableHead>Ngày sinh</TableHead>
-                      <TableHead>Số điện thoại</TableHead>
-                      <TableHead>Ngày tham gia</TableHead>
+                      <TableHead className="hidden sm:table-cell">Vị trí</TableHead>
+                      <TableHead className="hidden sm:table-cell">Ngày sinh</TableHead>
+                      <TableHead className="hidden sm:table-cell">Số điện thoại</TableHead>
+                      <TableHead className="hidden sm:table-cell">Ngày tham gia</TableHead>
                       <TableHead className="text-right">Thao tác</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -454,10 +454,10 @@ export default function TeamDashboard() {
                       <TableRow key={player.userId}>
                         <TableCell className="font-medium">{player.fullname}</TableCell>
                         <TableCell>{player.email || "N/A"}</TableCell>
-                        <TableCell>{player.position || "N/A"}</TableCell>
-                        <TableCell>{player.dateOfBirth || "N/A"}</TableCell>
-                        <TableCell>{player.phone || "N/A"}</TableCell>
-                        <TableCell>{formatDate(player.clubJoinDate)}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{player.position || "N/A"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{player.dateOfBirth || "N/A"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{player.phone || "N/A"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{formatDate(player.clubJoinDate)}</TableCell>
                         <TableCell className="text-right">
                           {(user?.roleCode === "Manager" || user?.roleCode === "Coach") &&
                             <div>
