@@ -45,6 +45,17 @@ export function PaymentHistoryList({ completedPayments }) {
         return number != null ? number.toLocaleString('vi-VN') : "";
     }
 
+    function extractHourMinuteAndDate(isoString) {
+        if (!isoString.includes("T")) return "-";
+    
+        const [datePart, timePart] = isoString.split("T");
+        const [year, month, day] = datePart.split("-");
+        const hourMinute = timePart.slice(0, 5); // "HH:mm"
+        const formattedDate = `${day}/${month}/${year}`; // "dd/mm/yyyy"
+    
+        return `${hourMinute} ${formattedDate}`; // "HH:mm dd/mm/yyyy"
+    }
+
     return (
         (completedPayments?.length > 0) ? (
             <div className="space-y-4">
@@ -58,7 +69,7 @@ export function PaymentHistoryList({ completedPayments }) {
                                 <div className="font-medium">
                                     {payment.teamName} - {payment.teamFundDescription}
                                 </div>
-                                <div className="text-sm text-muted-foreground">Đã thanh toán ngày {payment.paidDate}</div>
+                                <div className="text-sm text-muted-foreground">Đã thanh toán ngày {extractHourMinuteAndDate(payment.paidDate)}</div>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
