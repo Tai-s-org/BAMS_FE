@@ -90,8 +90,6 @@ export default function TrainingSessionDetail() {
         try {
             const response = await scheduleApi.getTrainingSessionById(id);
             setSession(response?.data.data);
-            console.log(response?.data.data);
-            
             setSessionExercises(response?.data.data.exercises);
             return true;
         } catch (error) {
@@ -164,6 +162,37 @@ export default function TrainingSessionDetail() {
     
         return true;
     };
+
+    const isPassed = (dateString, time) => {
+        if (!dateString || !time) return false;
+    
+        const datePart = dateString.split(", ")[1];
+        if (!datePart) return false;
+    
+        const startTime = time.split(" - ")[0]; 
+        if (!startTime) return false;
+    
+        const [day, month, year] = datePart.split("/").map(Number);
+        const [startHour, startMinute] = startTime.split(":").map(Number);
+    
+        const eventDateTime = new Date(year, month - 1, day, startHour, startMinute);
+        const now = new Date();
+    
+        if (eventDateTime < now) return false;
+    
+        const isToday =
+            eventDateTime.getFullYear() === now.getFullYear() &&
+            eventDateTime.getMonth() === now.getMonth() &&
+            eventDateTime.getDate() === now.getDate();
+    
+        if (isToday) {
+            const diffMs = eventDateTime - now; // milliseconds
+            const diffHours = diffMs / (1000 * 60 * 60);
+            return diffHours >= 0; 
+        }
+    
+        return true;
+    }
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -353,7 +382,9 @@ export default function TrainingSessionDetail() {
                                             ))}
                                         </div>
                                     ) : (
-                                        user?.roleCode === "Coach" && userInfo?.roleInformation.teamId === session.teamId && <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                                        user?.roleCode === "Coach" && userInfo?.roleInformation.teamId === session.teamId &&
+                                        isPassed(session.scheduledDate, session.time) &&
+                                        <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
                                             <p className="text-sm text-gray-500">Chưa có bài tập nào được thêm vào.</p>
                                             <button
                                                 onClick={() => setExerciseModalOpen(true)}
