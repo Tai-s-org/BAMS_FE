@@ -18,6 +18,7 @@ const CameraCapture = ({ handleAICapture }) => {
   const [createHover, setCreateHover] = useState(false)
   const [loading, setLoading] = useState(false)
   const {addToast} = useToasts()
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
 
   useEffect(() => {
     if (!showModal) return
@@ -26,7 +27,7 @@ const CameraCapture = ({ handleAICapture }) => {
     if (!capturedImage) {
       // Bật camera khi mở modal
       navigator.mediaDevices
-        .getUserMedia({ video: { facingMode: "user" } })
+        .getUserMedia({ video: { facingMode: isMobile ? { ideal: "environment" } : "user" } })
         .then((stream) => {
           setStream(stream)
           if (videoRef.current) {
