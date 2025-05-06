@@ -26,7 +26,7 @@ const CameraCapture = ({ handleAICapture }) => {
     if (!capturedImage) {
       // Bật camera khi mở modal
       navigator.mediaDevices
-        .getUserMedia({ video: true })
+        .getUserMedia({ video: { facingMode: "user" } })
         .then((stream) => {
           setStream(stream)
           if (videoRef.current) {
