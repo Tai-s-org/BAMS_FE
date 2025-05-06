@@ -38,6 +38,7 @@ export default function FaceIdManagement() {
     const [facesOfTeam, setFacesOfTeam] = useState([])
     const [team, setTeam] = useState([])
     const [isNewUpdate, setIsNewUpdate] = useState(false)
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 
     useEffect(() => {
@@ -50,7 +51,7 @@ export default function FaceIdManagement() {
                     video: {
                         width: { ideal: 1280 },
                         height: { ideal: 720 },
-                        facingMode: "user"
+                        facingMode: isMobile ? { ideal: "environment" } : "user"
                     }
                 })
                 .then((stream) => {
