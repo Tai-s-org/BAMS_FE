@@ -427,16 +427,16 @@ export default function TeamDashboard() {
 
             {/* Players Tab */}
             <TabsContent value="players">
+              {user?.roleCode === "Manager" && <div className="flex justify-end mb-4">
+                <Button
+                  onClick={() => setIsAddPlayerModalOpen(true)}
+                  className="bg-[#BD2427] hover:bg-[#9a1e20] text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Thêm cầu thủ
+                </Button>
+              </div>}
               <div className="overflow-x-auto">
-                {user?.roleCode === "Manager" && <div className="flex justify-end mb-4">
-                  <Button
-                    onClick={() => setIsAddPlayerModalOpen(true)}
-                    className="bg-[#BD2427] hover:bg-[#9a1e20] text-white"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Thêm cầu thủ
-                  </Button>
-                </div>}
                 <Table>
                   <TableHeader>
                     <TableRow>
