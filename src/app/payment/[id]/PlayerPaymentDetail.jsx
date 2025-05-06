@@ -97,12 +97,13 @@ export default function PaymentDetail({ id }) {
         //     updatePaymentStatus();
         // }
     };
-
+    console.log("showQR", showQR);
     useEffect(() => {
-        if (isAutoPayment && showQR) {
+        let intervalId
+        let timeoutId
 
-            // Polling every 5s to check payment status
-            const intervalId = setInterval(async () => {
+        if (isAutoPayment && showQR) {
+            intervalId = setInterval(async () => {
                 try {
                     const statusResponse = await paymentApi.getPaymentDetail(id);
                     const updatedStatus = statusResponse.data.data.status;
@@ -111,7 +112,7 @@ export default function PaymentDetail({ id }) {
                     if (updatedStatus === 1) {
                         clearInterval(intervalId);
                         clearTimeout(timeoutId);
-                        payment.status = 1
+                        payment.status = 1;
                         setShowQR(false);
                     }
                 } catch (error) {
@@ -119,14 +120,20 @@ export default function PaymentDetail({ id }) {
                 }
             }, 5000);
 
-            // Stop polling after 10 minutes
-            const timeoutId = setTimeout(() => {
+            timeoutId = setTimeout(() => {
                 clearInterval(intervalId);
                 setShowQR(false);
                 console.log("QR code timeout after 10 minutes");
             }, 10 * 60 * 1000);
         }
+
+        return () => {
+            // Cleanup interval and timeout on unmount or dependency change
+            clearInterval(intervalId);
+            clearTimeout(timeoutId);
+        };
     }, [isAutoPayment, showQR]);
+
 
 
 
@@ -172,12 +179,14 @@ export default function PaymentDetail({ id }) {
     }, [showQR, paymentMethod]);
 
     function isAtLeastThreeDaysLater(dateStr) {
+        console.log("date: ", dateStr);
+
         if (dateStr) {
             const xDate = parseISO(dateStr); // chuyển chuỗi sang đối tượng Date
             const today = new Date();
-            return differenceInDays(today, xDate) >= 3;
+            return differenceInDays(today, xDate) > 3;
         }
-        else return ""
+        else return true
     }
 
 
@@ -188,6 +197,16 @@ export default function PaymentDetail({ id }) {
             return format(newDate, "dd/MM/yyyy")
         }
         else return ""
+    }
+
+    const downloadQRCode = (qrCodeUrl) => {
+        // Create a temporary anchor element
+        const link = document.createElement("a")
+        link.href = qrCodeUrl
+        link.download = `Ma-QR-thanh-toan-${payment.paymentId}.png`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
     }
 
     return (
@@ -517,6 +536,28 @@ export default function PaymentDetail({ id }) {
                                 ) : null}
                             </div>
                         </div>
+                        <button
+                            className="text-sm text-primary hover:underline flex items-center gap-1.5 mt-1"
+                            onClick={() => downloadQRCode(qrCode)}
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="lucide lucide-download"
+                            >
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" x2="12" y1="15" y2="3" />
+                            </svg>
+                            Tải về mã QR
+                        </button>
                         <p className="text-sm text-muted-foreground mb-2">Số tiền: {formatTienVN(payment?.totalAmount)} VNĐ</p>
                         {/* <p className="text-sm text-muted-foreground">Reference: TEAM-ALPHA-{isOverdue ? "EQUIP" : "MAR"}-2025</p> */}
                     </div>

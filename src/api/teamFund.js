@@ -13,6 +13,9 @@ const teamFundApi = {
     approveTeamFund: (teamFundId) => {
         return api.post(`/team-fund/approve-team-fund`, teamFundId);
     },
+    rejectTeamFund: (data) => {
+        return api.post(`/team-fund/reject-teamfund`, data);
+    },
     teamFundList: (data) => {
         return api.get(`/team-fund/team-fund-list`, { params: data });
     },
