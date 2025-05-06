@@ -20,8 +20,8 @@ export default function PresidentPayment() {
         const feathTeam = async () => {
             try {
                 const response = await teamApi.listTeams();
-                console.log(response.data);
-                setTeams(response.data.data)
+                console.log("team:" ,response.data);
+                setTeams(response?.data?.data.items)
             } catch (error) {
                 console.error("Error fetching teams:", error);
             }
@@ -137,10 +137,10 @@ export default function PresidentPayment() {
                                         <SelectValue placeholder="Select month" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="april-2025">Tháng 4 2025</SelectItem>
-                                        <SelectItem value="march-2025">March 2025</SelectItem>
-                                        <SelectItem value="february-2025">February 2025</SelectItem>
-                                        <SelectItem value="january-2025">January 2025</SelectItem>
+                                        <SelectItem value="april-2025">Tháng 5 2025</SelectItem>
+                                        <SelectItem value="march-2025">Tháng 4 2025</SelectItem>
+                                        <SelectItem value="february-2025">Tháng 3 2025</SelectItem>
+                                        <SelectItem value="january-2025">Tháng 2 2025</SelectItem>
                                         <SelectItem value="december-2024">December 2024</SelectItem>
                                     </SelectContent>
                                 </Select>
