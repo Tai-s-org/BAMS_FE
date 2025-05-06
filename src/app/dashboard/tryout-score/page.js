@@ -836,12 +836,13 @@ export default function MeasurementScalesPage() {
                                                             <TableHead className="font-bold">Tiêu chí</TableHead>
                                                             <TableHead className="font-bold">Đơn vị</TableHead>
                                                             <TableHead className="font-bold">Giới tính</TableHead>
-                                                            <TableHead className="font-bold">Mức độ</TableHead>
                                                             {selectedScale.scoreCriteria.some((criteria) =>
                                                                 criteria.scoreLevels.some(
                                                                     (level) => level.minValue !== null || level.maxValue !== null,
                                                                 ),
                                                             ) && <TableHead className="font-bold">Giá trị</TableHead>}
+                                                            <TableHead className="font-bold">Mức độ</TableHead>
+                                                            <TableHead className="font-bold">Thang điểm 5</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -860,9 +861,8 @@ export default function MeasurementScalesPage() {
                                                                                 </TableCell>
                                                                             </>
                                                                         )}
-                                                                        <TableCell className="border-l">{level.scoreLevel}</TableCell>
                                                                         {(level.minValue !== null || level.maxValue !== null) && (
-                                                                            <TableCell>
+                                                                            <TableCell className="border-1">
                                                                                 {level.minValue === null && level.maxValue !== null && (
                                                                                     <>&lt; {level.maxValue}</>
                                                                                 )}
@@ -876,6 +876,8 @@ export default function MeasurementScalesPage() {
                                                                                 )}
                                                                             </TableCell>
                                                                         )}
+                                                                        <TableCell className="border-l">{level.scoreLevel}</TableCell>
+                                                                        <TableCell className="border-l">{level.fiveScaleScore}</TableCell>
                                                                     </TableRow>
                                                                 ))}
                                                             </React.Fragment>

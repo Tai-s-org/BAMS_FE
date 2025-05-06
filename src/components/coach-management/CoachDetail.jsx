@@ -277,11 +277,11 @@ export default function CoachDetail({ id }) {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Ngày hết hạn hợp đồng</p>
-                                    <p className="font-medium">{formatDate(coach.roleInformation.contractEndDate)}</p>
+                                    <p className="font-medium">{(coach.roleInformation.contractEndDate)}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Tiểu sử</p>
-                                    <p className="font-medium">{coach.roleInformation.bio}</p>
+                                    <p className="font-medium">{coach.roleInformation.bio || "-"}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500">Được kí bởi</p>
@@ -302,7 +302,7 @@ export default function CoachDetail({ id }) {
                         <div className="space-y-4">
                             <div>
                                 <p className="text-sm text-gray-500">Đội</p>
-                                <p className="font-medium">{coach.roleInformation.teamName}</p>
+                                <p className="font-medium">{coach.roleInformation.teamName || "Chưa có đội"}</p>
                             </div>
 
                             <div>

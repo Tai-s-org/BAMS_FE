@@ -38,10 +38,10 @@ export default function CoachList({ coaches }) {
                         coaches.map((coach) => (
                             <tr key={coach.userId} className="bg-white border-b hover:bg-slate-50">
                                 <td className="px-6 py-4 font-medium">{coach.fullname}</td>
-                                <td className="px-6 py-4">{coach.teamId || "Chưa có đội"}</td>
-                                <td className="px-6 py-4">{coach.bio || "-"}</td>
-                                <td className="px-6 py-4">{formatDate(coach.contractStartDate)}</td>
-                                <td className="px-6 py-4">{formatDate(coach.contractEndDate)}</td>
+                                <td className="px-6 py-4">{coach.roleInformation.teamName || "Chưa có đội"}</td>
+                                <td className="px-6 py-4">{coach.roleInformation.bio || "-"}</td>
+                                <td className="px-6 py-4">{(coach.roleInformation.contractStartDate)}</td>
+                                <td className="px-6 py-4">{(coach.roleInformation.contractEndDate)}</td>
                                 <td className="px-6 py-4 text-right">
                                     <button
                                         onClick={() => handleViewDetails(coach.userId)}
