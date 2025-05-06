@@ -23,6 +23,7 @@ import AddPlayersExDialog from "@/components/payment/manager/expenditure-detail/
 import playerApi from "@/api/player"
 import { useToasts } from "@/hooks/providers/ToastProvider"
 import { useAuth } from "@/hooks/context/AuthContext"
+import { differenceInDays, parseISO } from "date-fns"
 
 export default function ManagerReportDetail({ id }) {
     // For demo purposes, we'll determine if the report is approved based on the ID
@@ -340,7 +341,7 @@ export default function ManagerReportDetail({ id }) {
                                 </CardTitle>
                                 <CardDescription>Phải hoàn tất vào ngày {formatDate(teamFund?.endDate)}</CardDescription>
                             </div>
-                            {teamFund?.status === 0 && (
+                            {(teamFund?.status === 0 || (teamFund?.status === 1 && isAtLeastThreeDaysLater(teamFund?.approveAt))) && (
                                 <Button onClick={() => setShowSaveDialog(true)} className="gap-1">
                                     <Save className="h-4 w-4" /> Lưu thay đổi
                                 </Button>
@@ -469,7 +470,7 @@ export default function ManagerReportDetail({ id }) {
                                                                     <TableCell className="text-right">
                                                                         {!isApproved && (
                                                                             <div className="flex justify-end gap-1">
-                                                                                {(item?.allowToEditPlayer === true && (teamFund?.status === 0 || (teamFund?.status === 0 && isAtLeastThreeDaysLater(teamFund?.approveAt)))) && (
+                                                                                {(item?.allowToEditPlayer === true && (teamFund?.status === 0 || (teamFund?.status === 1 && isAtLeastThreeDaysLater(teamFund?.approveAt)))) && (
                                                                                     <Button
                                                                                         variant="ghost"
                                                                                         size="icon"
@@ -487,7 +488,7 @@ export default function ManagerReportDetail({ id }) {
                                                                                 >
                                                                                     <Eye className="h-4 w-4" />
                                                                                 </Button>
-                                                                                {(item?.allowToEditPlayer === true && (teamFund?.status === 0 || (teamFund?.status === 0 && isAtLeastThreeDaysLater(teamFund?.approveAt)))) && (
+                                                                                {(item?.allowToEditPlayer === true && (teamFund?.status === 0 || (teamFund?.status === 1 && isAtLeastThreeDaysLater(teamFund?.approveAt)))) && (
                                                                                     <Button
                                                                                         variant="ghost"
                                                                                         size="icon"
