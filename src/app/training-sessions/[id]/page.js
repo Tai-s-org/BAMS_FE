@@ -90,6 +90,8 @@ export default function TrainingSessionDetail() {
         try {
             const response = await scheduleApi.getTrainingSessionById(id);
             setSession(response?.data.data);
+            console.log(response?.data.data);
+            
             setSessionExercises(response?.data.data.exercises);
             return true;
         } catch (error) {
@@ -131,6 +133,37 @@ export default function TrainingSessionDetail() {
             </div>
         );
     }
+
+    const isLessDate = (dateString, time) => {
+        if (!dateString || !time) return false;
+    
+        const datePart = dateString.split(", ")[1];
+        if (!datePart) return false;
+    
+        const startTime = time.split(" - ")[0]; 
+        if (!startTime) return false;
+    
+        const [day, month, year] = datePart.split("/").map(Number);
+        const [startHour, startMinute] = startTime.split(":").map(Number);
+    
+        const eventDateTime = new Date(year, month - 1, day, startHour, startMinute);
+        const now = new Date();
+    
+        if (eventDateTime < now) return false;
+    
+        const isToday =
+            eventDateTime.getFullYear() === now.getFullYear() &&
+            eventDateTime.getMonth() === now.getMonth() &&
+            eventDateTime.getDate() === now.getDate();
+    
+        if (isToday) {
+            const diffMs = eventDateTime - now; // milliseconds
+            const diffHours = diffMs / (1000 * 60 * 60);
+            return diffHours >= 12; 
+        }
+    
+        return true;
+    };
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -340,6 +373,7 @@ export default function TrainingSessionDetail() {
                     <div className="space-y-6">
                         {/* Actions Card */}
                         {userInfo?.roleInformation.teamId === session?.teamId && user?.roleCode === "Coach" &&
+                        isLessDate(session.scheduledDate, session.time) &&
                             <div className="bg-white rounded-xl shadow-md overflow-hidden">
                                 <div className="px-6 py-5 border-b border-gray-200">
                                     <h2 className="text-lg font-medium text-gray-900">Thao Tác</h2>
