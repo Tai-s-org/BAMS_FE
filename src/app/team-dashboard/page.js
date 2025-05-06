@@ -254,7 +254,7 @@ export default function TeamDashboard() {
       </div>
 
       {/* Today's Training Sessions */}
-      <div className="grid gap-6 md:grid-cols-2 mb-6">
+      <div className="hidden md:grid gap-6 md:grid-cols-2 mb-6">
         {/* Training Sessions Card */}
         <Card>
           <CardHeader className="pb-3">
@@ -362,7 +362,7 @@ export default function TeamDashboard() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="players" className="mt-4">
-            <TabsList className="grid grid-cols-3 mb-6">
+            <TabsList className="grid grid-cols-3 sm:grid-cols-3 grid-cols-1 gap-2 mb-6">
               <TabsTrigger value="coaches" >
                 <GiWhistle className="h-4 w-4" />
                 HLV
@@ -379,46 +379,50 @@ export default function TeamDashboard() {
 
             {/* Coaches Tab */}
             <TabsContent value="coaches">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tên</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Số điện thoại</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {team?.coaches.map((coach) => (
-                    <TableRow key={coach.userId}>
-                      <TableCell className="font-medium">{coach.coachName}</TableCell>
-                      <TableCell>{coach.coachEmail || "N/A"}</TableCell>
-                      <TableCell>{coach.coachPhone || "N/A"}</TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tên</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Số điện thoại</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {team?.coaches.map((coach) => (
+                      <TableRow key={coach.userId}>
+                        <TableCell className="font-medium">{coach.coachName}</TableCell>
+                        <TableCell>{coach.coachEmail || "N/A"}</TableCell>
+                        <TableCell>{coach.coachPhone || "N/A"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </TabsContent>
 
             {/* Managers Tab */}
             <TabsContent value="managers">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tên</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Số điện thoại</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {team.managers.map((manager) => (
-                    <TableRow key={manager.userId}>
-                      <TableCell className="font-medium">{manager.managerName}</TableCell>
-                      <TableCell>{manager.managerEmail || "N/A"}</TableCell>
-                      <TableCell>{manager.managerPhone || "N/A"}</TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tên</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Số điện thoại</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {team.managers.map((manager) => (
+                      <TableRow key={manager.userId}>
+                        <TableCell className="font-medium">{manager.managerName}</TableCell>
+                        <TableCell>{manager.managerEmail || "N/A"}</TableCell>
+                        <TableCell>{manager.managerPhone || "N/A"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </TabsContent>
 
             {/* Players Tab */}
@@ -432,59 +436,61 @@ export default function TeamDashboard() {
                   Thêm cầu thủ
                 </Button>
               </div>}
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tên</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Vị trí</TableHead>
-                    <TableHead>Ngày sinh</TableHead>
-                    <TableHead>Số điện thoại</TableHead>
-                    <TableHead>Ngày tham gia</TableHead>
-                    <TableHead className="text-right">Thao tác</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {team.players.map((player) => (
-                    <TableRow key={player.userId}>
-                      <TableCell className="font-medium">{player.fullname}</TableCell>
-                      <TableCell>{player.email || "N/A"}</TableCell>
-                      <TableCell>{player.position || "N/A"}</TableCell>
-                      <TableCell>{player.dateOfBirth || "N/A"}</TableCell>
-                      <TableCell>{player.phone || "N/A"}</TableCell>
-                      <TableCell>{formatDate(player.clubJoinDate)}</TableCell>
-                      <TableCell className="text-right">
-                        {(user?.roleCode === "Manager" || user?.roleCode === "Coach") &&
-                          <div>
-                            <Button className="text-[#BD2427] bg-white hover:bg-gray-200 border border-[#BD2427]" asChild>
-                              <Link href={`/dashboard/player-management/${player.userId}`}><LuEye className="mr-2" />Chi tiết</Link>
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                setDeletePlayerName(player.fullname)
-                                setDeletePlayerId(player.userId)
-                                setIsDeleteModalOpen(true)
-                              }}
-                              className="text-[#BD2427] hover:text-[#9a1e20] hover:bg-red-50"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        }
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {team.players.length === 0 && (
+              <div className="w-full overflow-x-auto">
+                <Table >
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
-                        Chưa có cầu thủ nào trong đội. Hãy thêm cầu thủ để bắt đầu.
-                      </TableCell>
+                      <TableHead>Tên</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead className="hidden sm:table-cell">Vị trí</TableHead>
+                      <TableHead className="hidden sm:table-cell">Ngày sinh</TableHead>
+                      <TableHead className="hidden sm:table-cell">Số điện thoại</TableHead>
+                      <TableHead className="hidden sm:table-cell">Ngày tham gia</TableHead>
+                      <TableHead className="text-right">Thao tác</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {team.players.map((player) => (
+                      <TableRow key={player.userId}>
+                        <TableCell className="font-medium">{player.fullname}</TableCell>
+                        <TableCell>{player.email || "N/A"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{player.position || "N/A"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{player.dateOfBirth || "N/A"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{player.phone || "N/A"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{formatDate(player.clubJoinDate)}</TableCell>
+                        <TableCell className="text-right">
+                          {(user?.roleCode === "Manager" || user?.roleCode === "Coach") &&
+                            <div>
+                              <Button className="text-[#BD2427] bg-white hover:bg-gray-200 border border-[#BD2427]" asChild>
+                                <Link href={`/dashboard/player-management/${player.userId}`}><LuEye className="mr-2" />Chi tiết</Link>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  setDeletePlayerName(player.fullname)
+                                  setDeletePlayerId(player.userId)
+                                  setIsDeleteModalOpen(true)
+                                }}
+                                className="text-[#BD2427] hover:text-[#9a1e20] hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          }
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {team.players.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                          Chưa có cầu thủ nào trong đội. Hãy thêm cầu thủ để bắt đầu.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>
