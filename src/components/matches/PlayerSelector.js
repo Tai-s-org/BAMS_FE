@@ -124,7 +124,7 @@ export default function PlayerSelector({ team, onSave, onCancel, availablePlayer
                     </Avatar>
                     <div>
                       <div className="font-medium">{player.playerName}</div>
-                      <div className="text-sm text-gray-500">#{player.shirtNumber < 0 ? "0" + Math.abs(player.shirtNumber) : player.shirtNumber}</div>
+                      <div className="text-sm text-gray-500">#{player.shirtNumber == -1 ? "N/A" : player.shirtNumber}</div>
                     </div>
                   </div>
 

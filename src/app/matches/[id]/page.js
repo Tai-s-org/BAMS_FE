@@ -490,7 +490,7 @@ export default function MatchDetailPage() {
                         </Avatar>
                         <div>
                           <div className="font-medium">{player.playerName} <span className="text-[#BD2427]">{player.isStarting ? "(xuất phát)" : ""}</span></div>
-                          <div className="text-sm text-gray-500">#{player.shirtNumber || "N/A"}</div>
+                          <div className="text-sm text-gray-500">#{player.shirtNumber == -1 ? "N/A" : player.shirtNumber}</div>
                         </div>
                         {userInfo.roleCode === "Coach" && match?.status === "Sắp diễn ra" && userInfo?.roleInformation.teamId === match?.homeTeamId && <Button variant="outline" size="sm" className="ml-auto"
                           onClick={() => handleShowRemoveDialog(player.userId, `cầu thủ ${player.playerName}`)}>
@@ -534,7 +534,7 @@ export default function MatchDetailPage() {
                         </Avatar>
                         <div>
                           <div className="font-medium">{player.playerName} <span className="text-[#BD2427]">{player.isStarting ? "(xuất phát)" : ""}</span></div>
-                          <div className="text-sm text-gray-500">#{player.shirtNumber}</div>
+                          <div className="text-sm text-gray-500">#{player.shirtNumber == -1 ? "N/A" : player.shirtNumber}</div>
                         </div>
                         {userInfo.roleCode === "Coach" && match?.status === "Sắp diễn ra" && userInfo?.roleInformation.teamId === match?.awayTeamId && <Button variant="outline" size="sm" className="ml-auto"
                           onClick={() => handleShowRemoveDialog(player.userId, `cầu thủ ${player.playerName}`)}>
