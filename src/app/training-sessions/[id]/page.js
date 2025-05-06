@@ -90,8 +90,6 @@ export default function TrainingSessionDetail() {
         try {
             const response = await scheduleApi.getTrainingSessionById(id);
             setSession(response?.data.data);
-            console.log(response?.data.data);
-            
             setSessionExercises(response?.data.data.exercises);
             return true;
         } catch (error) {
