@@ -49,7 +49,8 @@ export default function FaceIdManagement() {
                 .getUserMedia({
                     video: {
                         width: { ideal: 1280 },
-                        height: { ideal: 720 }
+                        height: { ideal: 720 },
+                        facingMode: "user"
                     }
                 })
                 .then((stream) => {
