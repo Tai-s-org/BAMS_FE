@@ -149,11 +149,17 @@ export function FaceDetectionPreview({
                         const { boundingBox: originalBB } = face;
                         const paddingRatio = 0.35;
 
+                        // Điều chỉnh padding từng phía
+                        const paddingLeft = paddingRatio * 0.7;   
+                        const paddingRight = paddingRatio * 1.5;  
+                        const paddingTop = paddingRatio * 0.7;    
+                        const paddingBottom = paddingRatio * 0.8; 
+
                         const expandedBB = {
-                            left: Math.max(0, originalBB.left - originalBB.width * paddingRatio),
-                            top: Math.max(0, originalBB.top - originalBB.height * paddingRatio * 1.5),
-                            width: Math.min(1, originalBB.width * (1 + 2 * paddingRatio)),
-                            height: Math.min(1, originalBB.height * (1 + 2 * paddingRatio * 1.2))
+                            left: Math.max(0, originalBB.left - originalBB.width * paddingLeft),
+                            top: Math.max(0, originalBB.top - originalBB.height * paddingTop),
+                            width: Math.min(1, originalBB.width * (1 + paddingLeft + paddingRight)),
+                            height: Math.min(1, originalBB.height * (1 + paddingTop + paddingBottom))
                         };
 
                         canvas.width = expandedBB.width * width;
