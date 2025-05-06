@@ -41,17 +41,21 @@ export default function PresidentReportDetail({ id }) {
     }, [id])
 
     const handleApprove = async (id) => {
+        console.log(id);
+        
         try {
             const response = await teamFundApi.approveTeamFund({
                 "teamFundId": id,
             })
+            console.log(response);
+            addToast({ message: response.data.message, type: "success" })
             fetchExpenseItems()
         } catch (err) {
             addToast({ message: err?.response.data.message, type: "error" })
             console.error("Error approving team fund:", err)
         }
-        setIsApproved(true)
-        setIsRejected(false)
+        // setIsApproved(true)
+        // setIsRejected(false)
     }
 
     const handleReject = () => {

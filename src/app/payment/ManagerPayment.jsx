@@ -52,7 +52,8 @@ export default function ManagerPayment() {
         const fetchPlayers = async () => {
             try {
                 const data = {
-                    TeamId: userInfo?.roleInformation.teamId
+                    TeamId: userInfo?.roleInformation.teamId,
+                    PageSize: 100
                 }
                 console.log(data);
                 

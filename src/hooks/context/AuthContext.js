@@ -34,6 +34,9 @@ export const AuthProvider = ({ children }) => {
             setUserInfo(response.data);
         } catch (error) {
             console.error("Error fetching user info:", error);
+            document.cookie = "AccessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.cookie = "RefreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = "/login";
         }
     };
 

@@ -180,6 +180,8 @@ export default function UserProfile() {
         const fetchUserInfo = async () => {
             try {
                 const response = await accountApi.getProfile()
+                console.log(response.data);
+                
                 setUser(response.data)
                 setFormData(response.data)
 
@@ -232,6 +234,8 @@ export default function UserProfile() {
         console.log(updatedUser)
         try {
             const response = await accountApi.updateProfile(updatedUser)
+            console.log(response);
+            
             addToast({
                 message: response.data.message,
                 type: "success",
