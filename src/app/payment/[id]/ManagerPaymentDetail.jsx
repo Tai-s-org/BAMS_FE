@@ -222,6 +222,7 @@ export default function ManagerReportDetail({ id }) {
             }
         } catch (err) {
             console.log(err)
+            addToast({ message: err?.response?.data?.message, type: "error" })
             console.error("Error saving changes:", err)
         }
         fetchExpenseItems()

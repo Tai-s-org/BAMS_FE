@@ -245,19 +245,6 @@ export default function PresidentReportDetail({ id }) {
                                         </Dialog>
                                     </>
                                 )}
-
-                                {(teamFund?.status === 1) && (
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => {
-                                            setIsApproved(false)
-                                            setIsRejected(false)
-                                            setComment("")
-                                        }}
-                                    >
-                                        Đặt lại trạng thái
-                                    </Button>
-                                )}
                             </div>
                         </CardFooter>
                     </Card>
